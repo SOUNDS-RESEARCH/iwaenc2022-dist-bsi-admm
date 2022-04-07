@@ -1,5 +1,6 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{tikz}
+\usetikzlibrary{arrows,snakes,backgrounds,matrix,patterns,positioning,fadings}
 \usepackage{standalone}
 \usepackage{subfig}
 \usepackage{upgreek}
@@ -10,8 +11,23 @@
 \usepackage{amsbsy}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{lipsum}
+\usepackage{comment}
+\newenvironment{note}
+ {\par\textcolor{Blue}{\bfseries Note:} \color{Blue}\ignorespaces}
+ {\par}
+\newenvironment{attention}
+ {\par\textcolor{red}{\bfseries Attention:} \color{red}\ignorespaces}
+ {\par}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks,
+	linkcolor={blue!80!black},
+	citecolor={blue!80!black},
+	urlcolor={blue!80!black}
+}
 
 \newcommand{\mtxb}[1]{\bm{\mathrm{#1}}}
 \newcommand{\T}{{\mathrm{T}}}
-\newcommand{\h}{{\mathrm{H}}}
+% \newcommand{\h}{{\mathrm{H}}}
 \newcommand{\ev}[1]{\mathrm{E} \left\lbrace #1 \right\rbrace}
