@@ -24,6 +24,9 @@
 \newcommand{\uu}{\mtxb{u}}
 \newcommand{\aRho}{\mtxb{P}}
 \newcommand{\I}{\mtxb{I}}
+\newcommand{\Cset}{\mathcal{C}}
+\newcommand{\Csetb}{\bar{\mathcal{C}}}
+
 
 % IMPORTANT: Add copyright notice by uncommenting the appropriate line
 %----------------------------------------------------------
@@ -206,15 +209,21 @@ This problem can be split into smaller sub-problems which can be solved in paral
 \label{ssec:problem_splitting}
 In state-of-the-art algorithms, the adaptive minimization problem \eqref{eq:cross_rel:min_prob} is solved in its full extend.
 \begin{note}
-    Wording
+    State assumption that there as many nodes as there are channels/impulse earlier. Maybe replace the word "channel", sounds very communication.
 \end{note}
+The problem is split into smaller sub-problems each defined by a subset of the full channel set \(\Cset_i \subseteq [M]\).
+Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in [M]\) representing the sub-problems a channel is part of. 
+Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in [M]\).
+\begin{attention}
+    Is notation \(i \in [M]\) instead of \(i=1,...,M\) okay?
+\end{attention}
 We replace the cost function \eqref{eq:cross_rel:cost_function} with the separable cost function 
 \begin{equation}
     \tilde{J} = \sum_{i=1}^M \tilde{J}_i  = \sum_{i=1}^M \w_i^\T \aRho_i \w_i
 \end{equation}
-where \(\w_i\) is defined as the stacked vector of estimated impulse responses analogous to \(\h\) (cf. \autoref{ssec:cross_rel}) however only using a subset of the full channel set \(\mathcal{C}_i \subseteq [M]\).
+where \(\w_i\) is defined as the stacked vector of estimated impulse responses analogous to \(\h\) (cf. \autoref{ssec:cross_rel}) however only using a .
 Analogous, \(\aRho\) is constructed as defined in \eqref{eq:cross_rel:data_matrix} with the reduced set of channels.
-In case the channel subsets are proper \(\mathcal{C}_i \subset [M]\), this leads to sub-problems each with smaller dimensions than the original centralized problem, reducing complexity.
+In case the channel subsets are proper \(\Cset_i \subset [M]\), this leads to sub-problems each with smaller dimensions than the original centralized problem, reducing complexity.
 It does not use all cross-relations available, however this does not impact identification performance significantly. 
 \begin{attention}
     Show that!
@@ -239,31 +248,24 @@ The separability of the problem can be used to take advantage of the well known 
 Here more specifically, general consensus ADMM \cite{} is used 
 \begin{align}
     \operatorname{minimize} \quad &\sum_{i=1}^{M} \tilde{J}_i(\w_i)\\
-    \text{subject to} \quad &\w_i = \mathcal{G}_i(\h),\quad i=1,...,M,\, j=1,...,L
+    \text{subject to} \quad &(\w_i)_j = \h_{\mathcal{G}(i,j)},\quad i=1,...,M,\,j=1,..,M_i
 \end{align}
-Where \(\mathcal{G}_i\) is a selection operator linking the single-channel impulse response elements between the consensus variable with sub-problem estimates.
+where \(\mathcal{G}(i,j)=g\) denotes the mapping of \(L\) local variable components \((\w_i)_j\), i.e. one of the impulse responses in the stacked vector, to the corresponding global variable components \((\h)_g\) (cf. FIGURE). For brevity, a mapped global variable \(\tilde{\h}_i\) with \((\tilde{\h}_i)_j = \h_{\mathcal{G}(i,j)}\) is defined.
 \begin{note}
     Better description of variables and mapping; + maybe figure to explain.
-    maybe as mapping matrix:
-    \begin{equation}
-        \mtxb{G}_i = \begin{bmatrix}
-            \bm{0}_{L \times L} & \bm{0}_{L \times L} & \mtxb{I}_{L \times L}\\
-            \mtxb{I}_{L \times L} & \bm{0}_{L \times L} & \bm{0}_{L \times L}\\
-        \end{bmatrix}_{M_i L \times M L}.
-    \end{equation}
 \end{note}
 The augmented Lagrangian for this particular general-form consensus problem is
 \begin{align}
-    \mathcal{L}_{\rho} (\w,\h,\uu) = \sum_{i=1}^M &\left( \w_i^\T \aRho_i \w_i + \uu_i^{\T} \left(\w_i - \mathcal{G}_i(\h)\right) \vphantom{+ \frac{\rho}{2} \left\| \w_i - \mathcal{G}_i(\h) \right\|^2} \right.\nonumber\\
-    &\left.+ \frac{\rho}{2} \left\| \w_i - \mathcal{G}_i(\h) \right\|^2 \right).\label{eq:general_consensus_admm:lagrangian}
+    \mathcal{L}_{\rho} (\w,\h,\uu) = \sum_{i=1}^M &\left( \w_i^\T \aRho_i \w_i + \uu_i^{\T} \left(\w_i - \tilde{\h}_i\right) \vphantom{+ \frac{\rho}{2} \left\| \w_i - \tilde{\h}_i \right\|^2} \right.\nonumber\\
+    &\left.+ \frac{\rho}{2} \left\| \w_i - \tilde{\h}_i \right\|^2 \right).\label{eq:general_consensus_admm:lagrangian}
 \end{align}
 The ADMM then consists of the iterations
 \begin{align}
-    \w_i^{k+1} &= \underset{\w_i}{\operatorname{argmin}} \left\{ \w_i^\T \aRho_i \w_i + \uu_i^{k\,\T} \left(\w_i - \mathcal{G}_i(\h^{k})\right) \vphantom{+ \frac{\rho}{2} \left\| \w_i - \mathcal{G}_i(\h^{k}) \right\|^2}\right.\nonumber\\
-    &\left. \qquad \qquad \qquad + \frac{\rho}{2} \left\| \w_i - \mathcal{G}_i(\h^{k}) \right\|^2 \right\}\label{eq:general_consensus_admm:local}\\
-    \h^{k+1} &= \underset{\h, \|\h\| = 1}{\operatorname{argmin}} \left\{ \sum_{i=1}^{M} \left( \uu_i^{k\,\T} \mathcal{G}_i(\h) \vphantom{\frac{\rho}{2} \| \w_i^{k+1} - \mathcal{G}_i(\h) \|^2} \right.\right.\nonumber\\
-    &\left. \qquad \qquad \qquad \vphantom{\sum_{i=1}^{M} pp } \left.+ \frac{\rho}{2} \| \w_i^{k+1} - \mathcal{G}_i(\h) \|^2  \right) \right\}\label{eq:general_consensus_admm:global}\\
-    \uu_i^{k+1} &= \uu_i^{k} + \rho \left( \w_i^{k+1} - \mathcal{G}_i(\h^{k+1}) \right)\label{eq:general_consensus_admm:dual}
+    \w_i^{k+1} &= \underset{\w_i}{\operatorname{argmin}} \left\{ \w_i^\T \aRho_i \w_i + \uu_i^{k\,\T} \left(\w_i - \tilde{\h}_i^{k}\right) \vphantom{+ \frac{\rho}{2} \left\| \w_i - \tilde{\h}_i^{k} \right\|^2}\right.\nonumber\\
+    &\left. \qquad \qquad \qquad + \frac{\rho}{2} \left\| \w_i - \tilde{\h}_i^{k} \right\|^2 \right\}\label{eq:general_consensus_admm:local}\\
+    \h^{k+1} &= \underset{\h, \|\h\| = 1}{\operatorname{argmin}} \left\{ \sum_{i=1}^{M} \left( \uu_i^{k\,\T} \tilde{\h}_i \vphantom{\frac{\rho}{2} \| \w_i^{k+1} - \tilde{\h}_i \|^2} \right.\right.\nonumber\\
+    &\left. \qquad \qquad \qquad \vphantom{\sum_{i=1}^{M} pp } \left.+ \frac{\rho}{2} \| \w_i^{k+1} - \tilde{\h}_i \|^2  \right) \right\}\label{eq:general_consensus_admm:global}\\
+    \uu_i^{k+1} &= \uu_i^{k} + \rho \left( \w_i^{k+1} - \tilde{\h}_i^{k+1} \right)\label{eq:general_consensus_admm:dual}
 \end{align}
 
 \subsection{Online ADMM}
@@ -277,9 +279,9 @@ The data term as part of \eqref{eq:general_consensus_admm:lagrangian} is time-de
 The iterative form of the update steps as described in \eqref{eq:general_consensus_admm:local}-\eqref{eq:general_consensus_admm:dual} can be transformed into an adaptive one by computing a finite number at each time step \(n\) with the current data term.
 In this algorithm, one ADMM iteration is applied per time step, which allows us to replace the iteration index \(k\) with the time index \(n\).
 
-The minimization problem \eqref{eq:general_consensus_admm:local} can be solved by different means, in this case we apply a Newton update of the form of
+The minimization problem \eqref{eq:general_consensus_admm:local} can be solved by various methods, in this case however we perform a Newton update step of the form of
 \begin{equation}
-    \w_i^{n+1} = \w_i^{n} - \mu \mtxb{V}^n \left( \aRho_i^n \w_i^n + \uu_i^n + \rho\left(\w_i^n - \mathcal{G}_i(\h^n)\right)\right)
+    \w_i^{n+1} = \w_i^{n} - \mu \mtxb{V}^n \left( \aRho_i^n \w_i^n + \uu_i^n + \rho\left(\w_i^n - \mathcal{G}_i(\h^n)\right)\right)\label{eq:online_admm:local_update}
 \end{equation}
 where \(0  <\mu\leq 1\) is a step size and \(\mtxb{V}^n = \left(\aRho_i^n + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
 This inverse can be updated directly by applying a set of rank-1 updates or a low-rank update using the matrix inversion lemma, which reduces computational complexity significantly.
@@ -287,44 +289,60 @@ This inverse can be updated directly by applying a set of rank-1 updates or a lo
     Elaborate on this? Its probably too much to be explained in detail.
 \end{attention}
 
-To compute the consensus \(\h\) we include the unit-norm constraint with a lagrange multiplier \(\lambda\) in the minimization problem and rewrite the average of penalties into a penalty of averages \cite{}
+To compute the consensus \(\h\) we include the unit-norm constraint \(\|\h\| = 1\) with a Lagrange multiplier \(\lambda\) in the minimization problem and replace the average of penalties with a penalty of averages as
 \begin{attention}
     poetic, cite our Boy[d]
 \end{attention}
 \begin{align}
     \h^{k+1} &= \underset{\h}{\operatorname{argmin}} \left\{ \frac{\lambda}{2} \left(\h^\T \h - 1\right)\right.\nonumber\\
-    &\left. \qquad \qquad \quad + \frac{M \rho}{2} \left\| \h - \bar{\w}^{n+1} - \rho^{-1} \bar{\uu}^{n} \right\|^2 \right\}
+    &\left. \qquad \qquad \quad + \frac{M \rho}{2} \left\| \h - \bar{\w}^{n+1} - \frac{1}{\rho} \bar{\uu}^{n} \right\|^2 \right\}\label{eq:online_admm:consensus_min_prob}
 \end{align}
-where \(\bar{\w}^{n+1} = \sum_{i=1}^{M} \mathcal{G}_i^{-1}(\w_i^{n+1})\)
+where the \(M L \times 1\) vectors \(\bar{\w}^{n+1}, \bar{\uu}^{n+1}\) are computed as the mapped averages
+\begin{equation}
+    (\bar{\w}^{n+1})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\w_i^{n+1})_j,\quad g,i,j \in [M],
+\end{equation}
+and
+\begin{equation}
+    (\bar{\uu}^{n})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} \frac{1}{\rho} (\uu_i^{n})_j,\quad g,i,j \in [M].
+\end{equation}
 \begin{attention}
-    Find a good way to write down the partial consensus. Like in Boyd
+    UGLY AND CONFUSING??!!
 \end{attention}
+Setting the derivative of \eqref{eq:online_admm:consensus_min_prob} to zero and solving for the optimal Lagrange multiplier \(\lambda\) that ensures the constraint, we reach the update step
+\begin{equation}
+    \h^{k+1} = \frac{\bar{\w}^{n+1} + \frac{1}{\rho} \bar{\uu}^{n} }{\left\| \bar{\w}^{n+1} + \frac{1}{\rho} \bar{\uu}^{n} \right\|}.\label{eq:online_admm:consensus_update}
+\end{equation}
+ALGORITHM 1 summarizes the procedure.
 
-
-% \begin{algorithm}
-%     \caption{BSI-ADMM}\label{alg:dbsi}
-%     \begin{algorithmic}
-%         \For {\(t=0,1,2,...\)}
-%             \For{\(i \in [M]\)}
-%                 \State Acquire new data vector \(x_i^{(t)}\)
-%                 \State Update \(\phi_i^{(t+1)} \leftarrow \phi_i^{(t)}\)
-%                 \State Update \(\gamma_i^{(t+1)} \leftarrow \gamma_i^{(t)}\)
-%                 \State Update \(\lambda_i^{(t+1)} \leftarrow \lambda_i^{(t)}\)
-%             \EndFor
-%         \EndFor
-%     \end{algorithmic}
-% \end{algorithm}
+\begin{algorithm}
+    \caption{BSI-ADMM}\label{alg:dbsi}
+    \begin{algorithmic}
+        \For {\(n=0,1,2,...\)}
+            \For{\(i \in [M]\)}
+                \State Acquire new data vector \(x_i^{(t)}\)
+                \State Update \(\w_i^{(n+1)} \leftarrow \w_i^{(n)}\)
+            \EndFor
+            \State Update \(\h^{(n+1)} \leftarrow \h^{(n)}\)
+            \For{\(i \in [M]\)}
+                \State Update \(\uu_i^{(t+1)} \leftarrow \uu_i^{(n)}\)
+            \EndFor
+        \EndFor
+    \end{algorithmic}
+\end{algorithm}
 
 % #############################################################################
 % #############################################################################
 \section{Performance Evaluation}
 \label{sec:perf_eval}
 
+First part: random impulse responses at different SNRs. Short like 64 tabs e.g.
+Second part: simulated IRs with WGN input and speech??? maybe not haha
+
 % #############################################################################
 % #############################################################################
 \section{Conclusions}
 \label{sec:conclusion}
-
+LINE GO DONW
 
 % \begin{figure}[tb]
 	
