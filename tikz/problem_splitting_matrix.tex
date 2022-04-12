@@ -1,0 +1,28 @@
+% Tikz File 'topology_details.tex'
+\documentclass[crop]{standalone}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz,amsmath,amssymb}
+\input{../preamble.tex}
+\begin{document}
+    \tikzset{a/.style={fill=OliveGreen!40}}
+    \tikzset{b/.style={left color=MidnightBlue!40, right color=BurntOrange!40, shading angle=45}}
+    \tikzset{c/.style={fill=BurntOrange!40}}
+    \tikzset{d/.style={fill=Maroon!40}}
+    \tikzset{e/.style={fill=SkyBlue!40}}
+    \tikzset{f/.style={fill=gray!40}}
+    \tikzset{bb/.style={fill=white}}
+    \tikzset{mystyle/.style={matrix of nodes,
+            nodes in empty cells,
+            row sep=-\pgflinewidth,
+            column sep=-\pgflinewidth,
+            nodes={draw,minimum width=1cm,minimum height=1cm,anchor=center}}}
+    \begin{tikzpicture}
+    \matrix[mystyle]{
+        |[bb]|  &|[b]|\(\mtxb{R}_{21}\) &|[c]|\(\mtxb{R}_{31}\)  &|[f]|\(\mtxb{R}_{41}\)  &|[a]|\(\mtxb{R}_{51}\)\\
+        |[b]|\(\mtxb{R}_{12}\)   &|[bb]| &|[c]|\(\mtxb{R}_{31}\)  &|[f]|\(\mtxb{R}_{42}\)  &|[f]|\(\mtxb{R}_{52}\)\\
+        |[c]|\(\mtxb{R}_{13}\)   &|[c]|\(\mtxb{R}_{23}\)  &|[bb]| &|[d]|\(\mtxb{R}_{43}\)  &|[f]|\(\mtxb{R}_{53}\)\\
+        |[f]|\(\mtxb{R}_{14}\)   &|[f]|\(\mtxb{R}_{24}\)  &|[d]|\(\mtxb{R}_{34}\)  &|[bb]| &|[e]|\(\mtxb{R}_{54}\)\\
+        |[a]|\(\mtxb{R}_{15}\)   &|[f]|\(\mtxb{R}_{25}\)  &|[f]|\(\mtxb{R}_{35}\)  &|[e]|\(\mtxb{R}_{45}\)  &|[bb]|\\
+    };
+    \end{tikzpicture}
+\end{document}
