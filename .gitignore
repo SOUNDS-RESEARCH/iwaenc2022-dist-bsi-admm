@@ -8,3 +8,8 @@ paper.synctex.gz
 *-eps-converted-to.pdf
 template.tex
 template.pdf
+*.npy
+*.err
+*.log
+*.out
+*.pyc
