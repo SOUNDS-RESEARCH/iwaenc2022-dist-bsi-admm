@@ -1,0 +1,30 @@
+% Tikz File 'topology_general.tex'
+\documentclass{standalone}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz,amsmath,amssymb}
+\usetikzlibrary{arrows,snakes,backgrounds}
+    \begin{document}
+    \begin{tikzpicture}[->,shorten >=1pt,auto,semithick]
+        \tikzstyle{admmnode}=[
+            circle,
+            draw=black,
+            thick,
+            fill=gray,
+            text=white
+        ]
+
+        \node[admmnode] (A) at (0,2){\(1\)};
+        \node[admmnode] (B) at (2,0){\(2\)};
+        \node[admmnode] (C) at (0,-2){\(3\)};
+        \node[admmnode] (D) at (-1.7320508075688774,-1){\(4\)};
+        \node[admmnode] (E) at (-1.7320508075688774,1){\(5\)};
+         
+        \draw[stealth-stealth, line width=1.25] (A) to[bend left=20] node[]{}  (B);
+        \draw[stealth-stealth, line width=1.25] (A) to[bend left=0] node[]{} (C);
+        \draw[stealth-stealth, line width=1.25] (B) to[bend left=20] node[]{} (C);
+        \draw[stealth-stealth, line width=1.25] (C) to[bend left=10] node[]{} (D);
+        \draw[stealth-stealth, line width=1.25] (D) to[bend left=10] node[]{} (E);
+        \draw[stealth-stealth, line width=1.25] (E) to[bend left=10] node[]{} (A);
+        
+    \end{tikzpicture}
+\end{document}
