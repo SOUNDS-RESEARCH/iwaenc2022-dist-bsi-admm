@@ -6,6 +6,7 @@ import utils
 
 # import scipy.signal as signal
 import matplotlib.pyplot as plt
+from matplotlib import rc
 
 # %%
 class SimulationData:
@@ -259,7 +260,7 @@ for SNR in SNRs:
 
 # %%
 fig = plt.figure(figsize=(5, 3))
-plt.plot(SNRs, -np.asarray(SNRs), "k--", label="SNR")
+# plt.plot(SNRs, -np.asarray(SNRs), "k--", label="SNR")
 plt.plot(SNRs, 20 * np.log10(err_MCQN_avg), marker="o", label="MCQN")
 plt.plot(SNRs, 20 * np.log10(err_NMCFLMS_avg), marker=">", label="NMCFLMS")
 # plt.plot(SNRs, 20 * np.log10(err_RNMCFLMS_avg), marker="o", label="RNMCFLMS")

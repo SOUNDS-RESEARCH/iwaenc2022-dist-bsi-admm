@@ -11,31 +11,31 @@ import simo_bsi_central as cent
 import matplotlib.pyplot as plt
 
 # %%
-inp = int(sys.argv[1])
-SNRs = [5, 10, 15, 20, 30, 40, 50]
-SNR = SNRs[inp]
-print("Job: " + sys.argv[1] + "SNR: %d dB" % (SNR))
+process_id = int(sys.argv[1])
+SNR = int(sys.argv[2])
+N_sens = int(sys.argv[3])
+density = float(sys.argv[4])
+print("Job: %d, SNR: %d, N_sens: %d, density: %f" % (process_id, SNR, N_sens, density))
 
 # %%
-runs = 20
+runs = 50
+seed = 12345
 plot = False
 
 # %%
 L = 16
 N_f = 1024
-N_sens = 5
 
 # %%
 N_s = 16000
 
 # %%
-seed = 12345
 rng = np.random.RandomState()
 rng.seed(seed)
 
 # %%
 for run in range(runs):
-    if os.path.isfile("data/%d_%d.npy" % (inp, run)):
+    if os.path.isfile("data/%d_%d.npy" % (process_id, run)):
         print("run %d is already there" % (run))
         continue
     # %%
@@ -66,9 +66,23 @@ for run in range(runs):
         plt.show()
 
     # %%
+    # connectivity: ring + random inbetween ones
+    G = utils.generateConnectionMatrix(N_sens, density, rng)
+    offdiag = np.arange(N_sens - 1)
+    G[offdiag, offdiag + 1] = 1  # setting the directed ring as base
+    np.fill_diagonal(G, 0)
+
     network_td = admm.Network(L)
+    network_newton_fq = sb_newton_fq.Network(L)
+    network_newton_fq_diag = sb_newton_fq_diag.Network(L)
+
     rho = 1
-    network_td.addNode("node1", rho)
+    for n in range(N_sens):
+        name = "node%d" % (n)
+        network_td.addNode(name, rho)
+        network_newton_fq.addNode(name, rho)
+        network_newton_fq_diag.addNode(name, rho)
+
     network_td.addNode("node2", rho)
     network_td.addNode("node3", rho)
     network_td.addNode("node4", rho)
@@ -82,9 +96,7 @@ for run in range(runs):
     network_td.setConnection("node5", ["node1"])
     network_td.setBufferSize(1)
 
-    network_newton_fq = sb_newton_fq.Network(L)
     rho = 0.01
-    network_newton_fq.addNode("node1", rho)
     network_newton_fq.addNode("node2", rho)
     network_newton_fq.addNode("node3", rho)
     network_newton_fq.addNode("node4", rho)
@@ -98,7 +110,6 @@ for run in range(runs):
     network_newton_fq.setConnection("node5", ["node1"])
     network_newton_fq.setBufferSize(1)
 
-    network_newton_fq_diag = sb_newton_fq_diag.Network(L)
     rho = 0.01
     network_newton_fq_diag.addNode("node1", rho)
     network_newton_fq_diag.addNode("node2", rho)
