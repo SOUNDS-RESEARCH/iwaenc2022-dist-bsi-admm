@@ -18,14 +18,14 @@ initialdir = .
 # This is the executable or script that will run, if you want to run a python script you should set python as the executable
 executable = /users/sista/mblochbe/python_venvs/admmstuff/bin/python
 #these are the arguments that are passed to the executable, for this example just the script and the process ID are passed as arguments
-arguments = "simulation_random.py $(Process)"
+arguments = "simulation_random_connectivity.py $(Process)"
 
 #This is the file where the log of the execution will be written
-Log          = output/simulation_random_$(Process).log
+Log          = output/simulation_random_connectivity_$(Process).log
 #This is the file where the output of the script will be written.
-Output       = output/simulation_random_$(Process).out
+Output       = output/simulation_random_connectivity_$(Process).out
 #This is the file where errors will be written. If all goes well this file should be empty
-Error        = output/simulation_random_$(Process).err
+Error        = output/simulation_random_connectivity_$(Process).err
 
 # We now submit 10 jobs to the queue, each job will have a unique process ID
 Queue 7

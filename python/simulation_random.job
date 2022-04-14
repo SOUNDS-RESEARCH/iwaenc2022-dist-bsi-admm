@@ -7,6 +7,9 @@ RequestMemory    = 8G
 # 2 minutes of wall time should be enough to execute this program, make sure you specify enough time
 +RequestWalltime = 86000
 
+requirements = (machine != "idesbald.esat.kuleuven.be")
+
+
 #Always set this to true unless you have very good reason. This will make your jobs low priority so you don't hinder other people's jobs
 NiceUser = true
 #This will send you an e-mail if an error occurs
@@ -24,8 +27,10 @@ arguments = "simulation_random.py $(Process)"
 Log          = output/simulation_random_$(Process).log
 #This is the file where the output of the script will be written.
 Output       = output/simulation_random_$(Process).out
+stream_output = True
 #This is the file where errors will be written. If all goes well this file should be empty
 Error        = output/simulation_random_$(Process).err
+stream_error = True
 
 # We now submit 10 jobs to the queue, each job will have a unique process ID
 Queue 7

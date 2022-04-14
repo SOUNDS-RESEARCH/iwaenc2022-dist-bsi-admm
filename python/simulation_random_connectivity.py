@@ -17,16 +17,16 @@ SNR = SNRs[inp]
 print("Job: " + sys.argv[1] + "SNR: %d dB" % (SNR))
 
 # %%
-runs = 50
+runs = 20
 plot = False
 
 # %%
-L = 64
+L = 16
 N_f = 1024
-N_sens = 3
+N_sens = 5
 
 # %%
-N_s = 8000
+N_s = 16000
 
 # %%
 seed = 12345
@@ -36,6 +36,7 @@ rng.seed(seed)
 # %%
 for run in range(runs):
     if os.path.isfile("data/%d_%d.npy" % (inp, run)):
+        print("run %d is already there" % (run))
         continue
     # %%
     h = np.array([]).reshape(0, 1)
@@ -70,36 +71,47 @@ for run in range(runs):
     network_td.addNode("node1", rho)
     network_td.addNode("node2", rho)
     network_td.addNode("node3", rho)
+    network_td.addNode("node4", rho)
+    network_td.addNode("node5", rho)
 
     # node 1 sends to node 2 and 3
-    network_td.setConnection("node1", ["node2"])
-    # network_td.setConnection("node2", ["node1"])
+    network_td.setConnection("node1", ["node2", "node3"])
     network_td.setConnection("node2", ["node3"])
-    network_td.setConnection("node3", ["node1"])
+    network_td.setConnection("node3", ["node4"])
+    network_td.setConnection("node4", ["node5"])
+    network_td.setConnection("node5", ["node1"])
     network_td.setBufferSize(1)
 
     network_newton_fq = sb_newton_fq.Network(L)
-    ρ = 0.01
-    network_newton_fq.addNode("node1", ρ)
-    network_newton_fq.addNode("node2", ρ)
-    network_newton_fq.addNode("node3", ρ)
+    rho = 0.01
+    network_newton_fq.addNode("node1", rho)
+    network_newton_fq.addNode("node2", rho)
+    network_newton_fq.addNode("node3", rho)
+    network_newton_fq.addNode("node4", rho)
+    network_newton_fq.addNode("node5", rho)
 
     # node 1 sends to node 2 and 3
-    network_newton_fq.setConnection("node1", ["node2"])
+    network_newton_fq.setConnection("node1", ["node2", "node3"])
     network_newton_fq.setConnection("node2", ["node3"])
-    network_newton_fq.setConnection("node3", ["node1"])
+    network_newton_fq.setConnection("node3", ["node4"])
+    network_newton_fq.setConnection("node4", ["node5"])
+    network_newton_fq.setConnection("node5", ["node1"])
     network_newton_fq.setBufferSize(1)
 
     network_newton_fq_diag = sb_newton_fq_diag.Network(L)
-    ρ = 0.01
-    network_newton_fq_diag.addNode("node1", ρ)
-    network_newton_fq_diag.addNode("node2", ρ)
-    network_newton_fq_diag.addNode("node3", ρ)
+    rho = 0.01
+    network_newton_fq_diag.addNode("node1", rho)
+    network_newton_fq_diag.addNode("node2", rho)
+    network_newton_fq_diag.addNode("node3", rho)
+    network_newton_fq_diag.addNode("node4", rho)
+    network_newton_fq_diag.addNode("node5", rho)
 
     # node 1 sends to node 2 and 3
-    network_newton_fq_diag.setConnection("node1", ["node2"])
+    network_newton_fq_diag.setConnection("node1", ["node2", "node3"])
     network_newton_fq_diag.setConnection("node2", ["node3"])
-    network_newton_fq_diag.setConnection("node3", ["node1"])
+    network_newton_fq_diag.setConnection("node3", ["node4"])
+    network_newton_fq_diag.setConnection("node4", ["node5"])
+    network_newton_fq_diag.setConnection("node5", ["node1"])
     network_newton_fq_diag.setBufferSize(1)
 
     # %% GENERATE AR SIGNAL
@@ -154,7 +166,7 @@ for run in range(runs):
     # %% CENTRALIZED NORMALIZED FREQUENCY DOMAIN LMS METHOD
     print("CENTRALIZED NORMALIZED FREQUENCY DOMAIN LMS METHOD")
     err_NMCFLMS = []
-    rho = 0.5  # step size
+    rho = 0.4  # step size
     lambd = 0.98  # forgetting factor
     sigma = 0.01  # regularization
     bsi_nmcflms = cent.NMCFLMS(rho, lambd, sigma, L, N_sens)
@@ -166,7 +178,7 @@ for run in range(runs):
     # %% CENTRALIZED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD
     print("CENTRALIZED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD")
     err_RNMCFLMS = []
-    rho = 0.5  # step size
+    rho = 0.25  # step size
     lambd = 0.98  # forgetting factor
     sigma = 0.01  # regularization
     eta = 0.4  # coupling factor
@@ -181,7 +193,7 @@ for run in range(runs):
         "CENTRALIZED l_p NORM CONSTRAINED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD"
     )
     err_LPRNMCFLMS = []
-    rho = 0.45  # step size
+    rho = 0.3  # step size
     lambd = 0.98  # forgetting factor
     sigma = 0.01  # regularization
     eta = 0.4  # coupling factor
@@ -194,8 +206,8 @@ for run in range(runs):
 
     # %% DISTRIBUTED NEWTON RANK-1 TIME DOMAIN METHOD
     print("DISTRIBUTED NEWTON RANK-1 TIME DOMAIN METHOD")
-    rho_admm = 1  # penalty parameter / step size
-    mu = 0.2  # newton step size
+    rho_admm = 0.05  # penalty parameter / step size
+    mu = 0.05  # newton step size
     eta = 0.98  # smoothing factor R
     zeta = 0.98  # smoothing factor H
     scaling = 1  # signal scaling
@@ -213,8 +225,8 @@ for run in range(runs):
 
     # %% DISTRIBUTED NEWTON FREQUENCY DOMAIN METHOD
     print("DISTRIBUTED NEWTON FREQUENCY DOMAIN METHOD")
-    rho_admm = 0.5
-    mu = 0.5
+    rho_admm = 0.1
+    mu = 0.2
     eta = 0.0
     err_ADMM_newton_fq = []
     h_test_newton_fq = np.zeros(shape=h.shape)
@@ -239,8 +251,8 @@ for run in range(runs):
 
     # %% DISTRIBUTED DIAGONALIZED NEWTON FREQUENCY DOMAIN METHOD
     print("DISTRIBUTED DIAGONALIZED NEWTON FREQUENCY DOMAIN METHOD")
-    rho_admm = 0.5
-    mu = 0.4
+    rho_admm = 1
+    mu = 0.5
     eta = 0.98
     err_ADMM_newton_fq_diag = []
     h_test_newton_fq_diag = np.zeros(shape=h.shape)

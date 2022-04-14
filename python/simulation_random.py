@@ -17,16 +17,16 @@ SNR = SNRs[inp]
 print("Job: " + sys.argv[1] + "SNR: %d dB" % (SNR))
 
 # %%
-runs = 50
+runs = 100
 plot = False
 
 # %%
-L = 64
+L = 16
 N_f = 1024
 N_sens = 3
 
 # %%
-N_s = 16000
+N_s = 8000
 
 # %%
 seed = 12345
@@ -140,7 +140,7 @@ for run in range(runs):
     # %% CENTRALIZED TIME DOMAIN QUASI NEWTON METHOD
     print("CENTRALIZED TIME DOMAIN QUASI NEWTON METHOD")
     err_MCQN = []
-    rho = 0.4  # step size
+    rho = 0.5  # step size
     lambd = 1e-5  # regularization
     eta = 0.98  # forgetting factor
     buffer_size = L
@@ -155,7 +155,7 @@ for run in range(runs):
     # %% CENTRALIZED NORMALIZED FREQUENCY DOMAIN LMS METHOD
     print("CENTRALIZED NORMALIZED FREQUENCY DOMAIN LMS METHOD")
     err_NMCFLMS = []
-    rho = 0.1  # step size
+    rho = 0.4  # step size
     lambd = 0.98  # forgetting factor
     sigma = 0.01  # regularization
     bsi_nmcflms = cent.NMCFLMS(rho, lambd, sigma, L, N_sens)
@@ -167,7 +167,7 @@ for run in range(runs):
     # %% CENTRALIZED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD
     print("CENTRALIZED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD")
     err_RNMCFLMS = []
-    rho = 0.1  # step size
+    rho = 0.25  # step size
     lambd = 0.98  # forgetting factor
     sigma = 0.01  # regularization
     eta = 0.4  # coupling factor
@@ -182,7 +182,7 @@ for run in range(runs):
         "CENTRALIZED l_p NORM CONSTRAINED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD"
     )
     err_LPRNMCFLMS = []
-    rho = 0.1  # step size
+    rho = 0.3  # step size
     lambd = 0.98  # forgetting factor
     sigma = 0.01  # regularization
     eta = 0.4  # coupling factor
@@ -195,8 +195,8 @@ for run in range(runs):
 
     # %% DISTRIBUTED NEWTON RANK-1 TIME DOMAIN METHOD
     print("DISTRIBUTED NEWTON RANK-1 TIME DOMAIN METHOD")
-    rho_admm = 0.5  # penalty parameter / step size
-    mu = 0.1  # newton step size
+    rho_admm = 0.05  # penalty parameter / step size
+    mu = 0.05  # newton step size
     eta = 0.98  # smoothing factor R
     zeta = 0.98  # smoothing factor H
     scaling = 1  # signal scaling
@@ -214,8 +214,8 @@ for run in range(runs):
 
     # %% DISTRIBUTED NEWTON FREQUENCY DOMAIN METHOD
     print("DISTRIBUTED NEWTON FREQUENCY DOMAIN METHOD")
-    rho_admm = 0.5
-    mu = 0.1
+    rho_admm = 0.1
+    mu = 0.2
     eta = 0.0
     err_ADMM_newton_fq = []
     h_test_newton_fq = np.zeros(shape=h.shape)
@@ -240,8 +240,8 @@ for run in range(runs):
 
     # %% DISTRIBUTED DIAGONALIZED NEWTON FREQUENCY DOMAIN METHOD
     print("DISTRIBUTED DIAGONALIZED NEWTON FREQUENCY DOMAIN METHOD")
-    rho_admm = 0.5
-    mu = 0.1
+    rho_admm = 1
+    mu = 0.5
     eta = 0.98
     err_ADMM_newton_fq_diag = []
     h_test_newton_fq_diag = np.zeros(shape=h.shape)
