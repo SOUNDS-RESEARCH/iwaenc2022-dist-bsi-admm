@@ -8,9 +8,10 @@ paper.synctex.gz
 *-eps-converted-to.pdf
 template.tex
 template.pdf
-*.npy
 *.err
 *.log
 *.out
 *.pyc
 paper.out
+*.npy
+!generate_irs/h.npy

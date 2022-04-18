@@ -33,6 +33,8 @@
 \newcommand{\I}{\mtxb{I}}
 \newcommand{\Cset}{\mathcal{C}}
 \newcommand{\Csetb}{\bar{\mathcal{C}}}
+\newcommand{\Mset}{\mathcal{M}}
+
 
 
 % IMPORTANT: Add copyright notice by uncommenting the appropriate line
@@ -42,40 +44,21 @@
 
 % For papers in which all authors are employed by a Crown government (UK, Canada, and Australia)
 % \copyrightnotice{978-1-6654-6867-1/22/\$31.00~\copyright2022 Crown}
-                   
+
 % For papers in which all authors are employed by the European Union,
 % \copyrightnotice{978-1-6654-6867-1/22/\$31.00~\copyright2022 European Union}
-                   
+
 % For all other papers the copyright notice is
 \copyrightnotice{978-1-6654-6867-1/22/\$31.00~\copyright2022 IEEE}
-                   
+
 % Title.
 % ------
-\title{CROSS-RELATION BASED FREQUENCY-DOMAIN BLIND SYSTEM IDENTIFICATION USING ONLINE ADMM}
+\title{CROSS-RELATION-BASED FREQUENCY-DOMAIN BLIND SYSTEM IDENTIFICATION USING ONLINE ADMM}
 %
 % Single address.
 % ---------------
-\name{Matthias Blochberger\sthanks{THANK EU!}, Filip Elvander\sthanks{THANK FWO?}, Randall Ali, Toon van Waterschoot}
-\address{KU Leuven\\ESAT - Department of Electrical Engineering\\STADIUS\\3001 Leuven}
-%
-% For example:
-% ------------
-%\address{School\\
-%	Department\\
-%	Address}
-%
-% Two addresses (uncomment and modify for two-address case).
-% ----------------------------------------------------------
-%\twoauthors
-%  {A. Author-one, B. Author-two\sthanks{Thanks to XYZ agency for funding.}}
-%	{School A-B\\
-%	Department A-B\\
-%	Address A-B}
-%  {C. Author-three, D. Author-four\sthanks{The fourth author performed the work
-%	while at ...}}
-%	{School C-D\\
-%	Department C-D\\
-%	Address C-D}
+\name{Matthias Blochberger\sthanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No. 956369.}, Filip Elvander\sthanks{This work was supported in part by the Research Foundation - Flanders (FWO) grant 12ZD622N.}, Randall Ali\(^*\), Toon van Waterschoot\(^*\)}
+\address{KU Leuven\\Department of Electrical Engineering (ESAT)\\STADIUS Center for Dynamical Systems, Signal Processing and Data Analytics \\3001 Leuven, Belgium}
 %
 \begin{document}
 %\ninept
@@ -83,21 +66,19 @@
 \maketitle
 %
 \begin{abstract}
-The abstract should appear at the top of the left-hand column of text, about 0.5 inch (12 mm) below the title area and no more than 3.125 inches (80 mm) in length.
-Leave a 0.5 inch (12 mm) space between the end of the abstract and the beginning of the main text.
-The abstract should contain about 100 to 150 words, and should be identical to the abstract text submitted electronically.
-All manuscripts must be in English.
+    In this contribution, we propose a cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM).
+    The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into lower-dimensional sub-problems with lowered computational complexity and can be solved in parallel.
+    Each sub-problem yields estimates for a subset of channel spectra, which then are combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
+    With numerical simulations, we show that it is possible to achieve estimation errors and convergence speeds comparable to low cost frequency-domain algorithms and high performing multichannel (Quasi-)Newton methods.
 \end{abstract}
 %
 \begin{keywords}
-blind system identification, multichannel signal processing, ADMM, Online-ADMM
+    blind system identification, multichannel signal processing, ADMM, Online-ADMM
 \end{keywords}
 %
 \section{Introduction}
 \label{sec:intro}
-\begin{attention}
-    How to fit?????
-\end{attention}
+The problem of blind system identification (BSI) has been subject of extensive research resulting in 
 
 % \lipsum[1-4]
 
@@ -111,11 +92,11 @@ blind system identification, multichannel signal processing, ADMM, Online-ADMM
 \subsection{Signal Model}
 \label{ssec:signal_model}
 We define the acoustic SIMO system with the input signal \(\mtxb{s}(n) = \begin{bmatrix}
-    s(n)&s(k-1)&\cdots&s(k-2L+2)
-\end{bmatrix}^{\T}\) and \(i \in [M]\) outputs 
+    s(n)&s(k-1)&\ldots&s(k-2L+2)
+\end{bmatrix}^{\T}\) and \(i \in \Mset\) with \(\Mset \triangleq \{1,\ldots,M\} \) outputs 
 \(
     \x_i(n) = \begin{bmatrix}
-        x_i(n)&x_i(k-1)&\cdots&x_i(k-L+1)
+        x_i(n)&x_i(k-1)&\ldots&x_i(k-L+1)
     \end{bmatrix}^{\T}
 \).
 Each output \(\x_i\) is the convolution of \(\mtxb{s}\) with the respective channel impulse response \(\h_i\) with additive noise term \(\mtxb{v}_i\), assumed to be zero-mean and uncorrelated.
@@ -132,15 +113,15 @@ where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the
 \subsection{Cross-relation approach}
 \label{ssec:cross_rel}
 The cross-relation approach for BSI \cite{} aims to only use output signals of the system to identify it.
-This is achieved by exploiting the relative channel information when more than one system output are available and certain identifiability conditions are satisfied:
+This is achieved by exploiting the relative channel information when more than one system output are available and certain identifiability conditions \cite{} are satisfied:
 \begin{itemize}
-    \item Condition 1
-    \item Condition 2
+    \item The channel impulse responses have no common zeros, i.e. are not co-prime.
+    \item The covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank, i.e. the signal fully excites the channels.
 \end{itemize}
 
 \noindent The fundamental equality of this approach is 
 \begin{equation}
-    \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j=1,2,...,M,\,i\neq j\label{eq:cross_rel:equality_conv}
+    \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j \in ,\,i\neq j\label{eq:cross_rel:equality_conv}
 \end{equation}
 which states that the output signal of one channel convolved with the impulse response of another is equal to the vice-versa.
 This follows from the commutative nature of the convolution operation.
@@ -277,19 +258,16 @@ In state-of-the-art algorithms, the minimization problem \eqref{eq:frequency_dom
 \begin{note}
     State assumption that there as many nodes as there are channels/impulse earlier.
 \end{note}
-The problem is split into smaller sub-problems each defined by a subset of the full channel set \(\Cset_i \subseteq [M]\).
-Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in [M]\) which is the set of sub-problems a channel  \(j\) is part of. 
-Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in [M]\).
-\begin{attention}
-    Is notation \(i \in [M]\) instead of \(i=1,...,M\) okay?
-\end{attention}
+The problem is split into smaller sub-problems each defined by a subset of the full channel set \(\Cset_i \subseteq \Mset\).
+Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in \Mset\) which is the set of sub-problems a channel  \(j\) is part of. 
+Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in \Mset\).
 We replace the cost function \eqref{eq:frequency_domain:cost_function} with the separable cost function 
 \begin{equation}
     \tilde{J}(\hf) = \sum_{i=1}^M \tilde{J}_i(\wf_i)  = \sum_{i=1}^M \wf_i^\T \aRhof_i \wf_i
 \end{equation}
 where \(\wf_i\) is defined as the stacked vector of estimated spectra analogous to \(\hf\) (cf. \autoref{ssec:cross_rel}) but using the .
 Analogous, \(\aRhof\) is constructed as defined in \eqref{eq:cross_rel:data_matrix} with the reduced set of channels.
-In case the channel subsets are proper \(\Cset_i \subset [M]\), this leads to sub-problems each with smaller dimensions than the original centralized problem, reducing complexity.
+In case the channel subsets are proper \(\Cset_i \subset \Mset\), this leads to sub-problems each with smaller dimensions than the original centralized problem, reducing complexity.
 It does not use all cross-relations available, however this does not impact identification performance significantly. 
 \begin{attention}
     Show that!
@@ -314,7 +292,7 @@ The separability of the problem can be used to take advantage of the well known 
 Here more specifically, general consensus ADMM \cite{}, which is used to minimize a problem of form
 \begin{align}
     \operatorname{minimize} \quad &\sum_{i=1}^{M} \tilde{J}_i(\wf_i)\\
-    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i=1,...,M,\,j=1,..,M_i
+    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Mset,\,j \in \Cset_i
 \end{align}
 where \(\mathcal{G}(i,j)=g\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the spectra in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. FIGURE). For brevity, a mapped global variable \(\tilde{\hf}_i\) with \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) is defined.
 \begin{note}
@@ -322,14 +300,14 @@ where \(\mathcal{G}(i,j)=g\) denotes the mapping of \(L\) local variable compone
 \end{note}
 The augmented Lagrangian, a real-valued function of a complex variable, for this particular general-form consensus problem is
 \begin{align}
-    &\mathcal{L}_{\rho} (\wf,\hf,\uuf) = \sum_{i=1}^M \left( \wf_i^\herm \aRhof_i \wf_i + \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right)\vphantom{+ \frac{\rho}{2} \left\| \wf_i - \tilde{\hf}_i \right\|^2} \right.\nonumber\\
+    &\mathcal{L}_{\rho} (\wf,\hf,\uuf) = \sum_{i \in \Mset} \left( \wf_i^\herm \aRhof_i \wf_i + \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right)\vphantom{+ \frac{\rho}{2} \left\| \wf_i - \tilde{\hf}_i \right\|^2} \right.\nonumber\\
     &\left. + \left(\wf_i - \tilde{\hf}_i\right)^\herm \uuf_i + \left( \wf_i - \tilde{\hf}_i \right)^\herm \rho \I \left( \wf_i - \tilde{\hf}_i \right) \right).\label{eq:general_consensus_admm:lagrangian}
 \end{align}
 The ADMM then consists of the iterations
 \begin{align}
     &\wf_i^{k+1} = \underset{\wf_i}{\operatorname{argmin}} \left\{ \wf_i^\herm \aRhof_i \wf_i + \uuf_i^{k\,\herm} \left(\wf_i - \tilde{\hf}_i^{k}\right) \vphantom{+ \left\| \wf_i - \tilde{\hf}_i^{k} \right\|^2}\right.\nonumber\\
     &\left.+ \left(\wf_i - \tilde{\hf}_i^{k}\right)^\herm \uuf_i^{k} + \left( \wf_i - \tilde{\hf}_i^{k} \right)^\herm \rho \I \left( \wf_i - \tilde{\hf}_i^{k} \right) \right\}\label{eq:general_consensus_admm:local}\\
-    &\hf^{k+1} = \underset{\hf, \|\hf\| = a}{\operatorname{argmin}} \left\{ \sum_{i=1}^{M} \left( \tilde{\hf}_i^{\herm} \uuf_i^{k} + \uuf_i^{k\,\herm} \tilde{\hf}_i \vphantom{\frac{\rho}{2} \| \wf_i^{k+1} - \tilde{\hf}_i \|^2} \right.\right.\nonumber\\
+    &\hf^{k+1} = \underset{\hf, \|\hf\| = a}{\operatorname{argmin}} \left\{ \sum_{i \in \Mset} \left( \tilde{\hf}_i^{\herm} \uuf_i^{k} + \uuf_i^{k\,\herm} \tilde{\hf}_i \vphantom{\frac{\rho}{2} \| \wf_i^{k+1} - \tilde{\hf}_i \|^2} \right.\right.\nonumber\\
     &\left. \qquad \qquad \vphantom{\sum_{i=1}^{M} pp } \left.+ \left( \wf_i^{k+1} - \tilde{\hf}_i \right)^\herm \rho \I \left( \wf_i^{k+1} - \tilde{\hf}_i \right)  \right) \right\}\label{eq:general_consensus_admm:global}\\
     &\uuf_i^{k+1} = \uuf_i^{k} + \rho \left( \wf_i^{k+1} - \tilde{\hf}_i^{k+1} \right)\label{eq:general_consensus_admm:dual}
 \end{align}
@@ -366,11 +344,11 @@ To compute the consensus \(\hf\) we include the norm constraint \(\|\hf\| = a\) 
 \end{align}
 where the \(M L \times 1\) vectors \(\bar{\wf}^{m+1}, \bar{\uuf}^{m+1}\) are computed as the mapped averages
 \begin{equation}
-    (\bar{\wf}^{m+1})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\wf_i^{m+1})_j,\quad g,i,j \in [M],
+    (\bar{\wf}^{m+1})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\wf_i^{m+1})_j,\quad g,i,j \in \Mset,
 \end{equation}
 and
 \begin{equation}
-    (\bar{\uuf}^{m})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\uuf_i^{m})_j,\quad g,i,j \in [M].
+    (\bar{\uuf}^{m})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\uuf_i^{m})_j,\quad g,i,j \in \Mset.
 \end{equation}
 \begin{attention}
     UGLY AND CONFUSING??!!
@@ -380,26 +358,26 @@ Setting the derivative of \eqref{eq:online_admm:consensus_min_prob} to zero and 
     \hf^{k+1} = a\frac{\bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} }{\left\| \bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} \right\|}.\label{eq:online_admm:consensus_update}
 \end{equation}
 This results in a computationally inexpensive update step forcing the norm of the consensus to have value \(a\).
-Algorithm \ref{alg:bsi_admm} summarizes the whole update procedure.
-\begin{attention}
-    Write down full algorithm
-\end{attention}
+% Algorithm \ref{alg:bsi_admm} summarizes the whole update procedure.
+% \begin{attention}
+%     Write down full algorithm
+% \end{attention}
 
-\begin{algorithm}
-    \caption{BSI-ADMM}\label{alg:bsi_admm}
-    \begin{algorithmic}
-        \For {\(n=0,1,2,...\)}
-            \For{\(i \in [M]\)}
-                \State Acquire new data vector \(x_i^{(t)}\)
-                \State Update \(\wf_i^{(n+1)} \leftarrow \wf_i^{(n)}\)
-            \EndFor
-            \State Update \(\hf^{(n+1)} \leftarrow \hf^{(n)}\)
-            \For{\(i \in [M]\)}
-                \State Update \(\uuf_i^{(t+1)} \leftarrow \uuf_i^{(n)}\)
-            \EndFor
-        \EndFor
-    \end{algorithmic}
-\end{algorithm}
+% \begin{algorithm}
+%     \caption{BSI-ADMM}\label{alg:bsi_admm}
+%     \begin{algorithmic}
+%         \For {\(n=0,1,2,...\)}
+%             \For{\(i \in \Mset\)}
+%                 \State Acquire new data vector \(x_i^{(t)}\)
+%                 \State Update \(\wf_i^{(n+1)} \leftarrow \wf_i^{(n)}\)
+%             \EndFor
+%             \State Update \(\hf^{(n+1)} \leftarrow \hf^{(n)}\)
+%             \For{\(i \in \Mset\)}
+%                 \State Update \(\uuf_i^{(t+1)} \leftarrow \uuf_i^{(n)}\)
+%             \EndFor
+%         \EndFor
+%     \end{algorithmic}
+% \end{algorithm}
 
 % #############################################################################
 % #############################################################################
@@ -411,7 +389,7 @@ Error measure Normalized projection misalignment
 \begin{equation}
     \text{NPM}(n) = 20\,\log_{10} \left(\left\| \h(n) - \frac{\h^\T (n) \h_{\text{t}}}{\h_{\text{t}}^\T \h_{\text{t}}} \right\| \cdot \left\|\h(n)\right\|^{-1}\right)
 \end{equation}
-where \((\h)_i = \operatorname{IFFT} \left\{ (\hf)_i \right\}\) with \(i \in [M]\) is the estimate of the stacked IRs and \(\h_{\text{t}}\) is the ground truth.
+where \((\h)_i = \operatorname{IFFT} \left\{ (\hf)_i \right\}\) with \(i \in \Mset\) is the estimate of the stacked IRs and \(\h_{\text{t}}\) is the ground truth.
 Similar to \cite{} the first experiment aims to evaluates the performance of the algorithm on randomly generated impulse responses under different SNRs using WGN as input signal and uncorrelated over channels as additive noise.
 \begin{attention}
     add SNR formula
