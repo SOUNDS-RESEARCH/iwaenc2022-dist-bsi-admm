@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 # %%
 process_id = int(sys.argv[1])
 SNR = int(sys.argv[2])
-N_sens = int(sys.argv[3])
-L = int(sys.argv[4])
-print("Job: %d, SNR: %d, N_sens: %d, L: %d" % (process_id, SNR, N_sens, L))
+N_sens = 6
+L = 128
+print("Job: %d, SNR: %d, N_sens: %d, L: %f" % (process_id, SNR, N_sens, L))
 
 # %%
 runs = 50
@@ -27,7 +27,7 @@ N_f = 1024
 # N_sens = 3
 
 # %%
-N_s = 20000
+N_s = 16000
 
 # %%
 seed = 12345
@@ -35,34 +35,28 @@ rng = np.random.RandomState()
 rng.seed(seed)
 
 # %%
+with open("../generate_irs/h.npy", "rb") as f:
+    h = np.load(f)
+# %%
 for run in range(runs):
-    if os.path.isfile("data/simulation_random/%d_%d.npy" % (process_id, run)):
+    if os.path.isfile("data/simulation_rim/%d_%d.npy" % (process_id, run)):
         print("run %d is already there" % (run))
         continue
-    # %%
-    h = np.array([]).reshape(0, 1)
-    h_f = np.zeros((N_sens, N_f), dtype=np.complex128)
-    for n in range(N_sens):
-        h_ = rng.normal(size=(L, 1))
-        h_ = h_ / np.linalg.norm(h_)
-        w, hh = signal.freqz(h_, worN=N_f)
-        h_f[n, :] = hh
-        h = np.concatenate([h, h_])
+
+    # # %%
+    # if plot:
+    #     fig, ax1 = plt.subplots()
+    #     ax1.set_title("Digital filter frequency response")
+    #     for n in range(N_sens):
+    #         ax1.plot(w, 20 * np.log10(abs(h_f[n, :])))
+    #     ax1.set_ylabel("Amplitude [dB]")
+    #     ax1.set_xlabel("Frequency [rad/sample]")
+    #     ax1.grid()
+    #     plt.show()
 
     # %%
     if plot:
-        fig, ax1 = plt.subplots()
-        ax1.set_title("Digital filter frequency response")
-        for n in range(N_sens):
-            ax1.plot(w, 20 * np.log10(abs(h_f[n, :])))
-        ax1.set_ylabel("Amplitude [dB]")
-        ax1.set_xlabel("Frequency [rad/sample]")
-        ax1.grid()
-        plt.show()
-
-    # %%
-    if plot:
-        plt.stem(h)
+        plt.plot(h)
         plt.title("filter taps of stacked imp resp")
         plt.show()
 
@@ -254,7 +248,7 @@ for run in range(runs):
     err_ADMM_newton_fq_diag = np.asarray(err_ADMM_newton_fq_diag)
 
     # %%
-    with open("data/simulation_random/%d_%d.npy" % (process_id, run), "wb") as f:
+    with open("data/simulation_rim/%d_%d.npy" % (process_id, run), "wb") as f:
         np.save(f, runs)
         np.save(f, run)
         np.save(f, L)
