@@ -320,7 +320,7 @@ plt.show()
 # %%
 lim = 2500
 for N_sens in [4, 8]:
-    fig = plt.figure(figsize=(3, 3))
+    fig = plt.figure(figsize=(3, 2.5))
     for i in range(len(densities)):
         if err_ADMM_newton_fq_diag_[i][N_sens] is not None:
             plt.plot(
@@ -336,7 +336,8 @@ for N_sens in [4, 8]:
     plt.xlim(0, lim)
     plt.ylim(-40, 0)
     plt.grid()
-    plt.legend()
+    if N_sens == 8:
+        plt.legend()
     plt.tight_layout()
     plt.show()
     utils.savefig(fig, "NPM_over_time_M%d" % (N_sens))
