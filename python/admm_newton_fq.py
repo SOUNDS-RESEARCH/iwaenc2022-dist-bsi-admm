@@ -282,7 +282,7 @@ class Network:
             #     return
             x_avg[node.global_indices] += node.x * self.g[node.global_indices]
             y_avg[node.global_indices] += node.y * self.g[node.global_indices]
-        pp = node.rho * x_avg + y_avg  # WHAT DO WITH RHO IF NOT SAME FOR ALL
+        pp = x_avg + 1 / node.rho * y_avg  # WHAT DO WITH RHO IF NOT SAME FOR ALL
         self.z = pp / (np.linalg.norm(pp)) * self.L / self.N
         pass
 
