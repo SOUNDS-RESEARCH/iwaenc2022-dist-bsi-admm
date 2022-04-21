@@ -34,6 +34,7 @@
 \newcommand{\Cset}{\mathcal{C}}
 \newcommand{\Csetb}{\bar{\mathcal{C}}}
 \newcommand{\Mset}{\mathcal{M}}
+\newcommand{\Nset}{\mathcal{N}}
 
 
 
@@ -69,7 +70,7 @@
     In this contribution, we propose a cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM).
     The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into lower-dimensional sub-problems with lowered computational complexity and can be solved in parallel.
     Each sub-problem yields estimates for a subset of channel spectra, which then are combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
-    With numerical simulations, we show that it is possible to achieve estimation errors and convergence speeds comparable to low cost frequency-domain algorithms and high performing multichannel (Quasi-)Newton methods.
+    With numerical simulations, we show that it is possible to achieve estimation errors and convergence speeds comparable to low cost frequency-domain algorithms.
 \end{abstract}
 %
 \begin{keywords}
@@ -78,7 +79,20 @@
 %
 \section{Introduction}
 \label{sec:intro}
-The problem of blind system identification (BSI) has been subject of extensive research resulting in 
+The problem of blind system identification (BSI), also called blind multichannel identification (BMCI), which aims to estimate channel impulse responses of an unknown system from output signals only has been subject of extensive research over the recent decades.
+Early methods used higher-order statistics (HOS) \cite{} for channel estimation, however the high complpexity led to research into methods only using second-order statistics (SOS).
+The first to be proposed was the cross-relation (CR) method \cite{}, which this contribution focuses on as well.
+Other relevant approaches to solve the SIMO BSI problem are subspace methods \cite{}, least-squares approach \cite{} and maximum-likelihood \cite{} methods.
+
+Out of various multichannel BSI algorithms which have been proposed, adaptive least mean squares (LMS) algorithms in time \cite{} and frequency domain \cite{} are the ones most widely used.
+The NMCFLMS algorithm is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{}, \(l_p\)-RNMCFLMS \cite{}).
+
+The alternating direction method of multipliers (ADMM) \cite{} solves convex optimization problems by splitting them into smaller sub-problems, each less complex to solve than the original one.
+It has found applications in a large number of areas such as machine learning \cite{} or control systems \cite{}.
+Here, we use ADMM to separate the inter-channel cross-relations to form smaller sub-problems involving overlapping subsets of the entire channel set and use constraints to find a consensus on the overlapping estimated parameters of the sub-problems.
+This reduces the theoretical time effort to find a solution by complexity reduction and additionally enabling parallel processing of sub-problems.
+The ADMM update steps solving for the sub-problem estimates, the overall consensus estimate and dual variables, are applied in a block processing scheme forming an adaptive algorithm also referred to as Online-ADMM \cite{}.
+
 
 % \lipsum[1-4]
 
@@ -105,23 +119,16 @@ The signal model is described by
     \x_i(n) = \mtxb{H}_i \mtxb{s}(n) + \mtxb{v}_i(n)
 \end{equation}
 where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the \(i\)th channel using the elements of \(\h_i\).
-\begin{note}
-    Add definition of \(\mtxb{H}_i\)? Will take a lot of space.
-\end{note}
 
 % #############################################################################
 \subsection{Cross-relation approach}
 \label{ssec:cross_rel}
-The cross-relation approach for BSI \cite{} aims to only use output signals of the system to identify it.
-This is achieved by exploiting the relative channel information when more than one system output are available and certain identifiability conditions \cite{} are satisfied:
-\begin{itemize}
-    \item The channel impulse responses have no common zeros, i.e. are not co-prime.
-    \item The covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank, i.e. the signal fully excites the channels.
-\end{itemize}
+The cross-relation approach for BSI aims to only use output signals of the system to identify it.
+This is achieved by exploiting the relative channel information when more than one system output are available and certain identifiability conditions \cite{} (i) the channel transfer functions have no common zeros (i.e. are not co-prime), and (ii) covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e. the signal fully excites the channels) are satisfied.
 
-\noindent The fundamental equality of this approach is 
+The fundamental equality of this approach, here assumed in the noiseless case \(\mtxb{v}_i(n) = 0\), is 
 \begin{equation}
-    \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j \in ,\,i\neq j\label{eq:cross_rel:equality_conv}
+    \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j \in \Mset,\,i\neq j\label{eq:cross_rel:equality_conv}
 \end{equation}
 which states that the output signal of one channel convolved with the impulse response of another is equal to the vice-versa.
 This follows from the commutative nature of the convolution operation.
@@ -159,15 +166,18 @@ This problem can also be written down in the frequency domain.
 The derivation is analogous to the time-domain one, using the frame-based overlap-save technique \cite{}.
 This gives the linear system of equations 
 \begin{equation}
-    \Rf \hf = \bm{0} \label{eq:frequency_domain:null_space}\\
+    \Rf(m) \hf = \bm{0} \label{eq:frequency_domain:null_space}\\
 \end{equation}
-where \(\Rf\) is analogous to \eqref{eq:cross_rel:data_matrix}, however the covariance matrices replaced by the cross-spectrum matrices 
+where the matrix is recursivly computed by \begin{equation}
+    \Rf(m) = \eta \Rf(m-1) + (1-\eta )\hat{\Rf}(m)
+\end{equation}
+with \(\eta \in [0,1]\) being an exponential smoothing factor and \(\hat{\Rf}(m)\) constructed analogous to \eqref{eq:cross_rel:data_matrix}, however the covariance matrices replaced by the cross-spectrum matrices 
 \begin{equation}
-    \Rf_{ij} = \bm{\mathcal{S}}_{i}^\herm (m) \bm{\mathcal{S}}_{j}(m)
+    \Rf_{ij}(m) = \bm{\mathcal{S}}_{i}^\herm (m) \bm{\mathcal{S}}_{j}(m)
 \end{equation}
 with 
 \begin{equation}
-    \bm{\mathcal{S}}_{i} = \bm{\mathcal{W}}^{01}_{L \times 2L} \bm{\mathcal{D}}_{i}(m) \bm{\mathcal{W}}^{10}_{2L \times L}
+    \bm{\mathcal{S}}_{i}(m) = \bm{\mathcal{W}}^{01}_{L \times 2L} \bm{\mathcal{D}}_{i}(m) \bm{\mathcal{W}}^{10}_{2L \times L}
 \end{equation}
 where \(\bm{\mathcal{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2L} \left\{ \x_{i,2L}(m) \right\} \right\}\) is a diagonal matrix of the signal spectrum and the overlap-save matrices
 \begin{align}
@@ -181,13 +191,14 @@ where \(\bm{\mathcal{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}
     \bm{\mathcal{W}}_{2L \times L}^{10} &= \mtxb{F}_{2L \times 2L} \mtxb{W}_{2L \times L}^{10} \mtxb{F}_{L \times L}^{-1}
 \end{align} where $\mtxb{F}$ as the DFT matrix for sizes L and 2L.
 The vector \(\hf\) is the stacked vector of the complex-valued spectra of the impulse responses.
-In the presence of noise, the system of equations \eqref{eq:frequency_domain:null_space} is best solved by a minimization problem which seeks to minimize the squared error \(\|\underline{\bm{e}} \|^2 = \| \Rf \hf \|^2\) as
-\begin{align}
-    \operatorname{minimize} \quad & \hf^\herm \Rf^\herm \Rf \hf, \label{eq:frequency_domain:least_squares}\\
-    \text{subject to} \quad & \hf^\herm \hf = a.
-\end{align}
-where the equality constraint is necessary to avoid the trivial zero solution.
-As this effectively seeks for the \(a\)-scaled eigenvector of the squared hermitian matrix \(\Rf^\herm \Rf\) corresponding to the smallest eigenvalue, we can avoid the squared matrix and replace it with its non-squared form \(\Rf\) as the eigenvectors in this case are the same.
+In the presence of noise, the system of equations \eqref{eq:frequency_domain:null_space} is best solved by a minimization problem which seeks to minimize the squared error \(\|\underline{\bm{e}} \|^2 = \| \Rf \hf \|^2\) 
+% \begin{align}
+%     \operatorname{minimize} \quad & \hf^\herm \Rf^\herm \Rf \hf, \label{eq:frequency_domain:least_squares}\\
+%     \text{subject to} \quad & \hf^\herm \hf = a.
+% \end{align}
+% where the equality constraint is necessary to avoid the trivial zero solution.
+with the constraint \(\hf^\herm \hf = a\) to avoid the trivial zero solution.
+As this effectively seeks the \(a\)-scaled eigenvector of the squared hermitian matrix \(\Rf^\herm \Rf\) corresponding to the smallest eigenvalue, we can avoid the squared matrix and replace it with its non-squared form \(\Rf\) as the eigenvectors in both cases are equal.
 To compute the estimate of the spectra, we minimize the cost function
 \begin{equation}
     J(\hf) = \hf^\herm \Rf \hf\label{eq:frequency_domain:cost_function}
@@ -198,7 +209,8 @@ as
     \text{s.t. } \quad &\hf^\herm \hf = a.
 \end{align}
 \begin{attention}
-    bit of rewriting necessary. not nice
+    bit of rewriting necessary. not nice.\\
+    Also, rayleigh coefficient? \(\frac{\hf^\herm \Rf \hf}{\hf^\herm \hf}\)
 \end{attention}
 % \begin{equation}
 %     \Rf = \begin{bmatrix}
@@ -244,66 +256,60 @@ as
 % #############################################################################
 \section{Proposed Method}
 \label{sec:proposed_method}
-This method uses Online-ADMM to find a solution to the minimization problem posed in previous sections.
-To achieve this, we introduce reduced problem with the same solution.
-\begin{attention}
-    Show that!
-\end{attention}
-This problem can be split into smaller sub-problems which can be solved in parallel to reduce computation time.
+% This method uses Online-ADMM to find a solution to the minimization problem posed in previous sections.
+% To achieve this, we introduce reduced problem with the same solution.
+% \begin{attention}
+%     Show that!
+% \end{attention}
+% This problem can be split into smaller sub-problems which can be solved in parallel to reduce computation time.
 
 % #############################################################################
 \subsection{Problem Splitting}
 \label{ssec:problem_splitting}
-In state-of-the-art algorithms, the minimization problem \eqref{eq:frequency_domain:min_prob} is solved in its full form.
-\begin{note}
-    State assumption that there as many nodes as there are channels/impulse earlier.
-\end{note}
-The problem is split into smaller sub-problems each defined by a subset of the full channel set \(\Cset_i \subseteq \Mset\).
-Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in \Mset\) which is the set of sub-problems a channel  \(j\) is part of. 
+In state-of-the-art algorithms, the minimization problem \eqref{eq:frequency_domain:min_prob} is solved in its full form resulting in potentially high computational effort when the number of channels and length of impulse responses or number of DFT bins is large.
+To counteract this increase, the problem is split into \(N \in \mathbb{N}^+\) smaller sub-problems each defined by a subset of the full channel set \(\Cset_i \subseteq \Mset\).
+We denote the index set of the sub-problems as \(\Nset \triangleq \{1,\ldots,N\}\).
+Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in \Mset\) which is the set of sub-problems a channel  \(j\) is part of.
+This channel-to-sub-problem relation can also be expressed as a \(M \times P\) matrix \(\mtxb{G}\) (cf. \autoref{fig:problem_splitting:problem_splitting_matrix}).
 Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in \Mset\).
+
 We replace the cost function \eqref{eq:frequency_domain:cost_function} with the separable cost function 
 \begin{equation}
-    \tilde{J}(\hf) = \sum_{i=1}^M \tilde{J}_i(\wf_i)  = \sum_{i=1}^M \wf_i^\T \aRhof_i \wf_i
+    \tilde{J}(\hf) = \sum_{i \in \Nset} \tilde{J}_i(\wf_i)  = \sum_{i \in \Nset} \wf_i^\T \aRhof_i \wf_i
 \end{equation}
 where \(\wf_i\) is defined as the stacked vector of estimated spectra analogous to \(\hf\) (cf. \autoref{ssec:cross_rel}) but using the .
 Analogous, \(\aRhof\) is constructed as defined in \eqref{eq:cross_rel:data_matrix} with the reduced set of channels.
 In case the channel subsets are proper \(\Cset_i \subset \Mset\), this leads to sub-problems each with smaller dimensions than the original centralized problem, reducing complexity.
-It does not use all cross-relations available, however this does not impact identification performance significantly. 
-\begin{attention}
-    Show that!
-\end{attention}
-In \autoref{fig:problem_splitting:problem_splitting_matrix} we try to visualize which information is used by the sub-problems compared to the centralized problem.
-\begin{attention}
-    Write about how and why the solution is the same (why is it actually...). The optimal solution to the smaller problems is still the stacked impulse response of the subset of channel impulse responses. Can a relation to the smallest-eigenvalue-eigenvector comment be found?
-\end{attention}
-
+In \autoref{fig:problem_splitting:problem_splitting_matrix} we try to visualize which information is used to solve the sub-problems in relation to when solving the initial problem.
+As can be seen, not all cross-relations are used and we conduct a numerical experiment in \autoref{sec:perf_eval} to assess this.
 
 \begin{figure}
     \centering
-    \includestandalone[scale=0.75]{tikz/problem_splitting_matrix}
-    \caption{Problem splitting}
+    \subfloat[][]{\includegraphics[trim={1.8cm 0 1.7cm 0},clip,scale=0.7]{images/parameter_mapping.pdf}}
+    \subfloat[][]{\includestandalone[trim={0.65cm 0 0 0},clip,scale=0.7]{tikz/connection_matrix}}
+    \subfloat[][]{\includestandalone[trim={0.6cm 0 0 0},clip,scale=0.6]{tikz/problem_splitting_matrix}}
+    % \includestandalone[scale=1]{tikz/topology_general}
+    \caption{Problem splitting and parameter mapping for a general case with \(M=5\) channels and \(P=4\) sub-problems. (a) shows the mapping of the local estimate components \((\wf_i)_j\) to the global consensus components \((\hf)_j\) via \(\mathcal{G}(i,j)\), (b) \(\mtxb{G}\) with 1 (\(\blacksquare\)) and 0 (\(\square\)), (c) shows \(i,j\)-cross-relations used by sub-problems compared to full \(M\)-channel problem.}
     \label{fig:problem_splitting:problem_splitting_matrix}
 \end{figure}
 
 % #############################################################################
-\subsection{General Consensus ADMM}
+\subsection{General Form Consensus ADMM}
 \label{ssec:general_consensus_admm}
 The separability of the problem can be used to take advantage of the well known alternating direction method of multipliers (ADMM).
-Here more specifically, general consensus ADMM \cite{}, which is used to minimize a problem of form
+Here more specifically, general form consensus ADMM \cite{}, which is used to minimize a problem of form
 \begin{align}
-    \operatorname{minimize} \quad &\sum_{i=1}^{M} \tilde{J}_i(\wf_i)\\
-    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Mset,\,j \in \Cset_i
+    \operatorname{minimize} \quad &\sum_{i \in \Nset} \tilde{J}_i(\wf_i)\\
+    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Nset,\,j \in \Cset_i
 \end{align}
-where \(\mathcal{G}(i,j)=g\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the spectra in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. FIGURE). For brevity, a mapped global variable \(\tilde{\hf}_i\) with \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) is defined.
-\begin{note}
-    Better description of variables and mapping; + maybe figure to explain.
-\end{note}
-The augmented Lagrangian, a real-valued function of a complex variable, for this particular general-form consensus problem is
+where \(\mathcal{G}(i,j)=g\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the spectra in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. \autoref{fig:problem_splitting:problem_splitting_matrix}). For brevity, a mapped global variable \(\tilde{\hf}_i\) with \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) is defined.
+
+The augmented Lagrangian for this particular general-form consensus problem is the real-valued function of a complex variable
 \begin{align}
     &\mathcal{L}_{\rho} (\wf,\hf,\uuf) = \sum_{i \in \Mset} \left( \wf_i^\herm \aRhof_i \wf_i + \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right)\vphantom{+ \frac{\rho}{2} \left\| \wf_i - \tilde{\hf}_i \right\|^2} \right.\nonumber\\
     &\left. + \left(\wf_i - \tilde{\hf}_i\right)^\herm \uuf_i + \left( \wf_i - \tilde{\hf}_i \right)^\herm \rho \I \left( \wf_i - \tilde{\hf}_i \right) \right).\label{eq:general_consensus_admm:lagrangian}
 \end{align}
-The ADMM then consists of the iterations
+The ADMM then consists of the steps
 \begin{align}
     &\wf_i^{k+1} = \underset{\wf_i}{\operatorname{argmin}} \left\{ \wf_i^\herm \aRhof_i \wf_i + \uuf_i^{k\,\herm} \left(\wf_i - \tilde{\hf}_i^{k}\right) \vphantom{+ \left\| \wf_i - \tilde{\hf}_i^{k} \right\|^2}\right.\nonumber\\
     &\left.+ \left(\wf_i - \tilde{\hf}_i^{k}\right)^\herm \uuf_i^{k} + \left( \wf_i - \tilde{\hf}_i^{k} \right)^\herm \rho \I \left( \wf_i - \tilde{\hf}_i^{k} \right) \right\}\label{eq:general_consensus_admm:local}\\
@@ -314,34 +320,35 @@ The ADMM then consists of the iterations
 
 \subsection{Online ADMM}
 \label{ssec:online_admm}
-ADMM is originally an iterative method to solve optimization problems, however under certain conditions it can be applied as an adaptive algorithm, also referred to as \emph{Online ADMM} \cite{}.
-\begin{attention}
-    Give conditions and why they apply here.
-\end{attention}
-The data term as part of \eqref{eq:general_consensus_admm:lagrangian} is time-dependent, which from here on  will be denoted with the time index \(m\) in superscript \(\wf_i^\herm \aRhof_i^{m} \wf_i\).
+ADMM is originally an iterative method to solve optimization problems, however it has also been applied as an adaptive algorithm, also referred to as \emph{Online ADMM} \cite{}. The data term as part of \eqref{eq:general_consensus_admm:lagrangian} is time-dependent, which from here on will be denoted with the time index \(m\) in superscript \(\wf_i^\herm \aRhof_i^{m} \wf_i\).
 
 The iterative form of the update steps as described in \eqref{eq:general_consensus_admm:local}-\eqref{eq:general_consensus_admm:dual} can be transformed into an adaptive one by computing a (small) finite number of iterations at each time step \(m\) with the current data term.
 In this algorithm, one ADMM iteration is applied per time step, which simply allows us to replace the iteration index \(k\) with the time index \(m\).
 
-The minimization problem \eqref{eq:general_consensus_admm:local} can be solved by various methods, in this case however we perform a Newton update step of the form of
+The minimization problem \eqref{eq:general_consensus_admm:local} can be solved by various methods, in this case however we perform the update step
 \begin{equation}
     \wf_i^{m+1} = \wf_i^{m} - \mu \bm{\mathcal{V}}_i^m \left( \aRhof_i^m \wf_i^m + \uuf_i^m + \rho\left(\wf_i^m - \tilde{\hf}_i^{m}\right)\right)\label{eq:online_admm:local_update}
 \end{equation}
-where \(0  <\mu\leq 1\) is a step size and \(\bm{\mathcal{V}}_i^m = \left(\aRhof_i^m + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
+where \(0  < \mu\leq 1\) is a step size and \(\bm{\mathcal{V}}_i^m = \left(\aRhof_i^m + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
 As this inverse is costly to compute, it is approximated by a diagonalized matrix
 \begin{equation}
     \tilde{\bm{\mathcal{V}}}_i^m = \operatorname{diag} \left\{ \left( \operatorname{diag} \left\{ \aRhof_i^m \right\} + \rho \mtxb{1} \right)^{-1}\right\},
 \end{equation}
 similar to NMCFLMS \cite{}, which is straightforward to compute.
 
-To compute the consensus \(\hf\) we include the norm constraint \(\|\hf\| = a\) with a Lagrange multiplier \(\lambda\) in the minimization problem and replace the average of penalties with a penalty of averages which takes the form of
-\begin{attention}
-    poetic, cite our Boy[d]
-\end{attention}
-\begin{align}
-    \hf^{k+1} &= \underset{\hf}{\operatorname{argmin}} \left\{ \frac{\lambda}{2} \left(\hf^\herm \hf - a\right)\right.\nonumber\\
-    &\left. \qquad \qquad \quad + \frac{M \rho}{2} \left\| \hf - \bar{\wf}^{m+1} - \frac{1}{\rho} \bar{\uu}^{m} \right\|^2 \right\}\label{eq:online_admm:consensus_min_prob}
-\end{align}
+% To compute the consensus \(\hf\) we include the norm constraint \(\|\hf\| = a\) with a Lagrange multiplier \(\lambda\) in the minimization problem and replace the average of penalties with a penalty of averages which takes the form of
+% \begin{attention}
+%     poetic, cite our Boy[d]
+% \end{attention}
+% \begin{align}
+%     \hf^{k+1} &= \underset{\hf}{\operatorname{argmin}} \left\{ \frac{\lambda}{2} \left(\hf^\herm \hf - a\right)\right.\nonumber\\
+%     &\left. \qquad \qquad \quad + \frac{M \rho}{2} \left\| \hf - \bar{\wf}^{m+1} - \frac{1}{\rho} \bar{\uu}^{m} \right\|^2 \right\}\label{eq:online_admm:consensus_min_prob}
+% \end{align}
+
+For the consensus update step, it may be readily verified (cf. Boyd \cite{}) that the solution to \eqref{eq:general_consensus_admm:global} is given by
+\begin{equation}
+    \hf^{m+1} = a\frac{\bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} }{\left\| \bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} \right\|}.\label{eq:online_admm:consensus_update}
+\end{equation}
 where the \(M L \times 1\) vectors \(\bar{\wf}^{m+1}, \bar{\uuf}^{m+1}\) are computed as the mapped averages
 \begin{equation}
     (\bar{\wf}^{m+1})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\wf_i^{m+1})_j,\quad g,i,j \in \Mset,
@@ -349,13 +356,6 @@ where the \(M L \times 1\) vectors \(\bar{\wf}^{m+1}, \bar{\uuf}^{m+1}\) are com
 and
 \begin{equation}
     (\bar{\uuf}^{m})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\uuf_i^{m})_j,\quad g,i,j \in \Mset.
-\end{equation}
-\begin{attention}
-    UGLY AND CONFUSING??!!
-\end{attention}
-Setting the derivative of \eqref{eq:online_admm:consensus_min_prob} to zero and solving for the optimal Lagrange multiplier \(\lambda\), we reach the update step
-\begin{equation}
-    \hf^{k+1} = a\frac{\bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} }{\left\| \bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} \right\|}.\label{eq:online_admm:consensus_update}
 \end{equation}
 This results in a computationally inexpensive update step forcing the norm of the consensus to have value \(a\).
 % Algorithm \ref{alg:bsi_admm} summarizes the whole update procedure.
@@ -384,69 +384,65 @@ This results in a computationally inexpensive update step forcing the norm of th
 \section{Numerical Evaluation}
 \label{sec:perf_eval}
 
-First part: random impulse responses at different SNRs. Short like 64 tabs e.g.
-Error measure Normalized projection misalignment
+To asses the performance of the proposed algorithm and compare ot to state-of-the-art methods, numerical simulations are done.
+The error measure to quantify system identification is the normalized projection misalignment (NPM) as used in other BSI-related literature \cite{}
 \begin{equation}
-    \text{NPM}(n) = 20\,\log_{10} \left(\left\| \h(n) - \frac{\h^\T (n) \h_{\text{t}}}{\h_{\text{t}}^\T \h_{\text{t}}} \right\| \cdot \left\|\h(n)\right\|^{-1}\right)
+    \text{NPM}(m) = 20\,\log_{10} \left(\frac{\left\| \h(m) - \frac{\h^\T (m) \h_{\text{t}}}{\h_{\text{t}}^\T \h_{\text{t}}}\h(m) \right\|_2}{\left\|\h(m)\right\|_2} \right)
 \end{equation}
-where \((\h)_i = \operatorname{IFFT} \left\{ (\hf)_i \right\}\) with \(i \in \Mset\) is the estimate of the stacked IRs and \(\h_{\text{t}}\) is the ground truth.
-Similar to \cite{} the first experiment aims to evaluates the performance of the algorithm on randomly generated impulse responses under different SNRs using WGN as input signal and uncorrelated over channels as additive noise.
+where \(\h\) is the stacked vector of impulse response estimates (cf. \autoref{ssec:cross_rel}), which are the inversely Fourier-transformed estimated spectra stacked in \(\hf\) and \(\h_{\text{t}}\) is the ground truth.
+
+Similar to \cite{}, the first experiment aims to evaluate the performance of the algorithm on randomly generated impulse responses under different signal-to-noise ratios (SNR) using white Gaussian noise (WGN) as input signal and uncorrelated WGN independent between channels as additive noise.
+The SNR is defined as
+\begin{equation}
+    \text{SNR} = 10 \log_{10} \left(\frac{\sigma_s^2 \| \h_t \|}{M \sigma_v^2} \right)
+\end{equation}
+where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise respectively.
+
+The impulse responses of length \(L=64\) are drawn from a Normal distribution with unit variance and the signal is 100 seconds of WGN to ensure convergence of all algorithms.
+\autoref{fig:perf_eval:NPM_over_SNR} shows the median NPM of 30 Monte-Carlo runs where the averaged of the last \(100\) frames is taken as measurement.
 \begin{attention}
-    add SNR formula
+    parameters
 \end{attention}
-The impulse responses of length \(L=16,32,64\)(?) are drawn from a Normal distribution with unit variance.
-The results are the median of 50 Monte-Carlo runs where the time-averaged NPM of the last \(50\) frames is taken as measurement.
+It is observable that the proposed algorithm yields a lower steady-state NPM than the compared NMCFLMS, RNMCFLMS, and \(l_p\)-RNMCFLMS algorithms.
+\begin{figure}
+    \centering
+    \includegraphics[height=5cm]{python/plots/NPM_over_SNR_L16.png}
+    \caption{Steady-state NPM of ADMM-BSI and compared algorithms over different SNRs.}
+    \label{fig:perf_eval:NPM_over_SNR}
+\end{figure}
+
+The second experiment is a small scale assessment of the influence of the overlap of sub-problems.
+Two base scenarios, \(M=4,P=4\) and \(M=8,P=8\), are evaluated using short (\(L=16\)) random impulse responses and different values for the sub-problem overlap parameter \(\zeta\) which is defined as the ratio of ones to zeros of only considering elements of \(\mtxb{G}\) that are not part of the main diagonal, superdiagonal and the first element of the last row (marked gray in \autoref{fig:perf_eval:NPM_over_time_M4}).
+Random patterns satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) and random impulse responses with \(L=16\) are generated and the algorithm is applied.
+\autoref{fig:perf_eval:NPM_over_time} shows the median of 30 Monte-Carlo runs for the two setups, which lets us observe the proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\).
+Note that the steady state error is not dependent on \(\zeta\).
+\begin{attention}
+    parameters
+\end{attention}
 
 \begin{figure}
     \centering
-    \includegraphics[width=8.5cm]{python/plots/NPM_over_SNR_L16.png}\label{fig:perf_eval:NPM_over_SNR}
-    \caption{NPM over SNR after convergence at 8000 samples signal length. \(L=16\). ADMM methods yield estimates as good or even better than the centralized Quasi Newton method which is the best of the rest.}
+    % \hspace*{-0.4cm}\subfloat[][\(M\!=\!4,P\!=\!4\)]{\includegraphics[height=4cm]{python/plots/NPM_over_time_M4.png}\label{fig:perf_eval:NPM_over_time_M4}}
+    \hspace*{-0.4cm}\subfloat[][\(M\!=\!4,P\!=\!4\)]{\begin{overpic}[height=4cm]{python/plots/NPM_over_time_M4.png}
+        \put(54,48){\includestandalone[scale=0.5]{tikz/connection_matrix_eval}}
+    \end{overpic}\label{fig:perf_eval:NPM_over_time_M4}}
+    \hspace*{-0.5cm}\subfloat[][\(M\!=\!8,P\!=\!8\)]{\includegraphics[height=4cm]{python/plots/NPM_over_time_M8.png}\label{fig:perf_eval:NPM_over_time_M8}}
+    \caption{Comparison of ADMM-BSI convergence behaviour with \(L\!=\!16\) for different values of the sub-problem overlap \(\zeta\).}
+    \label{fig:perf_eval:NPM_over_time}
 \end{figure}
 
 \begin{attention}
-    Second part: Also short IRs now evaluated over different connectivity values (less to more connections in different sized graphs)
-    Expectation: more nodes and more connections lead to faster convergence and better estimates (which is the case; plot measure for convergence speed). However it should show that even in not fully connected topology the estimates of ADMM method are as good as centralized methods.\\
     Or if figured out, do longer simulated acoustic impulse responses.
 \end{attention}
-\begin{figure}
-    \centering
-    \includegraphics[width=8.5cm]{python/plots/NPM_over_SNR_L16_M5.png}\label{fig:perf_eval:NPM_over_SNR_5M}
-    \caption{NPM over SNR after convergence at 8000 samples signal length. \(L=16\) with 5 nodes and topology (DESCRIBE BY CONNECTION MATRIX OR FIGURE)}
-\end{figure}
+
 
 % #############################################################################
 % #############################################################################
 \section{Conclusions}
 \label{sec:conclusion}
-LINE GO DONW
-
-% \begin{figure}[tb]
-	
-% 	\begin{minipage}[b]{1.0\linewidth}
-% 		\centering
-% 		\centerline{\includegraphics[width=8.5cm]{image1}}
-% 		%  \vspace{2.0cm}
-% 		\centerline{(a) Result 1}\medskip
-% 	\end{minipage}
-% 	%
-% 	\begin{minipage}[b]{.48\linewidth}
-% 		\centering
-% 		\centerline{\includegraphics[width=4.0cm]{image3}}
-% 		%  \vspace{1.5cm}
-% 		\centerline{(b) Results 2}\medskip
-% 	\end{minipage}
-% 	\hfill
-% 	\begin{minipage}[b]{0.48\linewidth}
-% 		\centering
-% 		\centerline{\includegraphics[width=4.0cm]{image4}}
-% 		%  \vspace{1.5cm}
-% 		\centerline{(c) Result 3}\medskip
-% 	\end{minipage}
-% 	%
-% 	\caption{Example of placing a figure with results.}
-% 	\label{fig:example}
-% 	%
-% \end{figure}
+In this paper, an adaptive ADMM algorithm for blind system identification was introduced.
+The algorithm splits the BSI problem into lower-dimensional sub-problems to reduce complexity and allow parallel processing.
+The the identification performance of the algorithm is compared to state-of-the-art algorithms and shows improved steady-state error measures.
 
 % References should be produced using the bibtex program from suitable
 % BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography

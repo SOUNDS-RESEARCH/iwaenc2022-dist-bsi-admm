@@ -8,21 +8,20 @@
     \tikzset{b/.style={left color=MidnightBlue!40, right color=BurntOrange!40, shading angle=45}}
     \tikzset{c/.style={fill=BurntOrange!40}}
     \tikzset{d/.style={fill=Maroon!40}}
-    \tikzset{e/.style={fill=SkyBlue!40}}
     \tikzset{f/.style={fill=gray!40}}
     \tikzset{bb/.style={fill=white}}
     \tikzset{mystyle/.style={matrix of nodes,
             nodes in empty cells,
             row sep=-\pgflinewidth,
             column sep=-\pgflinewidth,
-            nodes={draw,minimum width=1cm,minimum height=1cm,anchor=center}}}
+            nodes={draw,minimum width=0.7cm,minimum height=0.7cm,anchor=center}}}
     \begin{tikzpicture}
     \matrix[mystyle]{
-        |[bb]|  &|[b]|\(\mtxb{R}_{21}\) &|[c]|\(\mtxb{R}_{31}\)  &|[f]|\(\mtxb{R}_{41}\)  &|[a]|\(\mtxb{R}_{51}\)\\
-        |[b]|\(\mtxb{R}_{12}\)   &|[bb]| &|[c]|\(\mtxb{R}_{31}\)  &|[f]|\(\mtxb{R}_{42}\)  &|[f]|\(\mtxb{R}_{52}\)\\
-        |[c]|\(\mtxb{R}_{13}\)   &|[c]|\(\mtxb{R}_{23}\)  &|[bb]| &|[d]|\(\mtxb{R}_{43}\)  &|[f]|\(\mtxb{R}_{53}\)\\
-        |[f]|\(\mtxb{R}_{14}\)   &|[f]|\(\mtxb{R}_{24}\)  &|[d]|\(\mtxb{R}_{34}\)  &|[bb]| &|[e]|\(\mtxb{R}_{54}\)\\
-        |[a]|\(\mtxb{R}_{15}\)   &|[f]|\(\mtxb{R}_{25}\)  &|[f]|\(\mtxb{R}_{35}\)  &|[e]|\(\mtxb{R}_{45}\)  &|[bb]|\\
+        |[bb]|  &|[b]|2,1 &|[c]|3,1  &|[f]|4,1  &|[a]|5,1\\
+        |[b]|1,2   &|[bb]| &|[c]|3,1  &|[f]|4,2  &|[f]|5,2\\
+        |[c]|1,3   &|[c]|2,3  &|[bb]| &|[d]|4,3  &|[d]|5,3\\
+        |[f]|1,4   &|[f]|2,4  &|[d]|3,4  &|[bb]| &|[d]|5,4\\
+        |[a]|1,5   &|[f]|2,5  &|[d]|3,5  &|[d]|4,5  &|[bb]|\\
     };
     \end{tikzpicture}
 \end{document}

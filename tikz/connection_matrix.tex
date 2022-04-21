@@ -1,0 +1,25 @@
+% Tikz File 'connection_matrix.tex'
+\documentclass[crop]{standalone}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz,amsmath,amssymb}
+\input{../preamble.tex}
+\begin{document}
+    \tikzset{a/.style={fill=black}}
+    \tikzset{b/.style={fill=white}}
+    \tikzset{n/.style={draw}}
+    \tikzset{mystyle/.style={matrix of nodes,
+            nodes in empty cells,
+            row sep=-\pgflinewidth,
+            column sep=-\pgflinewidth,
+            nodes={draw, minimum width=0.5cm,minimum height=0.5cm,anchor=center}}}
+    \begin{tikzpicture}
+    \matrix[mystyle]{
+        |[draw=none]|   &|[draw=none]|1   &|[draw=none]|2   &|[draw=none]|3   &|[draw=none]|4 \\
+        |[draw=none]|1  &|[a]|   &|[a]|   &|[a]|   &|[b]| \\
+        |[draw=none]|2  &|[b]|   &|[a]|   &|[a]|   &|[b]| \\
+        |[draw=none]|3  &|[b]|   &|[b]|   &|[a]|   &|[a]| \\
+        |[draw=none]|4  &|[b]|   &|[b]|   &|[b]|   &|[a]| \\
+        |[draw=none]|5  &|[a]|   &|[b]|   &|[b]|   &|[a]| \\
+    };
+    \end{tikzpicture}
+\end{document}
