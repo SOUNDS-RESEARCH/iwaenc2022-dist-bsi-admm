@@ -33,48 +33,6 @@ stream_error = True
 # We now submit 10 jobs to the queue, each job will have a unique process ID
 # arguments = "simulation_random.py $(Process) <SNR> <nr_nodes> <L>"
 queue arguments from (
-    simulation_random.py $(Process) 5 5 16
-    simulation_random.py $(Process) 10 5 16
-    simulation_random.py $(Process) 15 5 16
-    simulation_random.py $(Process) 20 5 16
-    simulation_random.py $(Process) 30 5 16
-    simulation_random.py $(Process) 40 5 16
-    simulation_random.py $(Process) 50 5 16
-    simulation_random.py $(Process) 5 7 16
-    simulation_random.py $(Process) 10 7 16
-    simulation_random.py $(Process) 15 7 16
-    simulation_random.py $(Process) 20 7 16
-    simulation_random.py $(Process) 30 7 16
-    simulation_random.py $(Process) 40 7 16
-    simulation_random.py $(Process) 50 7 16
-    simulation_random.py $(Process) 5 9 16
-    simulation_random.py $(Process) 10 9 16
-    simulation_random.py $(Process) 15 9 16
-    simulation_random.py $(Process) 20 9 16
-    simulation_random.py $(Process) 30 9 16
-    simulation_random.py $(Process) 40 9 16
-    simulation_random.py $(Process) 50 9 16
-    simulation_random.py $(Process) 5 5 32
-    simulation_random.py $(Process) 10 5 32
-    simulation_random.py $(Process) 15 5 32
-    simulation_random.py $(Process) 20 5 32
-    simulation_random.py $(Process) 30 5 32
-    simulation_random.py $(Process) 40 5 32
-    simulation_random.py $(Process) 50 5 32
-    simulation_random.py $(Process) 5 7 32
-    simulation_random.py $(Process) 10 7 32
-    simulation_random.py $(Process) 15 7 32
-    simulation_random.py $(Process) 20 7 32
-    simulation_random.py $(Process) 30 7 32
-    simulation_random.py $(Process) 40 7 32
-    simulation_random.py $(Process) 50 7 32
-    simulation_random.py $(Process) 5 9 32
-    simulation_random.py $(Process) 10 9 32
-    simulation_random.py $(Process) 15 9 32
-    simulation_random.py $(Process) 20 9 32
-    simulation_random.py $(Process) 30 9 32
-    simulation_random.py $(Process) 40 9 32
-    simulation_random.py $(Process) 50 9 32
     simulation_random.py $(Process) 5 5 64
     simulation_random.py $(Process) 10 5 64
     simulation_random.py $(Process) 15 5 64
@@ -82,39 +40,4 @@ queue arguments from (
     simulation_random.py $(Process) 30 5 64
     simulation_random.py $(Process) 40 5 64
     simulation_random.py $(Process) 50 5 64
-    simulation_random.py $(Process) 5 7 64
-    simulation_random.py $(Process) 10 7 64
-    simulation_random.py $(Process) 15 7 64
-    simulation_random.py $(Process) 20 7 64
-    simulation_random.py $(Process) 30 7 64
-    simulation_random.py $(Process) 40 7 64
-    simulation_random.py $(Process) 50 7 64
-    simulation_random.py $(Process) 5 9 64
-    simulation_random.py $(Process) 10 9 64
-    simulation_random.py $(Process) 15 9 64
-    simulation_random.py $(Process) 20 9 64
-    simulation_random.py $(Process) 30 9 64
-    simulation_random.py $(Process) 40 9 64
-    simulation_random.py $(Process) 50 9 64
-    simulation_random.py $(Process) 5 5 128
-    simulation_random.py $(Process) 10 5 128
-    simulation_random.py $(Process) 15 5 128
-    simulation_random.py $(Process) 20 5 128
-    simulation_random.py $(Process) 30 5 128
-    simulation_random.py $(Process) 40 5 128
-    simulation_random.py $(Process) 50 5 128
-    simulation_random.py $(Process) 5 7 128
-    simulation_random.py $(Process) 10 7 128
-    simulation_random.py $(Process) 15 7 128
-    simulation_random.py $(Process) 20 7 128
-    simulation_random.py $(Process) 30 7 128
-    simulation_random.py $(Process) 40 7 128
-    simulation_random.py $(Process) 50 7 128
-    simulation_random.py $(Process) 5 9 128
-    simulation_random.py $(Process) 10 9 128
-    simulation_random.py $(Process) 15 9 128
-    simulation_random.py $(Process) 20 9 128
-    simulation_random.py $(Process) 30 9 128
-    simulation_random.py $(Process) 40 9 128
-    simulation_random.py $(Process) 50 9 128
 )
