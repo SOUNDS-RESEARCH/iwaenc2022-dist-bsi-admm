@@ -19,63 +19,27 @@ initialdir = .
 executable = /users/sista/mblochbe/python_venvs/admmstuff/bin/python
 
 #This is the file where the log of the execution will be written
-log          = output/simulation_random_connectivity_$(Process).log
+log          = output/simulation_random_connectivity/$(Process).log
 #This is the file where the output of the script will be written.
-output       = output/simulation_random_connectivity_$(Process).out
+output       = output/simulation_random_connectivity/$(Process).out
 stream_output = True
 #This is the file where errors will be written. If all goes well this file should be empty
-error        = output/simulation_random_connectivity_$(Process).err
+error        = output/simulation_random_connectivity/$(Process).err
 stream_error = True
 
 # We now submit 10 jobs to the queue, each job will have a unique process ID
 # arguments = "simulation_random_connectivity.py $(Process) <SNR> <nr_nodes> <density>"
 queue arguments from (
-    simulation_random_connectivity.py $(Process) 5 5 0.0
-    simulation_random_connectivity.py $(Process) 10 5 0.0
-    simulation_random_connectivity.py $(Process) 15 5 0.0
-    simulation_random_connectivity.py $(Process) 20 5 0.0
-    simulation_random_connectivity.py $(Process) 5 7 0.0
-    simulation_random_connectivity.py $(Process) 10 7 0.0
-    simulation_random_connectivity.py $(Process) 15 7 0.0
-    simulation_random_connectivity.py $(Process) 20 7 0.0
-    simulation_random_connectivity.py $(Process) 5 9 0.0
-    simulation_random_connectivity.py $(Process) 10 9 0.0
-    simulation_random_connectivity.py $(Process) 15 9 0.0
-    simulation_random_connectivity.py $(Process) 20 9 0.0
-    simulation_random_connectivity.py $(Process) 5 5 0.25
-    simulation_random_connectivity.py $(Process) 10 5 0.25
-    simulation_random_connectivity.py $(Process) 15 5 0.25
-    simulation_random_connectivity.py $(Process) 20 5 0.25
-    simulation_random_connectivity.py $(Process) 5 7 0.25
-    simulation_random_connectivity.py $(Process) 10 7 0.25
-    simulation_random_connectivity.py $(Process) 15 7 0.25
-    simulation_random_connectivity.py $(Process) 20 7 0.25
-    simulation_random_connectivity.py $(Process) 5 9 0.25
-    simulation_random_connectivity.py $(Process) 10 9 0.25
-    simulation_random_connectivity.py $(Process) 15 9 0.25
-    simulation_random_connectivity.py $(Process) 20 9 0.25
-    simulation_random_connectivity.py $(Process) 5 5 0.5
-    simulation_random_connectivity.py $(Process) 10 5 0.5
-    simulation_random_connectivity.py $(Process) 15 5 0.5
-    simulation_random_connectivity.py $(Process) 20 5 0.5
-    simulation_random_connectivity.py $(Process) 5 7 0.5
-    simulation_random_connectivity.py $(Process) 10 7 0.5
-    simulation_random_connectivity.py $(Process) 15 7 0.5
-    simulation_random_connectivity.py $(Process) 20 7 0.5
-    simulation_random_connectivity.py $(Process) 5 9 0.5
-    simulation_random_connectivity.py $(Process) 10 9 0.5
-    simulation_random_connectivity.py $(Process) 15 9 0.5
-    simulation_random_connectivity.py $(Process) 20 9 0.5
-    simulation_random_connectivity.py $(Process) 5 5 0.75
-    simulation_random_connectivity.py $(Process) 10 5 0.75
-    simulation_random_connectivity.py $(Process) 15 5 0.75
-    simulation_random_connectivity.py $(Process) 20 5 0.75
-    simulation_random_connectivity.py $(Process) 5 7 0.75
-    simulation_random_connectivity.py $(Process) 10 7 0.75
-    simulation_random_connectivity.py $(Process) 15 7 0.75
-    simulation_random_connectivity.py $(Process) 20 7 0.75
-    simulation_random_connectivity.py $(Process) 5 9 0.75
-    simulation_random_connectivity.py $(Process) 10 9 0.75
-    simulation_random_connectivity.py $(Process) 15 9 0.75
-    simulation_random_connectivity.py $(Process) 20 9 0.75
+    simulation_random_connectivity.py $(Process) 20 4 0.0
+    simulation_random_connectivity.py $(Process) 20 6 0.0
+    simulation_random_connectivity.py $(Process) 20 8 0.0
+    simulation_random_connectivity.py $(Process) 20 4 0.25
+    simulation_random_connectivity.py $(Process) 20 6 0.25
+    simulation_random_connectivity.py $(Process) 20 8 0.25
+    simulation_random_connectivity.py $(Process) 20 4 0.5
+    simulation_random_connectivity.py $(Process) 20 6 0.5
+    simulation_random_connectivity.py $(Process) 20 8 0.5
+    simulation_random_connectivity.py $(Process) 20 4 0.75
+    simulation_random_connectivity.py $(Process) 20 6 0.75
+    simulation_random_connectivity.py $(Process) 20 8 0.75
 )

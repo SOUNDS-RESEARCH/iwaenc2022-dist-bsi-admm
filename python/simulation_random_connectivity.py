@@ -18,7 +18,7 @@ density = float(sys.argv[4])
 print("Job: %d, SNR: %d, N_sens: %d, density: %f" % (process_id, SNR, N_sens, density))
 
 # %%
-runs = 50
+runs = 30
 seed = 12345
 plot = False
 
@@ -35,7 +35,9 @@ rng.seed(seed)
 
 # %%
 for run in range(runs):
-    if os.path.isfile("data/%d_%d.npy" % (process_id, run)):
+    if os.path.isfile(
+        "data/simulation_random_connectivity/%d_%d.npy" % (process_id, run)
+    ):
         print("run %d is already there" % (run))
         continue
     # %%
@@ -67,10 +69,7 @@ for run in range(runs):
 
     # %%
     # connectivity: ring + random inbetween ones
-    G = utils.generateConnectionMatrix(N_sens, density, rng)
-    offdiag = np.arange(N_sens - 1)
-    G[offdiag, offdiag + 1] = 1  # setting the directed ring as base
-    np.fill_diagonal(G, 0)
+    G = utils.generateRandomConnectionMatrixWithRing(N_sens, density, rng)
 
     network_td = admm.Network(L)
     network_newton_fq = sb_newton_fq.Network(L)
@@ -82,48 +81,18 @@ for run in range(runs):
         network_td.addNode(name, rho)
         network_newton_fq.addNode(name, rho)
         network_newton_fq_diag.addNode(name, rho)
+    for n in range(N_sens):
+        name = "node%d" % (n)
+        connections = []
+        for j in range(N_sens):
+            name1 = "node%d" % (j)
+            if G[n, j] > 0:
+                connections.append(name1)
+        network_td.setConnection(name, connections)
+        network_newton_fq.setConnection(name, connections)
+        network_newton_fq_diag.setConnection(name, connections)
 
-    network_td.addNode("node2", rho)
-    network_td.addNode("node3", rho)
-    network_td.addNode("node4", rho)
-    network_td.addNode("node5", rho)
-
-    # node 1 sends to node 2 and 3
-    network_td.setConnection("node1", ["node2", "node3"])
-    network_td.setConnection("node2", ["node3"])
-    network_td.setConnection("node3", ["node4"])
-    network_td.setConnection("node4", ["node5"])
-    network_td.setConnection("node5", ["node1"])
-    network_td.setBufferSize(1)
-
-    rho = 0.01
-    network_newton_fq.addNode("node2", rho)
-    network_newton_fq.addNode("node3", rho)
-    network_newton_fq.addNode("node4", rho)
-    network_newton_fq.addNode("node5", rho)
-
-    # node 1 sends to node 2 and 3
-    network_newton_fq.setConnection("node1", ["node2", "node3"])
-    network_newton_fq.setConnection("node2", ["node3"])
-    network_newton_fq.setConnection("node3", ["node4"])
-    network_newton_fq.setConnection("node4", ["node5"])
-    network_newton_fq.setConnection("node5", ["node1"])
-    network_newton_fq.setBufferSize(1)
-
-    rho = 0.01
-    network_newton_fq_diag.addNode("node1", rho)
-    network_newton_fq_diag.addNode("node2", rho)
-    network_newton_fq_diag.addNode("node3", rho)
-    network_newton_fq_diag.addNode("node4", rho)
-    network_newton_fq_diag.addNode("node5", rho)
-
-    # node 1 sends to node 2 and 3
-    network_newton_fq_diag.setConnection("node1", ["node2", "node3"])
-    network_newton_fq_diag.setConnection("node2", ["node3"])
-    network_newton_fq_diag.setConnection("node3", ["node4"])
-    network_newton_fq_diag.setConnection("node4", ["node5"])
-    network_newton_fq_diag.setConnection("node5", ["node1"])
-    network_newton_fq_diag.setBufferSize(1)
+    # %%
 
     # %% GENERATE AR SIGNAL
     N_ff = 1025
@@ -287,12 +256,15 @@ for run in range(runs):
     err_ADMM_newton_fq_diag = np.asarray(err_ADMM_newton_fq_diag)
 
     # %%
-    with open("data/%d_%d.npy" % (inp, run), "wb") as f:
+    with open(
+        "data/simulation_random_connectivity/%d_%d.npy" % (process_id, run), "wb"
+    ) as f:
         np.save(f, runs)
         np.save(f, run)
         np.save(f, L)
         np.save(f, N_sens)
         np.save(f, SNR)
+        np.save(f, G)
         np.save(f, h)
         np.save(f, err_MCQN)
         np.save(f, err_NMCFLMS)
