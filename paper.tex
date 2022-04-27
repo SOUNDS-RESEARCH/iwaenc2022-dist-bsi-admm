@@ -58,7 +58,7 @@
 %
 % Single address.
 % ---------------
-\name{Matthias Blochberger\sthanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No. 956369.}, Filip Elvander\sthanks{This work was supported in part by the Research Foundation - Flanders (FWO) grant 12ZD622N.}, ... who else?}
+\name{Matthias Blochberger\sthanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No. 956369.}, Filip Elvander\sthanks{This work was supported in part by the Research Foundation - Flanders (FWO) grant 12ZD622N.}, Randall Ali, Toon van Waterschoot, Marc Moonen}
 \address{KU Leuven\\Department of Electrical Engineering (ESAT)\\STADIUS Center for Dynamical Systems, Signal Processing and Data Analytics \\3001 Leuven, Belgium}
 %
 \begin{document}
@@ -68,9 +68,9 @@
 %
 \begin{abstract}
     In this contribution, we propose a cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM).
-    The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into lower-dimensional sub-problems with lowered computational complexity, which can be solved in parallel.
+    The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into lower-dimensional sub-problems with reduced computational complexity, which can be solved in parallel.
     Each sub-problem yields estimates for a subset of channel frequency responses, which then are combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
-    With numerical simulations, we show that it is possible to achieve convergence speeds comparable to low-cost frequency-domain algorithms and estimation errors better than a high-performing Quasi-Newton method.
+    With numerical simulations, we show that it is possible to achieve convergence speeds comparable to low-cost frequency-domain algorithms and estimation errors better than a high-performing Quasi-Newton algorithm.
 \end{abstract}
 %
 \begin{keywords}
@@ -82,23 +82,19 @@
 
 
 The problem of blind system identification (BSI), which aims to estimate channel impulse responses of an unknown system without knowing the input signal, has been the subject of extensive research over recent decades.
-First introduced in \cite{satoMethodSelfRecoveringEqualization1975}, various methods have been proposed since.
-Early methods use higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mecidel1991tutorial} for channel estimation, however high complexity led to research into methods only using second-order statistics.
-One of the first to be proposed was the cross-relation (CR) method \cite{tong1994blind, guanghanxuLeastsquaresApproachBlind1995}, with other relevant approaches being subspace methods \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood \cite{yingbohuaFastMaximumLikelihood1996} methods.
+It was introduced in \cite{satoMethodSelfRecoveringEqualization1975} and various algorithms have been proposed since.
+Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mecidel1991tutorial} for channel estimation, however a high computational complexity has motivated research into algorithms using only second-order statistics.
+Suh algorithms include the cross-relation (CR) algorithm \cite{tong1994blind, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
 
-\noindent Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least mean squares (LMS) algorithms in time and frequency domain \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} are the ones most widely used.
-The NMCFLMS algorithm is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
-Further, the quasi-Netwon \cite{habetsOnlineQuasiNewtonAlgorithm2010} approach in the time domain utilizes a BFGS method to estimate the Hessian of the problem.
+Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
+The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
+The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
 
 The alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} solves convex optimization problems by splitting them into smaller sub-problems, each less complex to solve than the original one.
-It has found applications in a large number of areas such as machine learning or control systems.
-Here, we use ADMM to separate the inter-channel cross-relations to form smaller sub-problems involving overlapping subsets of the entire channel set and use equality constraints to find a consensus on the overlapping estimated sub-problem parameters.
+In this paper, we use ADMM to separate the inter-channel cross-relations to form smaller sub-problems involving overlapping subsets of the entire channel set and use equality constraints to find a consensus on the overlapping estimated sub-problem parameters.
 The ADMM update steps are applied in a block processing scheme forming an adaptive algorithm also referred to as Online-ADMM \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014}.
 
-The resulting algorithm provides good estimation results while keeping complexity low and providing scalability through parallel processing possibilities.
-
-
-% \lipsum[1-4]
+The resulting algorithm provides good estimation results while keeping the computational complexity low and providing scalability through distributed processing possibilities.
 
 % #############################################################################
 % #############################################################################
@@ -112,10 +108,10 @@ The resulting algorithm provides good estimation results while keeping complexit
 We consider an acoustic SIMO system with the input signal \(\mtxb{s}(n)\) and \(i \in \Mset\) with \(\Mset \triangleq \{1,\ldots,M\} \) outputs \(\x_i(n)\) defined as
 \begin{align}
     \mtxb{s}(n) &= \begin{bmatrix}
-        s(n)&s(k-1)&\ldots&s(k-2L+2)
-    \end{bmatrix}^{\T},\\
+        s(n)&s(n-1)&\ldots&s(n-2L+2)
+    \end{bmatrix}^{\T}\\
     \x_i(n) &= \begin{bmatrix}
-        x_i(n)&x_i(k-1)&\ldots&x_i(k-L+1)
+        x_i(n)&x_i(n-1)&\ldots&x_i(n-L+1)
     \end{bmatrix}^{\T}.
 \end{align}
 Each output \(\x_i(n)\) is the convolution of \(\mtxb{s}(n)\) with the respective channel impulse response \(\h_i\) and an additive noise term \(\mtxb{v}_i(n)\), assumed to be zero-mean and uncorrelated.
@@ -123,15 +119,15 @@ The signal model is described by
 \begin{equation}
     \x_i(n) = \mtxb{H}_i \mtxb{s}(n) + \mtxb{v}_i(n),
 \end{equation}
-where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the \(i\)th channel using the elements of \(\h_i\).
+where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the \(i\)th channel using the elements of \(\h_i\) which represents the system to be identified.
 
 % #############################################################################
 \subsection{Cross-relation approach}
 \label{ssec:cross_rel}
-The cross-relation approach for BSI aims to use output signals of the system only to identify it.
-This can be achieved by exploiting the relative channel information when more than one channels are available and the identifiability conditions \cite{guanghanxuLeastsquaresApproachBlind1995} are satisfied. These conditions are: (i) the channel transfer functions have no common zeros (i.e. are not co-prime), and (ii) the covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e. the signal fully excites the channels).
+The cross-relation approach for BSI aims to use only the output signals of the system to identify it.
+This can be achieved by exploiting the relative channel information when more than one channel is available, and the identifiability conditions \cite{guanghanxuLeastsquaresApproachBlind1995} are satisfied. These conditions are: (i) the channel transfer functions have no common zeros (i.e. are not co-prime), and (ii) the covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e. the signal fully excites the channels).
 
-The fundamental equality of this approach, here in the noiseless case \(\mtxb{v}_i(n) = 0\), is 
+The fundamental equality of this approach in the noiseless case \(\mtxb{v}_i(n) = 0\), is 
 \begin{equation}
     \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j \in \Mset,\,i\neq j\label{eq:cross_rel:equality_conv}
 \end{equation}
@@ -140,23 +136,23 @@ Left-multiplication and applying the expectation operator to form the covariance
 \begin{equation}
     \R(n) \h = \bm{0}, \label{eq:cross_rel:null_space}\\
 \end{equation}
-where 
+where \(\R\) is an \(M L \times M L\) matrix given by:
 \begin{equation}
     \R = \begin{bmatrix}
-        \sum_{m \neq 1} \R_{mm} & -\R_{21} & \cdots & -\R_{M1}\\
-        -\R_{12} & \sum_{m \neq 2} \R_{mm} & \cdots & -\R_{M2}\\
+        \sum_{i \neq 1} \R_{ii} & -\R_{21} & \cdots & -\R_{M1}\\
+        -\R_{12} & \sum_{i \neq 2} \R_{ii} & \cdots & -\R_{M2}\\
         \vdots & \vdots & \ddots & \vdots\\
-        -\R_{1M} & -\R_{2M} & \cdots & \sum_{m \neq M} \R_{mm}\\
+        -\R_{1M} & -\R_{2M} & \cdots & \sum_{i \neq M} \R_{ii}\\
     \end{bmatrix},\label{eq:cross_rel:data_matrix}
 \end{equation}
 and \(\h = \begin{bmatrix}
     \h_1^\T & \cdots & \h_M^\T
 \end{bmatrix}^\T\).
-Looking at the problem in the frequency domain, the derivation is analogous. We denote all frequency-domain variables in bold cursive (e.g. \(\Rf\)) compared to the time-domain bold upright (e.g \(\R\)). The derivation involves the frame-based overlap-save technique, working with signal frames \(\x_{i,2L}(m)\) with length \(2L\), frame index \(m\), leading to the system of equations 
+Formulating the problem in the frequency domain, the derivation is analogous. We denote all frequency-domain variables in bold cursive (e.g. \(\Rf\)) compared to the time-domain bold upright (e.g \(\R\)). The derivation involves the frame-based overlap-save technique, working with signal frames \(\x_{i,2L}(m)\) of length \(2L\), frame index \(m\), leading to the system of equations 
 \begin{equation}
     \Rf(m) \hf = \bm{0} \label{eq:frequency_domain:null_space}\\
 \end{equation}
-where the matrix is recursivly computed by \begin{equation}
+where the \(M L \times M L\) matrix is recursivly computed by \begin{equation}
     \Rf(m) = \eta \Rf(m-1) + (1-\eta )\hat{\Rf}(m)
 \end{equation}
 instead of estimating the expectation by sample averages. Here, \(\eta \in [0,1]\) is an exponential smoothing factor and \(\hat{\Rf}(m)\) is constructed analogous to \eqref{eq:cross_rel:data_matrix}, however with covariance matrices replaced by cross-spectrum matrices 
@@ -175,7 +171,7 @@ The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2
     \mtxb{W}_{2L \times L}^{10} &= \begin{bmatrix}
         \mtxb{I}_{L \times L} & \mtxb{0}_{L \times L}
     \end{bmatrix}^\T,\\
-    \bm{{W}}_{2L \times L}^{01} &= \mtxb{F}_{L \times L} \mtxb{W}_{L \times 2L}^{01} \mtxb{F}_{2L \times 2L}^{-1},\\
+    \bm{{W}}_{L \times 2L}^{01} &= \mtxb{F}_{L \times L} \mtxb{W}_{L \times 2L}^{01} \mtxb{F}_{2L \times 2L}^{-1},\\
     \bm{{W}}_{2L \times L}^{10} &= \mtxb{F}_{2L \times 2L} \mtxb{W}_{2L \times L}^{10} \mtxb{F}_{L \times L}^{-1},
 \end{align} where $\mtxb{F}$ is the DFT matrix for sizes L and 2L.
 Analogous to the time-domain formulation, the vector \(\hf\) is a stacked vector of complex-valued frequency responses.
@@ -191,11 +187,11 @@ as the minimization problem
     \hat{\hf}(m+1) = \arg \min_{\hf} \quad &\hf^\herm(m) \Rf(m) \hf(m), \label{eq:frequency_domain:min_prob}\\
     \text{s.t. } \quad &\hf^\herm(m) \hf(m) = a.
 \end{align}
-In the following section, we introduce a novel adaptive method to find a solution to this problem.
+In the following section, we introduce a novel adaptive algorithm to find a solution to this problem.
 
 % #############################################################################
 % #############################################################################
-\section{Proposed Method}
+\section{Proposed Algorithm}
 \label{sec:proposed_method}
 
 % #############################################################################
@@ -262,7 +258,7 @@ The ADMM then consists of the steps:
 %     &\left. \qquad \qquad \vphantom{\sum_{i=1}^{M} pp } \left.+ \left( \wf_i^{k+1} - \tilde{\hf}_i \right)^\herm \rho \I \left( \wf_i^{k+1} - \tilde{\hf}_i \right)  \right) \right\},\label{eq:general_consensus_admm:global}\\
 %     &\uuf_i^{k+1} = \uuf_i^{k} + \rho \left( \wf_i^{k+1} - \tilde{\hf}_i^{k+1} \right).\label{eq:general_consensus_admm:dual}
 % \end{align}
-As this is still denoted as an iterative method, we will introduce the online/adaptive aspect of the proposed method next.
+As this is still denoted as an iterative algorithm, we will introduce the online/adaptive aspect of the proposed one next.
 
 \subsection{Online ADMM-BSI}
 \label{ssec:online_admm}
@@ -272,7 +268,7 @@ A thorough look at time-varying data terms in ADMM can be found in \cite{wangOnl
 We transform the iterative batch processing method \eqref{eq:general_consensus_admm:local}-\eqref{eq:general_consensus_admm:dual} into an adaptive one by computing only a (small) finite number of iterations with each time-frame-\(m\) specific data term.
 Here specifically, we apply one iteration per time frame, which manifests itself as simply replacing the iteration index \(k\) with the time index \(m\)
 
-The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various methods, in this case however we perform a Newton update step
+The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various algorithms, in this case however we perform a Newton update step
 \begin{equation}
     \wf_i^{m+1} = \wf_i^{m} - \mu \bm{{V}}_i^m \left( \aRhof_i^m \wf_i^m + \uuf_i^m + \rho\left(\wf_i^m - \tilde{\hf}_i^{m}\right)\right)\label{eq:online_admm:local_update}
 \end{equation}
