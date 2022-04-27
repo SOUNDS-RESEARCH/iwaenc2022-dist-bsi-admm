@@ -134,7 +134,7 @@ The fundamental equality of this approach in the noiseless case \(\mtxb{v}_i(n) 
 which states that the channel output signal convolved with the impulse response of another is equal to the vice-versa as follows from the commutativity property of the convolution.
 Left-multiplication and applying the expectation operator to form the covariance matrix \(\R_{ij} = \ev{\x_i \x_j^\T}\) and combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g. \cite{huangAdaptiveMultichannelLeast2002} for a more thourough derivation) yields the system of equations  
 \begin{equation}
-    \R(n) \h = \bm{0}, \label{eq:cross_rel:null_space}\\
+    \R(n) \h = \bm{0} \label{eq:cross_rel:null_space}\\
 \end{equation}
 where \(\R\) is an \(M L \times M L\) matrix given by:
 \begin{equation}
@@ -143,7 +143,7 @@ where \(\R\) is an \(M L \times M L\) matrix given by:
         -\R_{12} & \sum_{i \neq 2} \R_{ii} & \cdots & -\R_{M2}\\
         \vdots & \vdots & \ddots & \vdots\\
         -\R_{1M} & -\R_{2M} & \cdots & \sum_{i \neq M} \R_{ii}\\
-    \end{bmatrix},\label{eq:cross_rel:data_matrix}
+    \end{bmatrix}\label{eq:cross_rel:data_matrix}
 \end{equation}
 and \(\h = \begin{bmatrix}
     \h_1^\T & \cdots & \h_M^\T
@@ -157,37 +157,43 @@ where the \(M L \times M L\) matrix is recursivly computed by \begin{equation}
 \end{equation}
 instead of estimating the expectation by sample averages. Here, \(\eta \in [0,1]\) is an exponential smoothing factor and \(\hat{\Rf}(m)\) is constructed analogous to \eqref{eq:cross_rel:data_matrix}, however with covariance matrices replaced by cross-spectrum matrices 
 \begin{equation}
-    \Rf_{ij}(m) = \bm{{S}}_{i}^\herm (m) \bm{{S}}_{j}(m),
+    \Rf_{ij}(m) = \bm{X}_{i}^\herm (m) \bm{X}_{j}(m)
 \end{equation}
 with 
 \begin{equation}
-    \bm{{S}}_{i}(m) = \bm{{W}}^{01}_{L \times 2L} \bm{{D}}_{i}(m) \bm{{W}}^{10}_{2L \times L}.
+    \bm{X}_{i}(m) = \bm{{W}}^{01}_{L \times 2L} \bm{{D}}_{i}(m) \bm{{W}}^{10}_{2L \times L}.
 \end{equation}
-The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2L} \left\{ \x_{i,2L}(m) \right\} \right\}\) contains the  signal spectrum on its diagonal and the overlap-save matrices are defined as
+The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2L} \left\{ \x_{i,2L}(m) \right\} \right\}\) contains the  signal spectrum on its diagonal and
+\begin{align}
+    \bm{{W}}_{L \times 2L}^{01} &= \mtxb{F}_{L \times L} \mtxb{W}_{L \times 2L}^{01} \mtxb{F}_{2L \times 2L}^{-1}\\
+    \bm{{W}}_{2L \times L}^{10} &= \mtxb{F}_{2L \times 2L} \mtxb{W}_{2L \times L}^{10} \mtxb{F}_{L \times L}^{-1}
+\end{align} are the frequency-domain overlap-save matrices where \(\mtxb{F}_{L \times L}\) and \(\mtxb{F}_{2L \times 2L}\) are the DFT matrices for sizes L and 2L respectively and 
 \begin{align}
     \mtxb{W}_{L \times 2L}^{01} &= \begin{bmatrix}
         \mtxb{0}_{L \times L} & \mtxb{I}_{L \times L}
-    \end{bmatrix},\\
+    \end{bmatrix}\\
     \mtxb{W}_{2L \times L}^{10} &= \begin{bmatrix}
         \mtxb{I}_{L \times L} & \mtxb{0}_{L \times L}
-    \end{bmatrix}^\T,\\
-    \bm{{W}}_{L \times 2L}^{01} &= \mtxb{F}_{L \times L} \mtxb{W}_{L \times 2L}^{01} \mtxb{F}_{2L \times 2L}^{-1},\\
-    \bm{{W}}_{2L \times L}^{10} &= \mtxb{F}_{2L \times 2L} \mtxb{W}_{2L \times L}^{10} \mtxb{F}_{L \times L}^{-1},
-\end{align} where $\mtxb{F}$ is the DFT matrix for sizes L and 2L.
+    \end{bmatrix}^\T
+\end{align}
+denote the time-domain overlap-save matrices.
+
 Analogous to the time-domain formulation, the vector \(\hf\) is a stacked vector of complex-valued frequency responses.
-In the presence of noise, the system of equations \eqref{eq:frequency_domain:null_space} is best solved by posing it as a least-mean-squares minimization problem.
+In the presence of noise, the system of equations \eqref{eq:frequency_domain:null_space} is best solved by posing it as a least-mean-squares minimization problem:
 %  minimizing \(\|\underline{\bm{e}} \|^2 = \| \Rf \hf \|^2\) with the constraint \(\hf^\herm \hf = a\) to avoid the trivial zero solution.
 % As this effectively seeks the \(a\)-scaled eigenvector of the squared hermitian matrix \(\Rf^\herm \Rf\) corresponding to the smallest eigenvalue, we can replace it with its non-squared form \(\Rf\) as the eigenvectors for both are equal.
-To compute the estimates, we minimize the cost function
-\begin{equation}
-    J(\hf)(m+1) = \hf^\herm(m) \Rf(m) \hf(m),\label{eq:frequency_domain:cost_function}
-\end{equation}
-as the minimization problem
+% To compute the estimates, we minimize the cost function
+% \begin{equation}
+%     J(\hf)(m+1) = \hf^\herm(m) \Rf(m) \hf(m)\label{eq:frequency_domain:cost_function}
+% \end{equation}
+% as the minimization problem
 \begin{align}
-    \hat{\hf}(m+1) = \arg \min_{\hf} \quad &\hf^\herm(m) \Rf(m) \hf(m), \label{eq:frequency_domain:min_prob}\\
-    \text{s.t. } \quad &\hf^\herm(m) \hf(m) = a.
+    \hat{\hf}(m+1) = \arg \min_{\hf} \quad &\hf^\herm(m) \Rf(m) \hf(m) \label{eq:frequency_domain:min_prob}\\
+    \text{s.t. } \quad &\hf^\herm(m) \hf(m) = a
 \end{align}
-In the following section, we introduce a novel adaptive algorithm to find a solution to this problem.
+where \(a\) is a scaling to be chosen.
+
+In the following section, we introduce an adaptive algorithm using ADMM to find a solution to this problem.
 
 % #############################################################################
 % #############################################################################
@@ -200,12 +206,13 @@ In the following section, we introduce a novel adaptive algorithm to find a solu
 In state-of-the-art algorithms \cite{heNoiseRobustFrequencyDomain2018,habetsOnlineQuasiNewtonAlgorithm2010}, the minimization problem \eqref{eq:frequency_domain:min_prob} is solved in its full form resulting in potentially high computational effort when the number of channels and length of impulse responses or number of DFT bins is large.
 Here however, we split the problem into \(N \in \mathbb{N}\) sub-problems and denote the index set of these \(N\) sub-problems as \(\Nset \triangleq \{1,\ldots,N\}\).
 Each sub-problem is defined by a subset of the full channel set \(\Cset_i \subseteq \Mset\) with \(i \in \Nset\).
-Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in \Mset\) which is the set of sub-problems a channel  \(j\) is part of.
-This channel-to-sub-problem relation can also be expressed as a \(M \times P\) matrix \(\mtxb{G}\) where the sets \(\Cset_i\) and \(\Csetb_j\) are the indices of non-zero elements of the rows and columns respectively (see \autoref{fig:problem_splitting:problem_splitting_matrix}).
-Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in \Mset\). 
-We replace the cost function \eqref{eq:frequency_domain:cost_function} with the separable cost function 
+Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in \Mset\) where for each channel \(j\) a set represents the sub-problems that particular channel is part of.
+This channel-to-sub-problem relation can also be represented as a \(M \times N\) matrix \(\mtxb{G}\) where the sets \(\Cset_i\) and \(\Csetb_j\) are the indices of non-zero elements of the rows and columns respectively (see \autoref{fig:problem_splitting:problem_splitting_matrix}).
+Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in \Mset\).
+
+We replace the cost function minimized in \eqref{eq:frequency_domain:min_prob} with the separable cost function 
 \begin{equation}
-    \tilde{J}(\hf) = \sum_{i \in \Nset} \tilde{J}_i(\wf_i)  = \sum_{i \in \Nset} \wf_i^\T \aRhof_i \wf_i
+    \tilde{J}(\hf) = \sum_{i \in \Nset} \tilde{J}_i(\wf_i)  = \sum_{i \in \Nset} \wf_i^\herm \aRhof_i \wf_i
     \label{eq:problem_splitting:cost_function}
 \end{equation}
 where \(\wf_i\) is defined as the stacked vector of estimated frequency responses analogous to \(\hf\) (cf. \autoref{ssec:cross_rel}) and \(\aRhof\) is constructed as defined in \eqref{eq:cross_rel:data_matrix}, both using the respective subset \(\Cset_i\).
@@ -227,7 +234,7 @@ In \autoref{fig:problem_splitting:problem_splitting_matrix}, we try to visualize
 % #############################################################################
 \subsection{General-Form Consensus ADMM}
 \label{ssec:general_consensus_admm}
-Minimization problems with separable const functions can be solved by the well-established method of consensus ADMM \cite{boydDistributedOptimizationStatistical2011}.
+Minimization problems with separable cost functions can be solved by the well-established method of consensus ADMM \cite{boydDistributedOptimizationStatistical2011}.
 In the previous section we introduced the split cost function \eqref{eq:problem_splitting:cost_function} which we now set in the context of the general-form consensus problem
 \begin{align}
     \operatorname{minimize} \quad &\sum_{i \in \Nset} \tilde{J}_i(\wf_i)\\
@@ -242,7 +249,7 @@ The augmented Lagrangian for this particular general-form consensus problem is
 %     \mathcal{L}_{\rho} (\wf,\hf,\uuf) = \sum_{i \in \Mset} \left( \wf_i^\herm \aRhof_i \wf_i + 2 \Re \left\{ \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right\} + \rho \left\| \wf_i - \tilde{\hf}_i \right\|\label{eq:general_consensus_admm:lagrangian}
 % \end{equation}
 \begin{align}
-    &\mathcal{L}_{\rho} (\wf,\hf,\uuf) = \sum_{i \in \Mset} \left( \wf_i^\herm \aRhof_i \wf_i + \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right)\vphantom{+ \frac{\rho}{2} \left\| \wf_i - \tilde{\hf}_i \right\|^2} \right.\nonumber\\
+    &\mathcal{L}_{\rho} (\wf,\hf,\uuf) = \sum_{i \in \Nset} \left( \wf_i^\herm \aRhof_i \wf_i + \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right)\vphantom{+ \frac{\rho}{2} \left\| \wf_i - \tilde{\hf}_i \right\|^2} \right.\nonumber\\
     &\left. + \left(\wf_i - \tilde{\hf}_i\right)^\herm \uuf_i + \left( \wf_i - \tilde{\hf}_i \right)^\herm \rho \I \left( \wf_i - \tilde{\hf}_i \right) \right).\label{eq:general_consensus_admm:lagrangian}
 \end{align}
 The ADMM then consists of the steps:
@@ -263,7 +270,7 @@ As this is still denoted as an iterative algorithm, we will introduce the online
 \subsection{Online ADMM-BSI}
 \label{ssec:online_admm}
 We introduced the original problem \eqref{eq:frequency_domain:null_space} with time-dependent data matrix. Following from this, also the data term in \eqref{eq:general_consensus_admm:lagrangian} is time-dependent, which from here on out will be denoted with the additional superscript time index \(m\) as \(\wf_i^\herm \aRhof_i^{m} \wf_i\).
-A thorough look at time-varying data terms in ADMM can be found in \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014} where it is referred to as "Online-ADMM".
+A thorough look at time-varying data terms in ADMM can be found in \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014} where it is referred to as ``Online-ADMM".
 
 We transform the iterative batch processing method \eqref{eq:general_consensus_admm:local}-\eqref{eq:general_consensus_admm:dual} into an adaptive one by computing only a (small) finite number of iterations with each time-frame-\(m\) specific data term.
 Here specifically, we apply one iteration per time frame, which manifests itself as simply replacing the iteration index \(k\) with the time index \(m\)
