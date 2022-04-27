@@ -81,7 +81,7 @@
 \label{sec:intro}
 
 
-The problem of blind system identification (BSI), which aims to estimate channel impulse responses of an unknown system without knowing the input signal, has been subject of extensive research over the recent decades.
+The problem of blind system identification (BSI), which aims to estimate channel impulse responses of an unknown system without knowing the input signal, has been the subject of extensive research over recent decades.
 First introduced in \cite{satoMethodSelfRecoveringEqualization1975}, various methods have been proposed since.
 Early methods use higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mecidel1991tutorial} for channel estimation, however high complexity led to research into methods only using second-order statistics.
 One of the first to be proposed was the cross-relation (CR) method \cite{tong1994blind, guanghanxuLeastsquaresApproachBlind1995}, with other relevant approaches being subspace methods \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood \cite{yingbohuaFastMaximumLikelihood1996} methods.
@@ -129,7 +129,7 @@ where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the
 \subsection{Cross-relation approach}
 \label{ssec:cross_rel}
 The cross-relation approach for BSI aims to use output signals of the system only to identify it.
-This can be achieved by exploiting the relative channel information when more than one channels are available, and the identifiability conditions \cite{guanghanxuLeastsquaresApproachBlind1995} are satisfied. These conditions are: (i) the channel transfer functions have no common zeros (i.e. are not co-prime), and (ii) the covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e. the signal fully excites the channels).
+This can be achieved by exploiting the relative channel information when more than one channels are available and the identifiability conditions \cite{guanghanxuLeastsquaresApproachBlind1995} are satisfied. These conditions are: (i) the channel transfer functions have no common zeros (i.e. are not co-prime), and (ii) the covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e. the signal fully excites the channels).
 
 The fundamental equality of this approach, here in the noiseless case \(\mtxb{v}_i(n) = 0\), is 
 \begin{equation}
@@ -213,9 +213,9 @@ We replace the cost function \eqref{eq:frequency_domain:cost_function} with the 
     \label{eq:problem_splitting:cost_function}
 \end{equation}
 where \(\wf_i\) is defined as the stacked vector of estimated frequency responses analogous to \(\hf\) (cf. \autoref{ssec:cross_rel}) and \(\aRhof\) is constructed as defined in \eqref{eq:cross_rel:data_matrix}, both using the respective subset \(\Cset_i\).
-If the channel subsets are proper \(\Cset_i \subset \Mset\), this leads to \(N\) sub-problems each with smaller dimensions than the original centralized problem, reducing complexity.
+If the channel subsets are proper \(\Cset_i \subset \Mset\), this leads to \(N\) sub-problems, each with smaller dimensions than the original centralized problem, reducing complexity.
 The lowest-dimensionality is attained when each \(\Cset_i\) has two elements, i.e. two channels, with parallel processing, effectively reducing problem size from \(ML \times ML\) to \(2L \times 2L\).
-In \autoref{fig:problem_splitting:problem_splitting_matrix}, we try to visualize which information is used to solve the sub-problems in relation to the initial problem for a general case.
+In \autoref{fig:problem_splitting:problem_splitting_matrix}, we try to visualize which information is used to solve the sub-problems compared to the initial problem for a general case.
 
 \begin{figure}
     \centering
@@ -318,14 +318,13 @@ As error measure, we use the normalized projection misalignment (NPM) \cite{huan
     \text{NPM}(m) = 20\,\log_{10} \left(\frac{\left\| \h(m) - \frac{\h^\T (m) \h_{\text{t}}}{\h_{\text{t}}^\T \h_{\text{t}}}\h(m) \right\|_2}{\left\|\h(m)\right\|_2} \right)
 \end{equation}
 where \(\h\) is the stacked vector of impulse response estimates (cf. \autoref{ssec:cross_rel}), which are the inversely Fourier-transformed estimated frequency responses stacked in \(\hf\) and \(\h_{\text{t}}\) is the ground truth.
-
 Further, the signal-to-noise ratio (SNR) for the experiments is defined as 
 \begin{equation}
     \text{SNR} = 10 \log_{10} \left(\frac{\sigma_s^2 \| \h_t \|}{M \sigma_v^2} \right)
 \end{equation}
 where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise respectively which both are modelled by (channel-independent) white Gaussian noise (WGN).
 
-The first experiment evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-channel system (\(M=5,\,N=5\)).
+The first experiment evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-channel system (\(M=5,\, N=5\)).
 The impulse responses are drawn from a Normal distribution with unit variance, and the signal is 100 seconds (\(f_s=8000\)) of WGN to ensure convergence of all algorithms.
 The step sizes are hand tuned for stable convergence: \(\mu_{\text{MCQN}}=0.5,\, \mu_{\text{NMCFLMS}}=0.4,\, \mu_{l_p-\text{NMCFLMS}}=0.3,\, \mu_{\text{ADMM}}=0.6,\, \rho=1,\,\eta=0.98 \).
 \autoref{fig:perf_eval:NPM_over_time_exp1} shows the median of 30 Monte-Carlo runs where the averaged NPM of the last \(100\) frames is taken as measurement.
@@ -346,8 +345,7 @@ It is observable that the proposed algorithm yields a lower steady-state NPM tha
 The second experiment is a small-scale assessment of the influence of the overlap of sub-problems.
 Two base scenarios, \(M=4,\,N=4\) and \(M=8,\,N=8\), are evaluated using short (\(L=16\)) random impulse responses and different values for the sub-problem overlap parameter \(\zeta\) which is defined as the ratio of ones to zeros of only considering elements of \(\mtxb{G}\) that are not part of the main diagonal, superdiagonal and the first element of the last row (marked gray in \autoref{fig:perf_eval:NPM_over_time_M4}).
 Random patterns satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) are generated.
-\autoref{fig:perf_eval:NPM_over_time_exp2} shows the median of 30 Monte-Carlo runs for the two setups, which shows the proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\).
-Note that the steady-state error is not dependent on \(\zeta\).
+\autoref{fig:perf_eval:NPM_over_time_exp2} shows the median of 30 Monte-Carlo runs for the two setups, which shows the proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error is not dependent on \(\zeta\).
 
 
 
@@ -363,7 +361,7 @@ A further experiment to assess the influence of sub-problem overlap shows that s
 
 % References should be produced using the bibtex program from suitable
 % BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
-% style file from IEEE produces unsorted bibliography list.
+% style file from IEEE produces an unsorted bibliography list.
 % -------------------------------------------------------------------------
 \bibliographystyle{IEEEbib}
 \bibliography{iwaenc2022}
