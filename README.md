@@ -2,7 +2,7 @@
 IWAENC 2022
 
 ## Acknowledgements
-<table>
+<table border="0">
     <tr>
         <td width="75">
         <img src="https://www.sounds-etn.eu/wp-content/uploads/2021/01/Screenshot-2021-01-07-at-16.50.22-600x400.png"  align="left"/>
