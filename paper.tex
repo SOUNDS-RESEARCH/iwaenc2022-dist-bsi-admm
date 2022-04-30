@@ -288,7 +288,7 @@ The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_cons
 \begin{equation}
     \wf_i^{m+1} = \wf_i^{m} - \mu \bm{{V}}_i^m \left( \hat{\aRhof}_i^m \wf_i^m + \uuf_i^m + \rho\left(\wf_i^m - \tilde{\hf}_i^{m}\right)\right)\label{eq:online_admm:local_update}
 \end{equation}
-where \(0  < \mu\leq 1\) is a step size and \(\bm{{V}}_i^m = \left(\hat{\aRhof}_i^m + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
+where \(\mu\) (\(0  < \mu\leq 1\)) is a step size and \(\bm{{V}}_i^m = \left(\hat{\aRhof}_i^m + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
 As this inverse is costly to compute, it is approximated by a diagonalized matrix
 \begin{equation}
     \tilde{\bm{{V}}}_i^m = \operatorname{diag} \left\{ \left( \operatorname{diag} \left\{ \hat{\aRhof}_i^m \right\} + \rho \mtxb{1} \right)^{-1}\right\},
@@ -353,7 +353,7 @@ It is observable that the proposed algorithm yields a lower steady-state NPM tha
     \label{fig:perf_eval:NPM_over_time_exp2}
 \end{figure}
 
-The second experiment is a small-scale assessment of the influence of the overlap of sub-problems.
+The second simulation is a small-scale assessment of the influence of the overlap of sub-problems.
 Two base scenarios, \(M=4,\,N=4\) and \(M=8,\,N=8\), are evaluated using short (\(L=16\)) random impulse responses and different values for the sub-problem overlap parameter \(\zeta\) which is defined as the ratio of ones to zeros of only considering elements of \(\mtxb{G}\) that are not part of the main diagonal, superdiagonal and the first element of the last row (marked gray on the inset of \autoref{fig:perf_eval:NPM_over_time_M4}).
 Random patterns satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) are generated.
 \autoref{fig:perf_eval:NPM_over_time_exp2} shows the median of 30 Monte-Carlo runs for the two setups, which shows the proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error is not dependent on \(\zeta\).
