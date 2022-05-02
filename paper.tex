@@ -11,6 +11,7 @@
 \usepackage[preprint]{spconfa4}
 \usepackage{amsmath,graphicx}
 \input{preamble.tex}
+\ninept
 
 % \excludecomment{note}
 % \excludecomment{attention}
@@ -84,7 +85,7 @@
 The problem of blind system identification (BSI), which aims to estimate channel impulse responses of an unknown system without knowing the input signal, has been the subject of extensive research over recent decades.
 It was introduced in \cite{satoMethodSelfRecoveringEqualization1975} and various algorithms have been proposed since.
 Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mecidel1991tutorial} for channel estimation, however a high computational complexity has motivated research into algorithms using only second-order statistics.
-Suh algorithms include the cross-relation (CR) algorithm \cite{tong1994blind, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
+Such algorithms include the cross-relation (CR) algorithm \cite{tong1994blind, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
 Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
 The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
 The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
@@ -189,8 +190,8 @@ In the presence of noise, the system of equations \eqref{eq:frequency_domain:nul
 % \end{equation}
 % as the minimization problem
 \begin{align}
-    \hat{\hf}(m+1) = \arg \min_{\hf} \quad &\hf^\herm(m) \hat{\Rf}(m) \hf(m) \label{eq:frequency_domain:min_prob}\\
-    \text{s.t. } \quad &\hf^\herm(m+1) \hf(m+1) = 1.
+    \hat{\hf} = \arg \min_{\hf} \quad &\hf^\herm \hat{\Rf} \hf \label{eq:frequency_domain:min_prob}\\
+    \text{s.t. } \quad &\hf^\herm \hf = 1.
 \end{align}
 
 In the following section, we introduce an adaptive algorithm using ADMM to find a solution to this problem.
