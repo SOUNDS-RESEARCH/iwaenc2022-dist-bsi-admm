@@ -71,7 +71,7 @@
     In this paper, we propose a distributed cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM) in a sensor network with a fusion center.
     The network consists of a fixed number of nodes each equipped with a processing unit as well as a sensor that represents an output channel of the SIMO system.
     The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems involving a subset of channels which is determined by the network topology.
-    Each network node delivers estimates for the subset of channel frequency responses, which then are communicated to the networks fusion center and combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
+    Each network node delivers estimates for the subset of channel frequency responses, which then are communicated to a fusion center and combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
     With numerical simulations, we show that it is possible to achieve convergence speeds and estimation errors comparable to fully centralized low-cost frequency-domain algorithms and a high-performing Quasi-Newton algorithm.
 \end{abstract}
 %
@@ -82,32 +82,37 @@
 \section{Introduction}
 \label{sec:intro}
 
-
 The problem of blind system identification (BSI), which aims to estimate channel impulse responses of an unknown system without knowing the input signal, has been the subject of extensive research over recent decades.
 It was introduced in \cite{satoMethodSelfRecoveringEqualization1975} and various algorithms have been proposed since.
-Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mecidel1991tutorial} for channel estimation, however a high computational complexity has motivated research into algorithms using only second-order statistics.
-Suh algorithms include the cross-relation (CR) algorithm \cite{tong1994blind, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
+Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mendelTutorialHigherorderStatistics1991} for channel estimation, however a high computational complexity has motivated research into algorithms using only second-order statistics.
+Such algorithms include the cross-relation (CR) algorithm \cite{langtongBlindIdentificationEqualization1994, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
 Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
 The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
 The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
+\begin{attention}
+    This is also a time-domain algorithm, should a comparison even be made? MCQN in plots
+\end{attention}
 
-While there exist distributed signal processing algorithms for applications such as noise cancellation \cite{}, echo control \cite{} or beamforming \cite{}, there is a gap regarding BSI which we are starting to fill with this contribution.
-The general-form consensus alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} solves optimization problems with cost functions separable in its variable.
-We separate the inter-channel cross-relations of the BSI problem according to the networks topology, i.e. each node 
+The expanding field of distributed signal processing brought forward algorithms for distributed noise control, echo cancellation, or beamforming, however, research into the task of BSI is limited.
+\begin{attention}
+    cite
+\end{attention}
+While there exist time-domain algorithms as introduced in \cite{yuDistributedBlindSystem2014,liuDistributedBlindIdentification2016,liuDistributedRecursiveBlind2017}, they do not pose apt comparisons to the frequency-domain algorithm being proposed.
+In this paper, we use the general-form consensus alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} to distribute and solve the optimization problem posed by the task.
+We separate the inter-channel cross-relations of the BSI problem according to the network's topology, i.e. each node solves a sub-problem using data from its network neighbors, and the entirety of connected nodes subsequently reaches a consensus for the channel frequency responses.
+The ADMM update steps are applied in a block processing scheme forming an adaptive algorithm also referred to as Online-ADMM \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014}.
 
-to form smaller sub-problems involving overlapping subsets of the entire channel set and use equality constraints to find a consensus on the overlapping estimated sub-problem parameters.
-
-% The alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} solves optimization problems by splitting them into smaller sub-problems, each less complex to solve than the original one.
-% In this paper, we use ADMM to separate the inter-channel cross-relations to form smaller sub-problems involving overlapping subsets of the entire channel set and use equality constraints to find a consensus on the overlapping estimated sub-problem parameters.
-% The ADMM update steps are applied in a block processing scheme forming an adaptive algorithm also referred to as Online-ADMM \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014}.
-
-As shown in numerical simulations, the resulting algorithm provides good estimation results as compared to state-of-the-art algorithms while keeping the computational complexity low and providing scalability through distributed processing possibilities.
-% All code to generate the results and this paper are available at \cite{Blochberger_CROSS-RELATION-BASED_FREQUENCY-DOMAIN_BLIND_2022}
+As shown in numerical simulations, the resulting algorithm provides good estimation results as compared to state-of-the-art centralized frequency-domain algorithms.
 
 % #############################################################################
 % #############################################################################
 \section{Problem statement}
 \label{sec:problem_statement}
+
+% #############################################################################
+\subsection{Sensor Network}
+\label{ssec:sensor_network}
+We consider a network consisting of \(M\) sensor nodes, each capable of acquiring a signal and independent processing.
 
 
 % #############################################################################
@@ -187,7 +192,7 @@ The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2
     \end{bmatrix}^\T\)
 denote the time-domain overlap-save matrices.
 
-Analogous to the time-domain formulation, the vector \(\hf\) is a stacked vector of complex-valued frequency responses.
+Analogous to the time-domain formulation, the \(ML \times 1\) vector \(\hf\) is a stacked vector of complex-valued frequency responses.
 In the presence of noise, the system of equations \eqref{eq:frequency_domain:null_space} is best solved by posing it as a least-mean-squares minimization problem \cite{guanghanxuLeastsquaresApproachBlind1995,huangAdaptiveMultichannelLeast2002}:
 %  minimizing \(\|\underline{\bm{e}} \|^2 = \| \Rf \hf \|^2\) with the constraint \(\hf^\herm \hf = a\) to avoid the trivial zero solution.
 % As this effectively seeks the \(a\)-scaled eigenvector of the squared hermitian matrix \(\Rf^\herm \Rf\) corresponding to the smallest eigenvalue, we can replace it with its non-squared form \(\Rf\) as the eigenvectors for both are equal.
@@ -225,7 +230,7 @@ We replace the cost function minimized in \eqref{eq:frequency_domain:min_prob} w
 \end{equation}
 where \(\wf_i\) is defined as the stacked vector of estimated frequency responses analogous to \(\hf\) (cf. \autoref{ssec:cross_rel}) and \(\hat{\aRhof}\) is constructed as defined in \eqref{eq:cross_rel:data_matrix}, both using the respective subset \(\Cset_i\).
 If the channel subsets are proper \(\Cset_i \subset \Mset\), this leads to \(N\) sub-problems, each with smaller dimensions than the original centralized problem, reducing complexity.
-The lowest-dimensionality is attained when each \(\Cset_i\) has two elements, i.e. two channels, assuming perfect parallel processing, effectively reducing problem size from \(ML \times ML\) to \(2L \times 2L\).
+The lowest dimensionality is attained when each \(\Cset_i\) has two elements, i.e. two channels, assuming perfect parallel processing, effectively reducing problem size from \(ML \times ML\) to \(2L \times 2L\).
 
 % \begin{figure}
 %     \centering
@@ -254,7 +259,8 @@ Minimization problems with separable cost functions can be solved by the well-es
 In the previous section we introduced the split cost function \eqref{eq:problem_splitting:cost_function} which we now set in the context of the general-form consensus problem
 \begin{align}
     \operatorname{minimize} \quad &\sum_{i \in \Nset} \tilde{J}_i(\wf_i)\\
-    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Nset,\,j \in \Cset_i
+    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Nset,\,j \in \Cset_i\\
+    &\hf^\herm \hf = 1
 \end{align}
 where \(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. \autoref{fig:problem_splitting:problem_splitting_matrix}).
 For brevity, the mapped global variables \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) are introduced.
@@ -375,7 +381,7 @@ Random patterns satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,
 \label{sec:conclusion}
 In this paper, an adaptive ADMM algorithm for blind system identification was developed.
 The algorithm separates the BSI problem into lower-dimensional sub-problems to reduce computational complexity and allows for parallel or distributed processing while maintaining steady-state error performance and convergence speed.
-Preliminary results using white Gaussian noise and randomly generated impulse responses have demonstrated improved steady-state error measures compared to state-of-the-art algorithms and that  steady-state performance is not affected by speparating the BSI problem into sub-problems while convergence speed is.
+Preliminary results using white Gaussian noise and randomly generated impulse responses have demonstrated improved steady-state error measures compared to state-of-the-art algorithms and that steady-state performance is not affected by separating the BSI problem into sub-problems while convergence speed is.
 
 % References should be produced using the bibtex program from suitable
 % BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography

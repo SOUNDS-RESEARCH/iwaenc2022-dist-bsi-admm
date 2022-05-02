@@ -6,10 +6,11 @@
                 "**/iwaenc2022/paper.tex"
             ],
             "config": {
-                "audience": "expert",
-                "dialect": "british",
+                "audience": "knowledgeable",
+                "dialect": "american",
                 "domain": "academic",
                 "emotions": [
+                    "optimistic",
                     "analytical"
                 ],
                 "goals": [
