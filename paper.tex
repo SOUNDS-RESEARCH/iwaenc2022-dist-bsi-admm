@@ -68,11 +68,11 @@
 \maketitle
 %
 \begin{abstract}
-    In this paper, we propose a distributed cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM) in a sensor network with a fusion center.
+    In this paper, we propose a distributed cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM) in a wireless sensor network (WSN).
     The network consists of a fixed number of nodes each equipped with a processing unit as well as a sensor that represents an output channel of the SIMO system.
     The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems involving a subset of channels which is determined by the network topology.
-    Each network node delivers estimates for the subset of channel frequency responses, which then are communicated to a fusion center and combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
-    With numerical simulations, we show that it is possible to achieve convergence speeds and estimation errors comparable to fully centralized low-cost frequency-domain algorithms and a high-performing Quasi-Newton algorithm.
+    Each node delivers estimates for the subset of channel frequency responses, which then are combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
+    With numerical simulations, we show that it is possible to achieve convergence speeds and estimation errors comparable to fully centralized low-cost frequency-domain algorithms.
 \end{abstract}
 %
 \begin{keywords}
@@ -95,7 +95,7 @@ The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the ot
 
 The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed noise control, echo cancellation, or beamforming, however, research into the task of BSI is limited.
 \begin{todo}
-    cite
+    References
 \end{todo}
 While there exist time-domain algorithms as introduced in \cite{yuDistributedBlindSystem2014,liuDistributedBlindIdentification2016,liuDistributedRecursiveBlind2017}, they do not pose apt comparisons to the frequency-domain algorithm being proposed.
 In this paper, we use the general-form consensus alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} to distribute and solve the optimization problem posed by the task.
@@ -118,7 +118,7 @@ Each node shares information with a set of neighboring nodes \(\Sset_i\) with \(
 \autoref{fig:sensor_network:WSN} shows a network where each node shares its signal information with one or more neighbors.
 \begin{todo}
     Which type of topology should be introduced. With fusion center? ring topology, "star" topology, depends on how consensus is introduced...\\
-    Make figure nicer.
+    Finish \autoref{fig:sensor_network:WSN}.
 \end{todo}
 \begin{figure}
     \centering
@@ -263,14 +263,7 @@ In the following section, we introduce a distributed adaptive algorithm to find 
 %     \label{fig:problem_splitting:problem_splitting_matrix}
 % \end{figure}
 
-% \begin{figure}
-%     \centering
-%     \includegraphics[trim={0.3cm 0.25cm 1.7cm 0.0cm},clip,width=\columnwidth]{images/parameter_mapping2.pdf}
-%     % \includestandalone[scale=1]{tikz/topology_general}
-%     \vspace*{-0.5cm}
-%     \caption{Parameter mapping of the local variable components \(({\wf}_i)_j\) to the global consensus variable components \(({\hf})_j\) via \(\mathcal{G}(i,j)\) for a general case with \(M=4\) channels and \(N=4\) sub-problems.}
-%     \label{fig:problem_splitting:problem_splitting_matrix}
-% \end{figure}
+
 
 % #############################################################################
 \subsection{General-Form Consensus ADMM}
@@ -290,9 +283,21 @@ Minimization problems with separable cost functions as introduced here can be so
     &\hf^\herm \hf = 1
 \end{align}
 where \(\wf_i\) will be referred to as the local variable, \(\hf\) as the global variable or consensus.
-\(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \((\hf)_g\).
+\(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. \autoref{fig:problem_splitting:parameter_mapping}).
 For brevity, the mapped global variables \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) are introduced.
 The equality constraint between local variables \(\wf_i\) and global variable \(\hf\) enforces the consensus, i.e. a common solution taking into account estimates of all nodes that share data of the same channel.
+\begin{todo}
+    Combine \autoref{fig:sensor_network:WSN} and \autoref{fig:problem_splitting:parameter_mapping}.
+\end{todo}
+
+\begin{figure}
+    \centering
+    \includegraphics[trim={0.3cm 0.25cm 1.7cm 0.0cm},clip,width=\columnwidth]{images/parameter_mapping2.pdf}
+    % \includestandalone[scale=1]{tikz/topology_general}
+    \vspace*{-0.5cm}
+    \caption{Parameter mapping of the local variable components \(({\wf}_i)_j\) to the global consensus variable components \(({\hf})_j\) via \(\mathcal{G}(i,j)\) for a network with \(M=4\) channels.}
+    \label{fig:problem_splitting:parameter_mapping}
+\end{figure}
 
 The augmented Lagrangian for this particular general-form consensus problem is
 \begin{align}
