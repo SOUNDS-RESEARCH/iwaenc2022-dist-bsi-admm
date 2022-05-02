@@ -11,6 +11,7 @@
 \usepackage[preprint]{spconfa4}
 \usepackage{amsmath,graphicx}
 \input{preamble.tex}
+\ninept
 
 % \excludecomment{note}
 % \excludecomment{attention}
@@ -71,7 +72,7 @@
     The network consists of a fixed number of nodes each equipped with a processing unit as well as a sensor that represents an output channel of the SIMO system.
     The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems involving a subset of channels which is determined by the network topology.
     Each network node delivers estimates for the subset of channel frequency responses, which then are communicated to the networks fusion center and combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
-    With numerical simulations, we show that it is possible to achieve convergence speeds and estimation errors comparable to low-cost frequency-domain algorithms and a high-performing Quasi-Newton algorithm.
+    With numerical simulations, we show that it is possible to achieve convergence speeds and estimation errors comparable to fully centralized low-cost frequency-domain algorithms and a high-performing Quasi-Newton algorithm.
 \end{abstract}
 %
 \begin{keywords}
@@ -90,9 +91,15 @@ Out of various multichannel BSI algorithms which have been proposed, adaptive cr
 The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
 The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
 
-The alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} solves optimization problems by splitting them into smaller sub-problems, each less complex to solve than the original one.
-In this paper, we use ADMM to separate the inter-channel cross-relations to form smaller sub-problems involving overlapping subsets of the entire channel set and use equality constraints to find a consensus on the overlapping estimated sub-problem parameters.
-The ADMM update steps are applied in a block processing scheme forming an adaptive algorithm also referred to as Online-ADMM \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014}.
+While there exist distributed signal processing algorithms for applications such as noise cancellation \cite{}, echo control \cite{} or beamforming \cite{}, there is a gap regarding BSI which we are starting to fill with this contribution.
+The general-form consensus alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} solves optimization problems with cost functions separable in its variable.
+We separate the inter-channel cross-relations of the BSI problem according to the networks topology, i.e. each node 
+
+to form smaller sub-problems involving overlapping subsets of the entire channel set and use equality constraints to find a consensus on the overlapping estimated sub-problem parameters.
+
+% The alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} solves optimization problems by splitting them into smaller sub-problems, each less complex to solve than the original one.
+% In this paper, we use ADMM to separate the inter-channel cross-relations to form smaller sub-problems involving overlapping subsets of the entire channel set and use equality constraints to find a consensus on the overlapping estimated sub-problem parameters.
+% The ADMM update steps are applied in a block processing scheme forming an adaptive algorithm also referred to as Online-ADMM \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014}.
 
 As shown in numerical simulations, the resulting algorithm provides good estimation results as compared to state-of-the-art algorithms while keeping the computational complexity low and providing scalability through distributed processing possibilities.
 % All code to generate the results and this paper are available at \cite{Blochberger_CROSS-RELATION-BASED_FREQUENCY-DOMAIN_BLIND_2022}
@@ -190,8 +197,8 @@ In the presence of noise, the system of equations \eqref{eq:frequency_domain:nul
 % \end{equation}
 % as the minimization problem
 \begin{align}
-    \hat{\hf}(m+1) = \arg \min_{\hf} \quad &\hf^\herm(m) \hat{\Rf}(m) \hf(m) \label{eq:frequency_domain:min_prob}\\
-    \text{s.t. } \quad &\hf^\herm(m+1) \hf(m+1) = 1.
+    \hat{\hf} = \arg \min_{\hf} \quad &\hf^\herm \hat{\Rf} \hf \label{eq:frequency_domain:min_prob}\\
+    \text{s.t. } \quad &\hf^\herm \hf = 1.
 \end{align}
 
 In the following section, we introduce an adaptive algorithm using ADMM to find a solution to this problem.
