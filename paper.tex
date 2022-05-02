@@ -247,7 +247,8 @@ Minimization problems with separable cost functions can be solved by the well-es
 In the previous section we introduced the split cost function \eqref{eq:problem_splitting:cost_function} which we now set in the context of the general-form consensus problem
 \begin{align}
     \operatorname{minimize} \quad &\sum_{i \in \Nset} \tilde{J}_i(\wf_i)\\
-    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Nset,\,j \in \Cset_i
+    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Nset,\,j \in \Cset_i\\
+    &\hf^\herm \hf = 1
 \end{align}
 where \(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. \autoref{fig:problem_splitting:problem_splitting_matrix}).
 For brevity, the mapped global variables \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) are introduced.
