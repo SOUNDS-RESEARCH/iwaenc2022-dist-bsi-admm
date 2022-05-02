@@ -33,9 +33,9 @@
 \newcommand{\aRhof}{{\bm{{P}}}}
 \newcommand{\I}{\mtxb{I}}
 \newcommand{\Cset}{\mathcal{C}}
-\newcommand{\Csetb}{\bar{\mathcal{C}}}
 \newcommand{\Mset}{\mathcal{M}}
-\newcommand{\Nset}{\mathcal{N}}
+\newcommand{\Sset}{\mathcal{S}}
+\newcommand{\Rset}{\mathcal{R}}
 
 
 
@@ -89,14 +89,14 @@ Such algorithms include the cross-relation (CR) algorithm \cite{langtongBlindIde
 Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
 The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
 The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
-\begin{attention}
+\begin{todo}
     This is also a time-domain algorithm, should a comparison even be made? MCQN in plots
-\end{attention}
+\end{todo}
 
-The expanding field of distributed signal processing brought forward algorithms for distributed noise control, echo cancellation, or beamforming, however, research into the task of BSI is limited.
-\begin{attention}
+The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed noise control, echo cancellation, or beamforming, however, research into the task of BSI is limited.
+\begin{todo}
     cite
-\end{attention}
+\end{todo}
 While there exist time-domain algorithms as introduced in \cite{yuDistributedBlindSystem2014,liuDistributedBlindIdentification2016,liuDistributedRecursiveBlind2017}, they do not pose apt comparisons to the frequency-domain algorithm being proposed.
 In this paper, we use the general-form consensus alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} to distribute and solve the optimization problem posed by the task.
 We separate the inter-channel cross-relations of the BSI problem according to the network's topology, i.e. each node solves a sub-problem using data from its network neighbors, and the entirety of connected nodes subsequently reaches a consensus for the channel frequency responses.
@@ -112,29 +112,57 @@ As shown in numerical simulations, the resulting algorithm provides good estimat
 % #############################################################################
 \subsection{Sensor Network}
 \label{ssec:sensor_network}
-We consider a network consisting of \(M\) sensor nodes, each capable of acquiring a signal and independent processing.
+We consider a WSN consisting of \(M\) sensor nodes, each acquiring a signal and equipped with a processing unit, and define the index set  \(i \in \Mset \triangleq \{1,\ldots,M\} \) representing these.
+Each node shares information with a set of neighboring nodes \(\Sset_i\) with \(i \in \Mset\), and receives information by a set of nodes \(\Rset_i\) with \(i \in \Mset\).
+% These connection links between nodes are represented as the \(M \times M\) network connection matrix \(\mtxb{C}\) with its elements defined as \(\mathrm{G}_{ij} = 1\) if the \(i\)-th node shares its signal information with the \(j\)-th node and \(\mathrm{G}_{ij} = 0\) otherwise.
+\autoref{fig:sensor_network:WSN} shows a network where each node shares its signal information with one or more neighbors.
+\begin{todo}
+    Which type of topology should be introduced. With fusion center? ring topology, "star" topology, depends on how consensus is introduced...\\
+    Make figure nicer.
+\end{todo}
+\begin{figure}
+    \centering
+    \includestandalone[trim={0 0 0 0},clip,height=2.5cm]{tikz/topology_general}
+    % \vspace*{-0.3cm}
+    \caption{WSN}
+    \label{fig:sensor_network:WSN}
+\end{figure}
+% \begin{figure}
+%     \centering
+%     \subfloat[][]{\includegraphics[trim={1.8cm 0 1.7cm 0},clip,scale=0.7]{images/parameter_mapping.pdf}}
+%     \subfloat[][]{\includestandalone[trim={0.65cm 0 0 0},clip,scale=0.7]{tikz/connection_matrix}}
+%     \subfloat[][]{\includestandalone[trim={0.6cm 0 0 0},clip,scale=0.6]{tikz/problem_splitting_matrix}}
+%     % \includestandalone[scale=1]{tikz/topology_general}
+%     \vspace*{-0.3cm}
+%     \caption{Problem splitting and parameter mapping for a general case with \(M=5\) channels and \(N=4\) sub-problems. (a) shows the mapping of the local estimate components \((\wf_i)_j\) to the global consensus components \((\hf)_j\) via \(\mathcal{G}(i,j)\), (b) \(\mtxb{G}\) with 1 (\(\blacksquare\)) and 0 (\(\square\)), (c) shows \(i,j\)-cross-relations used by sub-problems compared to full \(M\)-channel problem.}
+%     \label{fig:problem_splitting:problem_splitting_matrix}
+% \end{figure}
+
 
 
 % #############################################################################
 \subsection{Signal Model}
 \label{ssec:signal_model}
-We consider an acoustic SIMO system with the input signal \(\mtxb{s}(n)\) and \(M\) outputs \(\x_i(n)\) defined as
-\begin{align}
-    \mtxb{s}(n) &= \begin{bmatrix}
-        s(n)&s(n-1)&\ldots&s(n-2L+2)
-    \end{bmatrix}^{\T}\\
-    \x_i(n) &= \begin{bmatrix}
-        x_i(n)&x_i(n-1)&\ldots&x_i(n-L+1)
-    \end{bmatrix}^{\T}.
-\end{align}
-where \(i \in \Mset \triangleq \{1,\ldots,M\} \).
+We consider an acoustic SIMO system with the input signal \(\mtxb{s}(n) = \begin{bmatrix}
+    s(n)&s(n-1)&\ldots&s(n-2L+2)
+\end{bmatrix}^{\T}\) and the \(M\) output signals \(\x_i(n)= \begin{bmatrix}
+    x_i(n)&x_i(n-1)&\ldots&x_i(n-L+1)
+\end{bmatrix}^{\T}\) aquired by the sensor nodes of the WSN.
+% \begin{align}
+%     \mtxb{s}(n) &= \begin{bmatrix}
+%         s(n)&s(n-1)&\ldots&s(n-2L+2)
+%     \end{bmatrix}^{\T}\\
+%     \x_i(n) &= \begin{bmatrix}
+%         x_i(n)&x_i(n-1)&\ldots&x_i(n-L+1)
+%     \end{bmatrix}^{\T}.
+% \end{align}
 Each output \(\x_i(n)\) is the convolution of \(\mtxb{s}(n)\) with the respective channel impulse response \(\h_i\) and an additive noise term \(\mtxb{v}_i(n)\), assumed to be zero-mean and uncorrelated to \(\mtxb{s}(n)\).
 The signal model is described by
 \begin{equation}
     \x_i(n) = \mtxb{H}_i \mtxb{s}(n) + \mtxb{v}_i(n),
 \end{equation}
 where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the \(i\)th channel using the elements of \(\h_i\) of length \(L\) which represents the system to be identified.
-The impulse response length \(L\) is assumed to be known.
+For this paper, the length of the impulse responses \(L\) is assumed to be known.
 
 % #############################################################################
 \subsection{Cross-relation approach}
@@ -149,7 +177,7 @@ The fundamental equality of this approach in the noiseless case \(\mtxb{v}_i(n) 
 which states that the channel output signal convolved with the impulse response of another is equal to the vice-versa as follows from the commutativity property of the convolution.
 Left-multiplication and applying the expectation operator to form the covariance matrix \(\R_{ij}(n) = \ev{\x_i(n) \x_j^\T(n)}\) and combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g. \cite{huangAdaptiveMultichannelLeast2002} for a more thourough derivation) yields the system of equations  
 \begin{equation}
-    \R(n) \h = \bm{0} \label{eq:cross_rel:null_space}\\
+    \R \h = \bm{0} \label{eq:cross_rel:null_space}\\
 \end{equation}
 where \(\R\) is an \(M L \times M L\) matrix given by:
 \begin{equation}
@@ -165,7 +193,7 @@ and \(\h = \begin{bmatrix}
 \end{bmatrix}^\T\).
 Formulating the problem in the frequency domain, the derivation is analogous. We denote all frequency-domain variables in bold cursive (e.g. \(\Rf\)) compared to the time-domain bold upright (e.g \(\R\)). The derivation involves the frame-based overlap-save technique, working with signal frames \(\x_{i,2L}(m)\) of length \(2L\), frame index \(m\), leading to the system of equations 
 \begin{equation}
-    \Rf(m) \hf = \bm{0} \label{eq:frequency_domain:null_space}\\
+    \Rf \hf = \bm{0} \label{eq:frequency_domain:null_space}\\
 \end{equation}
 where the \(M L \times M L\) matrix is recursivly estimated by \begin{equation}
     \hat{\Rf}(m) = \eta \hat{\Rf}(m-1) + (1-\eta )\tilde{\Rf}(m).
@@ -181,7 +209,7 @@ with
 The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2L} \left\{ \x_{i,2L}(m) \right\} \right\}\) contains the  signal spectrum on its diagonal and
 \begin{align}
     \bm{{W}}_{L \times 2L}^{01} &= \mtxb{F}_{L \times L} \mtxb{W}_{L \times 2L}^{01} \mtxb{F}_{2L \times 2L}^{-1}\\
-    \bm{{W}}_{2L \times L}^{10} &= \mtxb{F}_{2L \times 2L} \mtxb{W}_{2L \times L}^{10} \mtxb{F}_{L \times L}^{-1}
+    \bm{{W}}_{2L \times L}^{10} &= \mtxb{F}_{2L \times 2L} \mtxb{W}_{2L \times L}^{10} \mtxb{F}_{L \times L}^{-1}\label{eq:frequency_domain:overlap}
 \end{align} are the frequency-domain overlap-save matrices where \(\mtxb{F}_{L \times L}\) and \(\mtxb{F}_{2L \times 2L}\) are the discrete Fourier transform (DFT) matrices for sizes L and 2L respectively and \(
     \mtxb{W}_{L \times 2L}^{01} = \begin{bmatrix}
         \mtxb{0}_{L \times L} & \mtxb{I}_{L \times L}
@@ -193,7 +221,8 @@ The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2
 denote the time-domain overlap-save matrices.
 
 Analogous to the time-domain formulation, the \(ML \times 1\) vector \(\hf\) is a stacked vector of complex-valued frequency responses.
-In the presence of noise, the system of equations \eqref{eq:frequency_domain:null_space} is best solved by posing it as a least-mean-squares minimization problem \cite{guanghanxuLeastsquaresApproachBlind1995,huangAdaptiveMultichannelLeast2002}:
+The null space problem in \eqref{eq:frequency_domain:null_space} can not be solved by computing the eigenvector corresponding to the zero-valued eigenvalue because, in the presence of noise, the system matrix \(\Rf\) is of full rank and may not have any.
+Therefore it is best solved by posing it as a least-mean-squares minimization problem \cite{guanghanxuLeastsquaresApproachBlind1995,huangAdaptiveMultichannelLeast2002} with a non-triviality constraint to avoid the zero solution:
 %  minimizing \(\|\underline{\bm{e}} \|^2 = \| \Rf \hf \|^2\) with the constraint \(\hf^\herm \hf = a\) to avoid the trivial zero solution.
 % As this effectively seeks the \(a\)-scaled eigenvector of the squared hermitian matrix \(\Rf^\herm \Rf\) corresponding to the smallest eigenvalue, we can replace it with its non-squared form \(\Rf\) as the eigenvectors for both are equal.
 % To compute the estimates, we minimize the cost function
@@ -206,31 +235,22 @@ In the presence of noise, the system of equations \eqref{eq:frequency_domain:nul
     \text{s.t. } \quad &\hf^\herm \hf = 1.
 \end{align}
 
-In the following section, we introduce an adaptive algorithm using ADMM to find a solution to this problem.
+In the following section, we introduce a distributed adaptive algorithm to find a solution to this problem.
 
 % #############################################################################
 % #############################################################################
 \section{Proposed Algorithm}
 \label{sec:proposed_method}
 
-% #############################################################################
-\subsection{Problem Splitting}
-\label{ssec:problem_splitting}
-In state-of-the-art algorithms \cite{heNoiseRobustFrequencyDomain2018,habetsOnlineQuasiNewtonAlgorithm2010}, the minimization problem \eqref{eq:frequency_domain:min_prob} is solved in its full form resulting in potentially high computational effort when the number of channels and length of impulse responses or number of DFT bins is large.
-Here however, we split the problem into \(N \in \mathbb{N}\) sub-problems and denote the index set of these \(N\) sub-problems as \(\Nset \triangleq \{1,\ldots,N\}\).
-Each sub-problem is defined by a subset of the full channel set \(\Cset_i \subseteq \Mset\) with \(i \in \Nset\).
-Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in \Mset\) where for each channel \(j\) a set represents the sub-problems that particular channel is part of.
+% % #############################################################################
+% \subsection{Problem Splitting}
+% \label{ssec:problem_splitting}
+% In state-of-the-art algorithms \cite{heNoiseRobustFrequencyDomain2018,habetsOnlineQuasiNewtonAlgorithm2010}, the minimization problem \eqref{eq:frequency_domain:min_prob} is solved in its full form resulting in potentially high computational effort when the number of channels and length of impulse responses or number of DFT bins is large.
+% Here however, we split the problem into \(N \in \mathbb{N}\) sub-problems and denote the index set of these \(N\) sub-problems as \(\Nset \triangleq \{1,\ldots,N\}\).
+% Each sub-problem is defined by a subset of the full channel set \(\Cset_i \subseteq \Mset\) with \(i \in \Nset\).
+% Following from that, we define the sets \(\Csetb_j = \left\{ i \vert j \in \Cset_i \right\}\) for \(i,j \in \Mset\) where for each channel \(j\) a set represents the sub-problems that particular channel is part of.
 % This channel-to-sub-problem relation can also be represented as a \(M \times N\) matrix \(\mtxb{G}\) where the sets \(\Cset_i\) and \(\Csetb_j\) are the indices of non-zero elements of the rows and columns respectively (see \autoref{fig:problem_splitting:problem_splitting_matrix}).
-Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in \Mset\).
-
-We replace the cost function minimized in \eqref{eq:frequency_domain:min_prob} with the separable cost function 
-\begin{equation}
-    \tilde{J}(\hf) = \sum_{i \in \Nset} \tilde{J}_i(\wf_i)  = \sum_{i \in \Nset} \wf_i^\herm \hat{\aRhof}_i \wf_i
-    \label{eq:problem_splitting:cost_function}
-\end{equation}
-where \(\wf_i\) is defined as the stacked vector of estimated frequency responses analogous to \(\hf\) (cf. \autoref{ssec:cross_rel}) and \(\hat{\aRhof}\) is constructed as defined in \eqref{eq:cross_rel:data_matrix}, both using the respective subset \(\Cset_i\).
-If the channel subsets are proper \(\Cset_i \subset \Mset\), this leads to \(N\) sub-problems, each with smaller dimensions than the original centralized problem, reducing complexity.
-The lowest dimensionality is attained when each \(\Cset_i\) has two elements, i.e. two channels, assuming perfect parallel processing, effectively reducing problem size from \(ML \times ML\) to \(2L \times 2L\).
+% Further, \(M_i = \left| \Cset_i \right| \) and \(N_j = \left| \Csetb_j \right| \) with \(i,j \in \Mset\).
 
 % \begin{figure}
 %     \centering
@@ -243,32 +263,40 @@ The lowest dimensionality is attained when each \(\Cset_i\) has two elements, i.
 %     \label{fig:problem_splitting:problem_splitting_matrix}
 % \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[trim={0.3cm 0.25cm 1.7cm 0.0cm},clip,width=\columnwidth]{images/parameter_mapping2.pdf}
-    % \includestandalone[scale=1]{tikz/topology_general}
-    \vspace*{-0.5cm}
-    \caption{Parameter mapping of the local variable components \(({\wf}_i)_j\) to the global consensus variable components \(({\hf})_j\) via \(\mathcal{G}(i,j)\) for a general case with \(M=4\) channels and \(N=4\) sub-problems.}
-    \label{fig:problem_splitting:problem_splitting_matrix}
-\end{figure}
+% \begin{figure}
+%     \centering
+%     \includegraphics[trim={0.3cm 0.25cm 1.7cm 0.0cm},clip,width=\columnwidth]{images/parameter_mapping2.pdf}
+%     % \includestandalone[scale=1]{tikz/topology_general}
+%     \vspace*{-0.5cm}
+%     \caption{Parameter mapping of the local variable components \(({\wf}_i)_j\) to the global consensus variable components \(({\hf})_j\) via \(\mathcal{G}(i,j)\) for a general case with \(M=4\) channels and \(N=4\) sub-problems.}
+%     \label{fig:problem_splitting:problem_splitting_matrix}
+% \end{figure}
 
 % #############################################################################
 \subsection{General-Form Consensus ADMM}
 \label{ssec:general_consensus_admm}
-Minimization problems with separable cost functions can be solved by the well-established method of consensus ADMM \cite{boydDistributedOptimizationStatistical2011}.
-In the previous section we introduced the split cost function \eqref{eq:problem_splitting:cost_function} which we now set in the context of the general-form consensus problem
+We replace the cost function minimized in \eqref{eq:frequency_domain:min_prob} with the separable cost function 
+\begin{equation}
+    \tilde{J}(\hf) = \sum_{i \in \Mset} \tilde{J}_i(\wf_i)  = \sum_{i \in \Mset} \wf_i^\herm \hat{\aRhof}_i \wf_i
+    \label{eq:problem_splitting:cost_function}
+\end{equation}
+where \(\wf_i\) is defined as the stacked vector of estimated frequency responses analogous to \(\hf\) and \(\hat{\aRhof}\) is the frequency-domain cross-relation matrix analogous to \(\Rf\) as introduced in \autoref{ssec:cross_rel}, however, both using the respective set of channels \(\Rset_i\) available at node \(i\).
+% If the channel subsets are proper \(\Cset_i \subset \Mset\), this leads to \(N\) sub-problems, each with smaller dimensions than the original centralized problem, reducing complexity.
+% The lowest dimensionality is attained when each \(\Cset_i\) has two elements, i.e. two channels, assuming perfect parallel processing, effectively reducing problem size from \(ML \times ML\) to \(2L \times 2L\).
+Minimization problems with separable cost functions as introduced here can be solved by the well-established method of consensus ADMM \cite{boydDistributedOptimizationStatistical2011}
 \begin{align}
-    \operatorname{minimize} \quad &\sum_{i \in \Nset} \tilde{J}_i(\wf_i)\\
-    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Nset,\,j \in \Cset_i\\
+    \operatorname{minimize} \quad &\sum_{i \in \Rset} \tilde{J}_i(\wf_i)\\
+    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Mset,\,j \in \Rset_i\\
     &\hf^\herm \hf = 1
 \end{align}
-where \(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. \autoref{fig:problem_splitting:problem_splitting_matrix}).
+where \(\wf_i\) will be referred to as the local variable, \(\hf\) as the global variable or consensus.
+\(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \((\hf)_g\).
 For brevity, the mapped global variables \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) are introduced.
-The equality constraint between local variables \(\wf_i\) and global variable \(\hf\) enforces the consensus, i.e. a common solution taking into account data of all sub-problems.
+The equality constraint between local variables \(\wf_i\) and global variable \(\hf\) enforces the consensus, i.e. a common solution taking into account estimates of all nodes that share data of the same channel.
 
 The augmented Lagrangian for this particular general-form consensus problem is
 \begin{align}
-    \mathcal{L}_{\rho} (\wf,\hf,\uuf) &= \sum_{i \in \Nset} \left( \wf_i^\herm \hat{\aRhof}_i \wf_i + 2 \Re \left( \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right)\right. \vphantom{+ \rho \left\| \wf_i - \tilde{\hf}_i \right\|} \nonumber\\
+    \mathcal{L}_{\rho} (\wf,\hf,\uuf) &= \sum_{i \in \Rset} \left( \wf_i^\herm \hat{\aRhof}_i \wf_i + 2 \Re \left( \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right)\right. \vphantom{+ \rho \left\| \wf_i - \tilde{\hf}_i \right\|} \nonumber\\
     \vphantom{\wf_i^\herm \hat{\aRhof}_i \wf_i + 2 \Re \left( \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right)} & \qquad \qquad \qquad \qquad \left.+ \rho \left\| \wf_i - \tilde{\hf}_i \right\|^2 \right)\label{eq:general_consensus_admm:lagrangian}
 \end{align}
 % \begin{align}
@@ -298,12 +326,12 @@ A thorough overview of time-varying data terms in ADMM can be found in \cite{wan
 We transform the iterative batch processing method \eqref{eq:general_consensus_admm:local}-\eqref{eq:general_consensus_admm:dual} into an adaptive one by computing only a (small) finite number of iterations with each time-frame-\(m\) specific data term.
 Here specifically, we apply one iteration per time frame, which manifests itself as simply replacing the iteration index \(k\) with the time index \(m\)
 
-The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various algorithms, in this case however we perform the update step
+The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various algorithms, in this case however we perform the update step 
 \begin{equation}
     \wf_i^{m+1} = \wf_i^{m} - \mu \bm{{V}}_i^m \left( \hat{\aRhof}_i^m \wf_i^m + \uuf_i^m + \rho\left(\wf_i^m - \tilde{\hf}_i^{m}\right)\right)\label{eq:online_admm:local_update}
 \end{equation}
-where \(\mu\) (\(0  < \mu\leq 1\)) is a step size and \(\bm{{V}}_i^m = \left(\hat{\aRhof}_i^m + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
-As this inverse is costly to compute, it is approximated by a diagonalized matrix
+where \(\mu\), (\(0  < \mu\leq 1\)), is a step size and \(\bm{{V}}_i^m = \left(\hat{\aRhof}_i^m + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
+The implicit overlap-save matrices in \(\bm{{V}}_i^m\) make this a constrained update step which is costly to compute, so to reduce complexity, we introduce the approximation
 \begin{equation}
     \tilde{\bm{{V}}}_i^m = \operatorname{diag} \left\{ \left( \operatorname{diag} \left\{ \hat{\aRhof}_i^m \right\} + \rho \mtxb{1} \right)^{-1}\right\},
 \end{equation}
@@ -322,6 +350,9 @@ and
     (\bar{\uuf}^{m})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\uuf_i^{m})_j,\quad g,i,j \in \Mset.
 \end{equation}
 This results in a computationally inexpensive update step forcing the norm of the consensus to have unit value.
+\begin{todo}
+    Okay, so \eqref{eq:online_admm:consensus_update} is the major hurdle for selling this algorithm as distributed. This step still requires some sort of fusion center. But there must be a way to avoid that, maybe can be figured out this week?
+\end{todo}
 
 % #############################################################################
 % #############################################################################
@@ -371,6 +402,9 @@ The second simulation is a small-scale assessment of the influence of the overla
 Two base scenarios, \(M=4,\,N=4\) and \(M=8,\,N=8\), are evaluated using short (\(L=16\)) random impulse responses and different values for the sub-problem overlap parameter \(\zeta\) which is defined as the ratio of ones to zeros of only considering elements of \(\mtxb{G}\) that are not part of the main diagonal, superdiagonal and the first element of the last row (marked gray on the inset of \autoref{fig:perf_eval:NPM_over_time_M4}).
 Random patterns satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) are generated.
 \autoref{fig:perf_eval:NPM_over_time_exp2} shows the median of 30 Monte-Carlo runs for the two setups, which shows the proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error is not dependent on \(\zeta\).
+\begin{todo}
+    Rewrite this. Confusing.
+\end{todo}
 
 
 
