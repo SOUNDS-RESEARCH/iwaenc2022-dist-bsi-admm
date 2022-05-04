@@ -1,0 +1,32 @@
+% Tikz File 'topology_details.tex'
+\documentclass{standalone}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz,amsmath,amssymb}
+\input{../preamble.tex}
+\usetikzlibrary{arrows,snakes,backgrounds}
+\begin{document}
+    \begin{tikzpicture}[->,shorten >=1pt,auto,semithick, scale=1]
+        \tikzstyle{admmnode}=[
+            circle,
+            draw=black,
+            thick,
+            text=black,
+            minimum size=0.7cm
+        ]
+
+        \node[] (C)  at (-2.2,0){\(\cdots\)};
+
+        \node[admmnode, fill=gray!15] (A) at (-1.5,0){\(i\)};
+        % \node[draw,text centered] at (-3,-1){\(\mathcal{T}_i = \{\ldots,j,\ldots\}\)};
+
+        \node[admmnode, fill=gray!15] (B) at (1.5,0){\(j\)};
+        % \node[draw,text centered] at (3,-1){\(\mathcal{R}_j = \{\ldots,i,\ldots\}\)};
+
+        \node[] (D)  at (2.2,0){\(\cdots\)};
+        
+        \draw[-stealth,black, line width=1.2] (A) to[bend left=20] node[above, pos=0.5, sloped, scale=1]{\(\x_i, \{\phi_1,\ldots,\phi_i\}\)}  (B);
+
+        \draw[stealth-,gray, line width=1.2] (A) to[bend right=20] node[below, pos=0.5, sloped,scale=1]{\((\wf_j)_i,(\uuf_j)_i,\{\phi_1,\ldots,\phi_M\}\)}  (B);
+        
+    \end{tikzpicture}
+\end{document}

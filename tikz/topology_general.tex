@@ -24,17 +24,17 @@
         \node[admmnode, fill=BurntOrange!40] (B) at (1,1){\(2\)};
         \node[admmnode, fill=Maroon!40] (C) at (1,-1){\(3\)};
         \node[admmnode, fill=MidnightBlue!40] (D) at (-1,-1){\(4\)};
-        \node[centernode] (F) at (0,0){\(C\)};
+        % \node[centernode] (F) at (0,0){\(C\)};
         
-        \draw[-stealth, line width=1.25] (A) to[bend left=20] node[]{}  (B);
-        \draw[-stealth, line width=1.25] (A) to[bend left=50] node[]{} (C);
-        \draw[-stealth, line width=1.25] (B) to[bend left=20] node[]{} (C);
-        \draw[-stealth, line width=1.25] (C) to[bend left=20] node[]{} (D);
-        \draw[-stealth, line width=1.25] (D) to[bend left=20] node[]{} (A);
-        \draw[stealth-stealth, line width=1.25, draw=gray] (A) to[bend left=0] node[]{} (F);
-        \draw[stealth-stealth, line width=1.25, draw=gray] (B) to[bend left=0] node[]{} (F);
-        \draw[stealth-stealth, line width=1.25, draw=gray] (C) to[bend left=0] node[]{} (F);
-        \draw[stealth-stealth, line width=1.25, draw=gray] (D) to[bend left=0] node[]{} (F);
+        \draw[-stealth, line width=1.25] (A) to[bend left=0] node[]{}  (B);
+        \draw[-stealth, line width=1.25] (A) to[bend left=0] node[]{} (C);
+        \draw[-stealth, line width=1.25] (B) to[bend left=0] node[]{} (C);
+        \draw[-stealth, line width=1.25] (C) to[bend left=0] node[]{} (D);
+        \draw[-stealth, line width=1.25] (D) to[bend left=0] node[]{} (A);
+        % \draw[stealth-stealth, line width=1.25, draw=gray] (A) to[bend left=0] node[]{} (F);
+        % \draw[stealth-stealth, line width=1.25, draw=gray] (B) to[bend left=0] node[]{} (F);
+        % \draw[stealth-stealth, line width=1.25, draw=gray] (C) to[bend left=0] node[]{} (F);
+        % \draw[stealth-stealth, line width=1.25, draw=gray] (D) to[bend left=0] node[]{} (F);
         
     \end{tikzpicture}
 \end{document}

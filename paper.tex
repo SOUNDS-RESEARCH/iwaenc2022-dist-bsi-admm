@@ -16,29 +16,6 @@
 % \excludecomment{note}
 % \excludecomment{attention}
 
-% Common variables
-\newcommand{\h}{\mtxb{h}}
-\newcommand{\x}{\mtxb{x}}
-\newcommand{\R}{\mtxb{R}}
-\newcommand{\w}{\mtxb{w}}
-\newcommand{\z}{\mtxb{z}}
-\newcommand{\uu}{\mtxb{u}}
-\newcommand{\aRho}{\mtxb{P}}
-\newcommand{\hf}{{\bm{h}}}
-\newcommand{\xf}{{\bm{x}}}
-\newcommand{\Rf}{{\bm{{R}}}}
-\newcommand{\wf}{{\bm{w}}}
-\newcommand{\zf}{{\bm{z}}}
-\newcommand{\uuf}{{\bm{u}}}
-\newcommand{\aRhof}{{\bm{{P}}}}
-\newcommand{\I}{\mtxb{I}}
-\newcommand{\Cset}{\mathcal{C}}
-\newcommand{\Mset}{\mathcal{M}}
-\newcommand{\Tset}{\mathcal{T}}
-\newcommand{\Rset}{\mathcal{R}}
-
-
-
 % IMPORTANT: Add copyright notice by uncommenting the appropriate line
 %----------------------------------------------------------
 % For papers in which all authors are employed by the US government,
@@ -59,7 +36,7 @@
 %
 % Single address.
 % ---------------
-\name{M. Blochberger\sthanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No. 956369. Source code available at \url{https://github.com/SOUNDS-RESEARCH/iwaenc2022-admm-bsi}.}, F. Elvander\sthanks{This work was supported in part by the Research Foundation - Flanders (FWO) grant 12ZD622N.}, R. Ali, T. van Waterschoot, M. Moonen, J. Østergaard, J. Jensen}
+\name{M. Blochberger\thanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No.\,956369. This research received funding in part by the Research Foundation - Flanders (FWO) grant 12ZD622N as well as from the European Union's Horizon 2020 research and innovation program / ERC Consolidator Grant: SONORA (No.\,773268). This paper reflects only the authors' views and the Union is not liable for any use that may be made of the contained information. Source code available at \url{https://github.com/SOUNDS-RESEARCH/iwaenc2022-admm-bsi}.}, F. Elvander, R. Ali, M. Moonen, J. Østergaard, J. Jensen, T. van Waterschoot}
 \address{KU Leuven\\Department of Electrical Engineering (ESAT)\\STADIUS Center for Dynamical Systems, Signal Processing and Data Analytics \\3001 Leuven, Belgium}
 %
 \begin{document}
@@ -69,10 +46,10 @@
 %
 \begin{abstract}
     In this paper, we propose a distributed cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM) in a wireless sensor network (WSN).
-    The network consists of a fixed number of nodes each equipped with a processing unit as well as a sensor that represents an output channel of the SIMO system and a consensus fusion center.
-    The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems involving a subset of channels which is determined by the network topology.
-    Each node delivers estimates for the subset of channel frequency responses, which then are combined into a consensus estimate per channel using general form consensus ADMM in an adaptive updating scheme.
-    With numerical simulations, we show that it is possible to achieve convergence speeds and estimation errors comparable to fully centralized low-cost frequency-domain algorithms.
+    The network consists of a fixed number of nodes each equipped with a processing unit as well as a sensor that represents an output channel of the SIMO system.
+    The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems involving a subset of channels in a way that is determined by the network topology.
+    Each node delivers estimates for the subset of channel frequency responses, which then are combined into a consensus estimate per channel using general-form consensus ADMM in an adaptive updating scheme.
+    With numerical simulations, we show that it is possible to achieve convergence speeds and steady-state misalignment values comparable to fully centralized low-cost frequency-domain algorithms.
 \end{abstract}
 %
 \begin{keywords}
@@ -82,18 +59,16 @@
 \section{Introduction}
 \label{sec:intro}
 
-The problem of blind system identification (BSI), which aims to estimate channel impulse responses of an unknown system without knowing the input signal, has been the subject of extensive research over recent decades.
+The problem of blind system identification (BSI), which aims to estimate channel responses of an unknown system without knowing the input signal, has been the subject of extensive research over recent decades.
 It was introduced in \cite{satoMethodSelfRecoveringEqualization1975} and various algorithms have been proposed since.
 Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mendelTutorialHigherorderStatistics1991} for channel estimation, however a high computational complexity has motivated research into algorithms using only second-order statistics.
 Such algorithms include the cross-relation (CR) algorithm \cite{langtongBlindIdentificationEqualization1994, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
 Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
 The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
 The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
-\begin{todo}
-    This is also a time-domain algorithm, should a comparison even be made? MCQN in plots
-\end{todo}
 
 The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed noise control, echo cancellation, or beamforming, however, research into the task of BSI is limited.
+\cite{bertrandApplicationsTrendsWireless2011b}
 \begin{todo}
     References
 \end{todo}
@@ -130,14 +105,14 @@ For this paper, the length of the impulse responses \(L\) is assumed to be known
 \subsection{Cross-relation approach}
 \label{ssec:cross_rel}
 The cross-relation approach for BSI aims to use only the output signals of the system to identify it.
-This can be achieved by exploiting the relative channel information when more than one channel is available, and the identifiability conditions \cite{guanghanxuLeastsquaresApproachBlind1995} are satisfied. These conditions are: (i) the channel transfer functions have no common zeros (i.e. are not co-prime), and (ii) the covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e. the signal has a number of modes \(\geq 2L+1\)).
+This can be achieved by exploiting the relative channel information when more than one channel is available, and the identifiability conditions \cite{guanghanxuLeastsquaresApproachBlind1995} are satisfied. These conditions are: (i) the channel transfer functions have no common zeros (i.e. the polynomials are not co-prime), and (ii) the covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e. the signal has a number of modes \(\geq 2L+1\)).
 
 The fundamental equality of this approach in the noiseless case \(\mtxb{v}_i(n) = 0\), is 
 \begin{equation}
     \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j \in \Mset,\,i\neq j\label{eq:cross_rel:equality_conv}
 \end{equation}
 which states that the channel output signal convolved with the impulse response of another is equal to the vice-versa as follows from the commutativity property of the convolution.
-Left-multiplication and applying the expectation operator to form the covariance matrix \(\R_{ij}(n) = \ev{\x_i(n) \x_j^\T(n)}\) and combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g. \cite{huangAdaptiveMultichannelLeast2002} for a more thourough derivation) yields the system of equations  
+Left-multiplication and applying the expectation operator to form the covariance matrix \(\R_{ij}(n) = \ev{\x_i(n) \x_j^\T(n)}\) and combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g. \cite{huangAdaptiveMultichannelLeast2002} for a more thorough derivation) yields the system of equations  
 \begin{equation}
     \R \h = \bm{0} \label{eq:cross_rel:null_space}\\
 \end{equation}
@@ -151,16 +126,18 @@ where \(\R\) is an \(M L \times M L\) matrix given by:
     \end{bmatrix}\label{eq:cross_rel:data_matrix}
 \end{equation}
 and \(\h = \begin{bmatrix}
-    \h_1^\T & \cdots & \h_M^\T
+    \h_1^\T & \ldots & \h_M^\T
 \end{bmatrix}^\T\).
-Formulating the problem in the frequency domain, the derivation is analogous. We denote all frequency-domain variables in bold cursive (e.g. \(\Rf\)) compared to the time-domain bold upright (e.g \(\R\)). The derivation involves the frame-based overlap-save technique, working with signal frames \(\x_{i,2L}(m)\) of length \(2L\), frame index \(m\), leading to the system of equations 
+Formulating the problem in the frequency domain, the derivation is analogous. We denote all frequency-domain variables in bold italic (e.g. \(\Rf\)) compared to the time-domain bold upright (e.g \(\R\)). The derivation involves the frame-based overlap-save technique, working with signal frames \(\x_{i,2L}(m)\) of length \(2L\), frame index \(m\), leading to the system of equations 
 \begin{equation}
     \Rf \hf = \bm{0} \label{eq:frequency_domain:null_space}\\
 \end{equation}
-where the \(M L \times M L\) matrix is recursivly estimated by \begin{equation}
+where \(\hf = \begin{bmatrix}
+    \hf_1^\T & \ldots & \hf_M^\T
+\end{bmatrix}^\T \) is a stacked vector of channel frequency responses and the \(M L \times M L\) matrix \(\Rf\) is recursively estimated by \begin{equation}
     \hat{\Rf}(m) = \eta \hat{\Rf}(m-1) + (1-\eta )\tilde{\Rf}(m).
 \end{equation}
-where \(\eta \in [0,1]\) is an exponential smoothing factor and \(\tilde{\Rf}(m)\) is constructed analogous to \eqref{eq:cross_rel:data_matrix}, however with covariance matrices replaced by instantaneous cross-spectrum matrices 
+where \(\eta \in [0,1]\) is an exponential smoothing factor and \(\tilde{\Rf}(m)\) is constructed analogously to \eqref{eq:cross_rel:data_matrix}, however with covariance matrices replaced by instantaneous cross-spectrum matrices 
 \begin{equation}
     \tilde{\Rf}_{ij}(m) = \bm{X}_{i} (m) \bm{X}_{j}^\herm (m)
 \end{equation}
@@ -172,7 +149,7 @@ The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2
 \begin{align}
     \bm{{W}}_{L \times 2L}^{01} &= \mtxb{F}_{L \times L} \mtxb{W}_{L \times 2L}^{01} \mtxb{F}_{2L \times 2L}^{-1}\\
     \bm{{W}}_{2L \times L}^{10} &= \mtxb{F}_{2L \times 2L} \mtxb{W}_{2L \times L}^{10} \mtxb{F}_{L \times L}^{-1}\label{eq:frequency_domain:overlap}
-\end{align} are the frequency-domain overlap-save matrices where \(\mtxb{F}_{L \times L}\) and \(\mtxb{F}_{2L \times 2L}\) are the discrete Fourier transform (DFT) matrices for sizes L and 2L respectively and \(
+\end{align} are the frequency-domain overlap-save matrices where \(\mtxb{F}_{L \times L}\) and \(\mtxb{F}_{2L \times 2L}\) are the discrete Fourier transform (DFT) matrices for sizes \(L\) and \(2L\) respectively and \(
     \mtxb{W}_{L \times 2L}^{01} = \begin{bmatrix}
         \mtxb{0}_{L \times L} & \mtxb{I}_{L \times L}
     \end{bmatrix}\)
@@ -182,9 +159,9 @@ The matrix \(\bm{{D}}_{i}(m) = \operatorname{diag} \left\{ \operatorname{FFT}_{2
     \end{bmatrix}^\T\)
 denote the time-domain overlap-save matrices.
 
-Analogous to the time-domain formulation, the \(ML \times 1\) vector \(\hf\) is a stacked vector of complex-valued frequency responses.
-The null space problem in \eqref{eq:frequency_domain:null_space} can not be solved by computing the eigenvector corresponding to the zero-valued eigenvalue because, in the presence of noise, the system matrix \(\Rf\) is of full rank and may not have any.
-Therefore it is best solved by posing it as a least-mean-squares minimization problem \cite{guanghanxuLeastsquaresApproachBlind1995,huangAdaptiveMultichannelLeast2002} with a non-triviality constraint to avoid the zero solution:
+Analogously to the time-domain formulation, the \(ML \times 1\) vector \(\hf\) is a stacked vector of complex-valued frequency responses.
+The null-space problem in \eqref{eq:frequency_domain:null_space} can not be solved by computing the eigenvector corresponding to the zero-valued eigenvalue because, in the presence of noise, the system matrix \(\Rf\) is of full rank and may not have any.
+Therefore it is best solved by posing it as a quadratic minimization problem \cite{guanghanxuLeastsquaresApproachBlind1995,huangAdaptiveMultichannelLeast2002} with a non-triviality constraint to avoid the zero solution:
 %  minimizing \(\|\underline{\bm{e}} \|^2 = \| \Rf \hf \|^2\) with the constraint \(\hf^\herm \hf = a\) to avoid the trivial zero solution.
 % As this effectively seeks the \(a\)-scaled eigenvector of the squared hermitian matrix \(\Rf^\herm \Rf\) corresponding to the smallest eigenvalue, we can replace it with its non-squared form \(\Rf\) as the eigenvectors for both are equal.
 % To compute the estimates, we minimize the cost function
@@ -198,28 +175,26 @@ Therefore it is best solved by posing it as a least-mean-squares minimization pr
 \end{align}
 
 % #############################################################################
-\subsection{Sensor Network}
+\subsection{Wireless Sensor Network}
 \label{ssec:sensor_network}
-\begin{todo}
-    is this even worth a subsection?
-\end{todo}
 
-We consider a WSN consisting of \(M\) sensor nodes and a consensus fusion center where each node acquires an output signal \(\x_i(n)\).
-We define a set \(\Tset_i\) for each node \(i\) with \(i \in \Mset\), which contains the indices of all nodes which have access to the signals \(\x_i(n)\), i.e. the signal information is transmitted to.
-Note that \(i \in \Tset_i\) for the purpose of simplifying notation in later sections, but evidently, no actual transmission is necessary in that case.
-Further, we define a set \(\Rset_i\) for each node with \(i \in \Mset\), which contains all indices of nodes which the node receives from.
-Furthermore, all nodes exchange information on the consensus with the fusion center.
-Network topologies with fusion centers come with the drawback of introducing the necessity of nodes transmitting additional data, however, the task of mitigating this will be addressed in future work.
-\autoref{fig:sensor_network:WSN} shows a network where each node shares its signal information with one or more neighbors.
+We consider a WSN consisting of \(M\) sensors each acquiring an output signal \(\x_i(n)\).
+We define a set \(\Tset_i \subseteq \Mset\) for each node \(i\) with \(i \in \Mset\), which contains the indices of all nodes which have access to the signals \(\x_i(n)\), i.e. the signal information is transmitted to.
+Further, we define a set \(\Rset_i \subseteq \Mset\) for each node with \(i \in \Mset\), which contains all indices of nodes from which the node receives signal information.
+Note that \(i \in \Tset_i\) and \(i \in \Rset_i\) for simplifying notation in later sections, but evidently, no actual transmission is necessary in that case, as the signal \(\x_i(n)\) is available locally at node \(i\).
+\autoref{fig:sensor_network:WSN_overview} shows a network where each node shares its signal information with one or more neighbors.
+For this work, we assume synchronicity of all nodes (i.e. no sampling rate offset) and perfect transmission of data with no time delay.
 
 In the following section, we introduce a distributed adaptive algorithm to find a solution to \eqref{eq:frequency_domain:min_prob} utilizing the sensor nodes.
 
 \begin{figure}
     \centering
-    \subfloat[][]{\includestandalone[trim={0 0 0 0},clip,width=0.23\columnwidth]{tikz/topology_general}\label{fig:sensor_network:WSN}}\hspace*{0.02\columnwidth}
-    \subfloat[][]{\includegraphics[trim={0.3cm 0.25cm 1.7cm 0.0cm},clip,width=0.75\columnwidth]{images/parameter_mapping2.pdf}\label{fig:problem_splitting:parameter_mapping}}
+    \subfloat[][]{\includestandalone[trim={0 0 0 0},clip,width=0.2\columnwidth]{tikz/topology_general}\label{fig:sensor_network:WSN_overview}}\hspace*{0.05\columnwidth}
+    \subfloat[][]{\includestandalone[trim={0 0 0 0},clip,width=0.6\columnwidth]{tikz/topology_details}\label{fig:sensor_network:WSN_detail}}\\
+    \vspace*{-0.2cm}
+    \subfloat[][]{\includegraphics[trim={0.2cm 0.25cm 1.9cm 0.0cm},clip,width=\columnwidth]{images/parameter_mapping2.pdf}\label{fig:problem_splitting:parameter_mapping}}
     \vspace*{-0.1cm}
-    \caption{(a) shows a minimal example of a network topology with 4 nodes (\(\circ\)) and consensus fusion center (\(\diamond\)). Black and grey arrows indicate exchange of signal information and consensus information respectively. (b) shows the equivalent parameter mapping of the local variable components \(({\wf}_i)_j\) to the global consensus variable components \(({\hf})_j\) via \(\mathcal{G}(i,j)\) for the network in (a).}
+    \caption{(a) shows an example of a network topology with 4 nodes (\(\circ\)). Arrows indicate exchange of signal information. (b) visualizes the data transmitted between nodes \(i\) and \(j\) for each frame \(m\). (c) shows the equivalent parameter mapping of the local variable components \(({\wf}_i)_j\) to the global variable components \(({\hf})_j\) via \(\mathcal{G}(i,j)\) for the network in (a).}
     \label{fig:sensor_network:WSN_mapping}
 \end{figure}
 
@@ -254,72 +229,126 @@ In the following section, we introduce a distributed adaptive algorithm to find 
 % #############################################################################
 \subsection{General-Form Consensus ADMM}
 \label{ssec:general_consensus_admm}
+Defined by \(\Rset_i\), each node \(i \in \Mset\) has its own signal information and additionally signal information of its neighbors available.
+This is used to solve a BSI problem of the same form as in \eqref{eq:frequency_domain:min_prob}, which however only involves the subset of channels.
+We define the local variables \(\wf_i = \left[ \left\{ (\wf_i)_j^\T \right\}_{j \in \Rset_i} \right]^\T\), which is a stacked vector of locally estimated frequency responses (cf. \autoref{fig:problem_splitting:parameter_mapping}).
+Further, the global variable \(\hf = \begin{bmatrix}
+    \hf_1^\T & \ldots & \hf_M^\T
+\end{bmatrix}^\T\) is the stacked vector of all \(M\) channel response consensus variables.
+Lastly, we define the matrix \(\hat{\aRhof}_i\), which is the frequency-domain cross-relation matrix analogous to \(\hat{\Rf}\) as introduced in \autoref{ssec:cross_rel}, however only using the signals \(\x_j\) with \(j \in \Rset_i\).
+
 We replace the cost function minimized in \eqref{eq:frequency_domain:min_prob} with the separable cost function 
 \begin{equation}
-    \tilde{J}(\hf) = \sum_{i \in \Mset} \tilde{J}_i(\wf_i)  = \sum_{i \in \Mset} \wf_i^\herm \hat{\aRhof}_i \wf_i
+    \tilde{J}(\wf) = \sum_{i \in \Mset} \tilde{J}_i(\wf_i)  = \sum_{i \in \Mset} \wf_i^\herm \hat{\aRhof}_i \wf_i.
     \label{eq:problem_splitting:cost_function}
 \end{equation}
-where \(\wf_i\) is defined as the stacked vector of estimated frequency responses analogous to \(\hf\) and \(\hat{\aRhof}\) is the frequency-domain cross-relation matrix analogous to \(\Rf\) as introduced in \autoref{ssec:cross_rel}, however, both using the respective set of channels \(\Rset_i\) available at node \(i\).
+with \(\wf \triangleq (\wf_1,\ldots,\wf_M)\) as the local stacked estimates.
 Minimization problems with separable cost functions, as introduced here, can be solved by the well-established method of consensus ADMM \cite{boydDistributedOptimizationStatistical2011}
 \begin{align}
-    \operatorname{minimize} \quad &\sum_{i \in \Mset} \tilde{J}_i(\wf_i)\\
-    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Mset,\,j \in \Rset_i\\
-    &\hf^\herm \hf = 1
+    \underset{\wf,\,\hf}{\operatorname{minimize}} \quad &\sum_{i \in \Mset} \tilde{J}_i(\wf_i)\label{eq:general_consensus_admm:min_prob}\\
+    \text{subject to} \quad &(\wf_i)_j = \hf_{\mathcal{G}(i,j)},\quad i \in \Mset,\,j \in \Rset_i\label{eq:general_consensus_admm:eq_constraint}\\
+    &\hf^\herm \hf = 1\label{eq:general_consensus_admm:norm_constraint}
 \end{align}
-where \(\wf_i\) will be referred to as the local variable, \(\hf\) as the global variable or consensus.
-\(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \((\hf)_g\) (cf. \autoref{fig:problem_splitting:parameter_mapping}).
+where \(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e. one of the frequency responses in the stacked vector, to the corresponding global variable components \(\hf_j\) (cf. \autoref{fig:problem_splitting:parameter_mapping}).
 For brevity, the mapped global variables \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) are introduced.
-The equality constraint between local variables \(\wf_i\) and global variable \(\hf\) enforces the consensus, i.e. a common solution taking into account estimates of all nodes that share data of the same channel.
+This defines \(\tilde{\hf}_i = \left[ \left\{ \hf_j^\T \right\}_{j \in \Rset_i} \right]^\T\).
+The equality constraint between local variables \(\wf_i\) and global variable \(\hf\) enforces consensus, i.e. a common solution taking into account estimates of all nodes that share data of the same channel.
 
 The augmented Lagrangian for this particular general-form consensus problem is
 \begin{align}
-    \mathcal{L}_{\rho} (\wf,\hf,\uuf) &= \sum_{i \in \Mset} \left( \wf_i^\herm \hat{\aRhof}_i \wf_i + 2 \Re \left( \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right)\right. \vphantom{+ \rho \left\| \wf_i - \tilde{\hf}_i \right\|} \nonumber\\
-    \vphantom{\wf_i^\herm \hat{\aRhof}_i \wf_i + 2 \Re \left( \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right)} & \qquad \qquad \qquad \qquad \left.+ \rho \left\| \wf_i - \tilde{\hf}_i \right\|^2 \right).\label{eq:general_consensus_admm:lagrangian}
+    \mathcal{L}_{\rho} &(\wf,\hf,\uuf) = \sum_{i \in \Mset} \left( \wf_i^\herm \hat{\aRhof}_i \wf_i + 2 \Re \left( \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right)\right. \vphantom{+ \rho \left\| \wf_i - \tilde{\hf}_i \right\|^2} \nonumber\\
+    \vphantom{\wf_i^\herm \hat{\aRhof}_i \wf_i + 2 \Re \left( \uuf_i^{\herm} \left(\wf_i - \tilde{\hf}_i\right) \right)} & \qquad \qquad \qquad \qquad \left. + \rho \left\| \wf_i - \tilde{\hf}_i \right\|^2 \right)\label{eq:general_consensus_admm:lagrangian}
 \end{align}
-The ADMM then consists of the steps:
+where \(\uuf \triangleq (\uuf_1,\ldots,\uuf_M)\) are the stacked local dual variables (Lagrange multipliers) \(\uuf_i = \left[ \left\{ (\uuf_i)_j^{\T} \right\}_{j \in \Rset_i} \right]^\T\) with \((\uuf_i)_j\) denoting the dual variable for channel \(j\) at node \(i\).
+These variables follow from the equality constraints in \eqref{eq:general_consensus_admm:eq_constraint}.
+% The local variables \(\wf\) and global variable \(\hf\) are as introduced
+The ADMM then consists of the steps \cite{boydDistributedOptimizationStatistical2011}:
 \begin{align}
     \wf_i^{k+1} &= \underset{\wf_i}{\operatorname{argmin}} \, \mathcal{L}_{\rho} (\wf,\hf^k,\uuf^k),\label{eq:general_consensus_admm:local}\\
     \hf^{k+1} &= \underset{\hf, \|\hf\| = 1}{\operatorname{argmin}}\, \mathcal{L}_{\rho} (\wf^{k+1},\hf,\uuf^k)\label{eq:general_consensus_admm:global}\\
     \uuf_i^{k+1} &= \uuf_i^{k} + \rho \left( \wf_i^{k+1} - \tilde{\hf}_i^{k+1} \right).\label{eq:general_consensus_admm:dual}
 \end{align}
-As this is still denoted as an iterative algorithm, we will introduce the online/adaptive aspect of the proposed algorithm in the following.
+where \(k\) is the iteration index. Evidently, this is an iterative algorithm, therefore we will introduce the online/adaptive aspect of the proposed algorithm in the following.
 
 \subsection{Online ADMM-BSI}
 \label{ssec:online_admm}
-We introduced the original problem in \eqref{eq:frequency_domain:null_space} with a time-dependent data matrix. It therefore follows that the data term in \eqref{eq:general_consensus_admm:lagrangian} is also time-dependent, which from here on will be denoted with the additional superscript time index \(m\) as \(\wf_i^\herm \hat{\aRhof}_i^{m} \wf_i\).
-A thorough overview of time-varying data terms in ADMM can be found in \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014} where it is referred to as ``Online-ADMM".
-
+We introduced the original problem in \eqref{eq:frequency_domain:null_space} with a time-dependent estimate \(\hat{\Rf(m)}\) of the matrix \(\Rf(m)\). It therefore follows that the data term in \eqref{eq:general_consensus_admm:lagrangian} can also be considered time-dependent, which from here on will be denoted with the additional superscript time index \(m\) as \(\wf_i^\herm \hat{\aRhof}_i^{m} \wf_i\).
+A thorough review of ADMM with time-varying data terms can be found in \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014} where it is referred to as ``Online-ADMM".
 We transform the iterative batch processing method \eqref{eq:general_consensus_admm:local}-\eqref{eq:general_consensus_admm:dual} into an adaptive one by computing only a (small) finite number of iterations with each time-frame-\(m\) specific data term.
-Here specifically, we apply one iteration per time frame, which manifests itself as simply replacing the iteration index \(k\) with the time index \(m\)
+Here specifically, we apply one iteration per time frame, which manifests itself as simply replacing the iteration index \(k\) with the time frame index \(m\).
 
-The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various algorithms, in this case however we perform the update step 
+The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various algorithms, in this case however we perform the update step as
 \begin{equation}
     \wf_i^{m+1} = \wf_i^{m} - \mu \bm{{V}}_i^m \left( \hat{\aRhof}_i^m \wf_i^m + \uuf_i^m + \rho\left(\wf_i^m - \tilde{\hf}_i^{m}\right)\right)\label{eq:online_admm:local_update}
 \end{equation}
-where \(\mu\), (\(0  < \mu\leq 1\)), is a step size and \(\bm{{V}}_i^m = \left(\hat{\aRhof}_i^m + \rho \I \right)^{-1}\) is the inverse Hessian of the problem.
-The implicit overlap-save matrices in \(\bm{{V}}_i^m\) make this a constrained update step which is costly to compute, so in order to reduce complexity, we introduce the approximation
+where \(\mu\), (\(0  < \mu\leq 1\)), is a step size and \(\bm{{V}}_i^m = \left(\hat{\aRhof}_i^m + \rho \I \right)^{-1}\) is the regularized inverse Hessian of the problem.
+The implicit overlap-save matrices in \(\bm{{V}}_i^m\) make this a constrained update step which is costly to compute, so in order to reduce computational complexity, we introduce the approximation
 \begin{equation}
-    \tilde{\bm{{V}}}_i^m = \operatorname{diag} \left\{ \left( \operatorname{diag} \left\{ \hat{\aRhof}_i^m \right\} + \rho \mtxb{1} \right)^{-1}\right\}
+    \tilde{\bm{{V}}}_i^m = \operatorname{diag} \left\{ \operatorname{diag} \left\{ \hat{\aRhof}_i^m \right\} + \rho \mtxb{1} \right\}^{-1}
 \end{equation}
 which is straightforward to compute.
 
-For the update step of the consensus variable \(\hf\), it may be readily verified (cf. \cite{boydDistributedOptimizationStatistical2011}) that the solution to \eqref{eq:general_consensus_admm:global} is given by
+% The global variable \(\hf\), a stacked vector of the \(M\) single-channel consensus variables \(\hf_i\), is updated by a distributed update.
+It may be readily verified (cf. \cite{boydDistributedOptimizationStatistical2011}) that the solution to \eqref{eq:general_consensus_admm:global} is given by an update step which computes
 \begin{equation}
-    \hf^{m+1} = \frac{\bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} }{\left\| \bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} \right\|}.\label{eq:online_admm:consensus_update}
+    \hf_i^{m+1} = \frac{\bar{\hf}_i^{m+1}}{\sqrt{\sum_{j \in \Tset_i} \phi_i}}\label{eq:online_admm:consensus_update}
 \end{equation}
-where the \(M L \times 1\) vectors \(\bar{\wf}^{m+1}, \bar{\uuf}^{m+1}\) are computed as the mapped averages
+for each node \(i \in \Mset\) with the local unnormalized consensus
 \begin{equation}
-    (\bar{\wf}^{m+1})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\wf_i^{m+1})_j,\quad g,i \in \Mset, \, j \in \Tset_g
+    \bar{\hf}_i^{m+1} = \bar{\wf}_i^{m+1} + \frac{1}{\rho} \bar{\uuf}_i^{m}.
 \end{equation}
-and
+and the squared norm \(\phi_i = \|\bar{\hf}_i^{m+1}\|^2\).
+Here, \(\bar{\wf}_i = \frac{1}{N_i} \sum_{j \in \Tset_i} (\wf_j)_i\) and \(\bar{\uuf}_i = \frac{1}{N_i} \sum_{j \in \Tset_i} (\uuf_j)_i\), with \(N_i = | \Tset_i |\), are neigborhood averages of the channel response estimate and the dual variable of channel \(i\) computed at node \(i\). The values of all \(\phi_i\), \(i \in \Mset\) are transmitted and relayed through the network until can compute the denominator in \eqref{eq:online_admm:consensus_update}.
+
+The dual variables are straightforward to compute as
 \begin{equation}
-    (\bar{\uuf}^{m})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\uuf_i^{m})_j,\quad g,i \in \Mset, \, j \in \Tset_g
+    \uuf_i^{m+1} = \uuf_i^{m} + \rho \left( \wf_i^{m+1} - \tilde{\hf}_i^{m+1} \right).\label{eq:online_admm:dual_update}
 \end{equation}
-with \(N_g = | \Tset_g |\) being the cardinality of the set.
-This results in a computationally inexpensive update step forcing the norm of the consensus to have unit value.
-\begin{todo}
-    Here could be added that the consensus update step doesnt have to be done each time step which would reduce the number of transmissions (obviously slows convergence). But that would be a claim that is not backed by convergence proof, only simulation results.
-\end{todo}
+
+The computations of local, consensus and dual variables, in \eqref{eq:online_admm:local_update}, \eqref{eq:online_admm:consensus_update} and \eqref{eq:online_admm:dual_update} respectively, require data transmitted by other nodes (cf. \autoref{fig:sensor_network:WSN_detail}). For this paper, we assume that all transmissions are done instantaneously whenever variables are required by neighboring nodes.
+
+% \autoref{alg:dbsi} presents the full algorithm including inter-node transmissions.
+
+% \begin{algorithm}
+%     \caption{Distributed BSI with ADMM}\label{alg:dbsi}
+%     \begin{algorithmic}
+%         \For {\(m=0,1,2,...\)}
+%             \For{\(i \in \Mset\)}
+%                 \State Acquire signal vector \(x_i^{(m)}\)
+%                 \ForAll{\(j \in \Tset_i\)}
+%                     \State Send \(x_i^{(t)},\bar{h}_i^{(t)},\bar{y}_i^{(t)}\) to node \(j\)
+%                 \EndFor
+%                 \ForAll{\(k \in \mathcal{R}_i\)}
+%                     \State Receive \(x_{k}^{(t)},\bar{h}_{k}^{(t)},\bar{y}_{k}^{(t)}\) from node \(k\)
+%                 \EndFor
+%                 \State Update \(\phi_i^{(t+1)} \leftarrow \phi_i^{(t)}\) using \eqref{eq:admm_local}
+%                 \State Update \(\gamma_i^{(t+1)} \leftarrow \gamma_i^{(t)}\) using \eqref{eq:admm_consensus}
+%                 \State Update \(\lambda_i^{(t+1)} \leftarrow \lambda_i^{(t)}\) using \eqref{eq:admm_dual}
+%                 \ForAll{\(k \in \mathcal{R}_i\)}
+%                     \State Send \(\hat{h}_{ki}^{(t)},y_{ki}^{(t)}\) to node \(k\)
+%                 \EndFor
+%                 \ForAll{\(j \in \Tset_i\)}
+%                     \State Receive \(\hat{h}_{ij}^{(t)},y_{ij}^{(t)}\) to node \(j\)
+%                 \EndFor
+%             \EndFor
+%         \EndFor
+%     \end{algorithmic}
+% \end{algorithm}
+
+% For the update step of the consensus variable \(\hf\), it may be readily verified (cf. \cite{boydDistributedOptimizationStatistical2011}) that the solution to \eqref{eq:general_consensus_admm:global} is given by
+% \begin{equation}
+%     \hf^{m+1} = \frac{\bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} }{\left\| \bar{\wf}^{m+1} + \frac{1}{\rho} \bar{\uuf}^{m} \right\|}.\label{eq:online_admm:consensus_update}
+% \end{equation}
+% where the \(M L \times 1\) vectors \(\bar{\wf}^{m+1}, \bar{\uuf}^{m+1}\) are computed as the mapped averages
+% \begin{equation}
+%     (\bar{\wf}^{m+1})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\wf_i^{m+1})_j,\quad g,i \in \Mset, \, j \in \Tset_g
+% \end{equation}
+% and
+% \begin{equation}
+%     (\bar{\uuf}^{m})_g = \frac{1}{N_g} \sum_{\mathcal{G}(i,j)=g} (\uuf_i^{m})_j,\quad g,i \in \Mset, \, j \in \Tset_g
+% \end{equation}
+% with \(N_g = | \Tset_g |\) being the cardinality of the set.
+% This results in a computationally inexpensive update step forcing the norm of the consensus to have unit value.
 
 % #############################################################################
 % #############################################################################
@@ -328,9 +357,9 @@ This results in a computationally inexpensive update step forcing the norm of th
 
 \begin{figure}[t]
     \centering
-    \subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/plots/NPM_over_time_SNR10.png}\label{fig:perf_eval:NPM_over_time_SNR10}}\\
+    \hspace*{-0.2cm}\subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/plots/NPM_over_time_SNR10.png}\label{fig:perf_eval:NPM_over_time_SNR10}}\\
     \vspace*{-0.3cm}
-    \subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/plots/NPM_over_SNR_L64_M5.png}\label{fig:perf_eval:NPM_over_SNR_L64_M5}}
+    \hspace*{-0.2cm}\subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/plots/NPM_over_SNR_L64_M5.png}\label{fig:perf_eval:NPM_over_SNR_L64_M5}}
     \vspace*{-0.2cm}
     \caption{Comparison of ADMM-BSI convergence behaviour with \(L\!=\!64\) at different SNR values. Shown are (a) NPM at \(\text{SNR}=10\,\text{dB}\) over frame index \(m\) for convergence speed comparison and (b) the steady-state NPMs over different SNRs.}
     \label{fig:perf_eval:NPM_over_time_exp1}
@@ -338,51 +367,61 @@ This results in a computationally inexpensive update step forcing the norm of th
 
 The performance of the proposed algorithm is assessed via numerical simulations.
 As an error measure, we use the normalized projection misalignment (NPM) \cite{huangClassFrequencydomainAdaptive2003}
+% \begin{equation}
+%     \text{NPM}(m) = 20\,\log_{10} \left(\frac{\left\| \h(m) - \frac{\h^\T (m) \h_{\text{t}}}{\h_{\text{t}}^\T \h_{\text{t}}}\h(m) \right\|_2}{\left\|\h(m)\right\|_2} \right)
+% \end{equation}
 \begin{equation}
-    \text{NPM}(m) = 20\,\log_{10} \left(\frac{\left\| \h(m) - \frac{\h^\T (m) \h_{\text{t}}}{\h_{\text{t}}^\T \h_{\text{t}}}\h(m) \right\|_2}{\left\|\h(m)\right\|_2} \right)
+    \text{NPM}(m) = 20\,\log_{10} \left(\left\| \h(m) - \frac{\h^\T (m) \h_{\text{t}}}{\h_{\text{t}}^\T \h_{\text{t}}}\h(m) \right\| / \left\|\h(m)\right\| \right)
 \end{equation}
-where \(\h\) is the stacked vector of impulse response estimates (cf. \autoref{ssec:cross_rel}), which are the inversely Fourier-transformed estimated frequency responses stacked in \(\hf\) and \(\h_{\text{t}}\) is the ground truth. The signal-to-noise ratio (SNR) for the simulations is defined as 
+where \(\h\) is the stacked vector of impulse response estimates (cf. \autoref{ssec:cross_rel}), which are the inversely Fourier-transformed estimated frequency responses \(\hf_i\) stacked in \(\hf\) and \(\h_{\text{t}}\) is the ground truth. The signal-to-noise ratio (SNR) for the simulations is defined as 
 \begin{equation}
     \text{SNR} = 10 \log_{10} \left(\frac{\sigma_s^2 \| \h_t \|}{M \sigma_v^2} \right)
 \end{equation}
 where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise respectively which both are modelled by (channel-independent) white Gaussian noise (WGN).
 
-The first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-channel system (\(M=5,\, N=5\)).
-The impulse responses are drawn from a Normal distribution with unit variance, and the signal is \(8 \times 10^{5}\) samples of WGN to ensure convergence of all algorithms.
+The first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-node network (5-channel system, \(M=5\)).
+The impulse responses are drawn from a zero-mean Gaussian distribution with unit variance, and the signal is \(8 \times 10^{5}\) samples of WGN to ensure convergence of all algorithms.
 The step sizes are hand tuned for similar convergence speed: \(\mu_{\text{MCQN}}=0.5,\, \mu_{\text{NMCFLMS}}=0.4,\, \mu_{l_p-\text{NMCFLMS}}=0.3,\, \mu_{\text{ADMM}}=0.6,\, \rho=1,\,\eta=0.98 \).
-\autoref{fig:perf_eval:NPM_over_time_exp1} shows the median of 30 Monte-Carlo runs where the averaged NPM of the last \(100\) frames is plotted.
+\autoref{fig:perf_eval:NPM_over_time_SNR10} shows the median NPM of 30 Monte-Carlo runs over frame index \(m\).
+\autoref{fig:perf_eval:NPM_over_SNR_L64_M5} shows the median of 30 Monte-Carlo runs where the averaged NPM of \(100\) frames after convergence is plotted.
 It is observable that the proposed algorithm yields a lower steady-state NPM than the compared NMCFLMS, RNMCFLMS, and \(l_p\)-RNMCFLMS algorithms.
+The choice to present the median is based on the fact that randomly generated impulse responses may have close common zeros diminishing identifyability (for all algorithms) \cite{naylorNearCommonZerosBlind2008}, here then considered outliers.
+
 
 \begin{figure}[t]
     \centering
-    \hspace*{-0.2cm}\subfloat[][\(M\!=\!4,P\!=\!4\)]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=3.7cm]{python/plots/NPM_over_time_M4.png}\label{fig:perf_eval:NPM_over_time_M4}}
-    % \hspace*{-0.2cm}\subfloat[][\(M\!=\!4,N\!=\!4\)]{\begin{overpic}[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=3.7cm]{python/plots/NPM_over_time_M4.png}
-    %     \put(54,48){\includestandalone[trim={0.0cm 0.0cm 0.0cm 0},clip,scale=0.5]{tikz/connection_matrix_eval}}
-    % \end{overpic}\label{fig:perf_eval:NPM_over_time_M4}}
-    \hspace*{-0.0cm}\subfloat[][\(M\!=\!8,N\!=\!8\)]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=3.7cm]{python/plots/NPM_over_time_M8.png}\label{fig:perf_eval:NPM_over_time_M8}}
+    % \hspace*{-0.2cm}\subfloat[][\(M\!=\!4\)]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=3.7cm]{python/plots/NPM_over_time_M4.png}\label{fig:perf_eval:NPM_over_time_M4}}
+    \hspace*{-0.2cm}\subfloat[][]{\begin{overpic}[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=3.7cm]{python/plots/NPM_over_time_M4.png}
+        \put(57,42.5){\includestandalone[trim={0.0cm 0.0cm 0.0cm 0},clip,scale=0.6]{tikz/topology_inset_simulation}}
+    \end{overpic}\label{fig:perf_eval:NPM_over_time_M4}}
+    \hspace*{-0.0cm}\subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=3.7cm]{python/plots/NPM_over_time_M8.png}\label{fig:perf_eval:NPM_over_time_M8}}
     \vspace*{-0.2cm}
-    \caption{Comparison of ADMM-BSI convergence behaviour with \(L\!=\!16\) for different values of the sub-problem overlap \(\zeta\) for \(\text{SNR}=20\,\text{dB}\).}
+    \caption[Comparison of ADMM-BSI convergence behaviour with \(L\!=\!16\) for different values of \(\zeta\)]{Comparison of ADMM-BSI convergence behaviour with \(L\!=\!16\) for different values of \(\zeta\) for \(\text{SNR}=20\,\text{dB}\). NPM is plotted for systems of (a) 4 nodes/channels and (b) 8 nodes/channels. The inset of (a) shows the base ring topology (black arrows) and all other possible connections (dashed black arrows).}
     \label{fig:perf_eval:NPM_over_time_exp2}
 \end{figure}
 
 The second simulation is a small-scale assessment of the influence of the overlap of sub-problems.
-Two base scenarios, \(M=4,\,N=4\) and \(M=8,\,N=8\), are evaluated using short (\(L=16\)) random impulse responses and different values for the sub-problem overlap parameter \(\zeta\) which is defined as the ratio of ones to zeros of only considering elements of \(\mtxb{G}\) that are not part of the main diagonal, superdiagonal and the first element of the last row (marked gray on the inset of \autoref{fig:perf_eval:NPM_over_time_M4}).
-Random patterns satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) are generated.
-\autoref{fig:perf_eval:NPM_over_time_exp2} shows the median of 30 Monte-Carlo runs for the two setups, which shows the proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error is not dependent on \(\zeta\).
-\begin{todo}
-    Rewrite this. Confusing.
-\end{todo}
-
-
+Two base scenarios, \(M=4\) and \(M=8\) are evaluated using short (\(L=16\)) random impulse responses and with semi-random topologies.
+Each topology is generated by forming a ring topology as marked with solid arrows on the inset of \autoref{fig:perf_eval:NPM_over_time_M4} and additionally randomly selecting a defined number of connections from all remaining possible connections, marked with dashed arrows.
+The parameter \(\zeta\) is defined as the number of randomly selected connections to possible connections (excluding the ring topology). Topologies satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) were generated.
+\autoref{fig:perf_eval:NPM_over_time_exp2} shows the median of 30 Monte-Carlo runs for the two setups, which suggests a proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error appears not dependent on \(\zeta\).
+\begin{attention}
+    Some plots and values will change slightly.
+\end{attention}
 
 
 % #############################################################################
 % #############################################################################
 \section{Conclusions}
 \label{sec:conclusion}
-In this paper, an adaptive ADMM algorithm for blind system identification was developed.
-The algorithm separates the BSI problem into lower-dimensional sub-problems to reduce computational complexity and allows for parallel or distributed processing while maintaining steady-state error performance and convergence speed.
-Preliminary results using white Gaussian noise and randomly generated impulse responses have demonstrated improved steady-state error measures compared to state-of-the-art algorithms and that steady-state performance is not affected by separating the BSI problem into sub-problems while convergence speed is.
+In this paper, a distributed adaptive algorithm for blind system identification using ADMM in the context of sensor networks was developed.
+Each node in a WSN solves a BSI sub-problem estimating channel responses using signal data from neighboring nodes to form the cross-relation problem with a subset of channels.
+Through 
+\begin{todo}
+    FINISH
+\end{todo}
+%  while maintaining steady-state error performance and convergence speed.
+% Preliminary results using white Gaussian noise and randomly generated impulse responses have demonstrated improved steady-state error measures compared to state-of-the-art algorithms and that steady-state performance is not affected by separating the BSI problem into sub-problems while convergence speed is.
 
 % References should be produced using the bibtex program from suitable
 % BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
