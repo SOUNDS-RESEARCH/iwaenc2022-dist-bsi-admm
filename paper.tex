@@ -8,7 +8,7 @@
 % --------------------------------------------------------------------------
 
 \documentclass{article}
-\usepackage[preprint]{spconfa4}
+\usepackage{spconfa4}
 \usepackage{amsmath,graphicx}
 \input{preamble.tex}
 \ninept
@@ -65,7 +65,7 @@ Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualiza
 Such algorithms include the cross-relation (CR) algorithm \cite{langtongBlindIdentificationEqualization1994, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
 Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
 The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
-The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
+The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the Broyden–Fletcher–Goldfarb–Shanno (BFGS) \cite{brodlie1977assessment} method to estimate the Hessian of the problem.
 
 The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed signal estimation \cite{5483092}, noise control and echo cancellation \cite{9670697}, or beamforming \cite{6663655,9670697}, however, research into the task of BSI is limited.
 While there exist time-domain algorithms as introduced in \cite{yuDistributedBlindSystem2014,liuDistributedBlindIdentification2016,liuDistributedRecursiveBlind2017}, they do not pose apt comparisons to the frequency-domain algorithm being proposed.
@@ -181,7 +181,7 @@ Therefore, it is advantageous to consider ad-hoc network topologies, as we do in
 We refer the reader to \cite{bertrandApplicationsTrendsWireless2011b} for a more detailed review of WSNs and their topologies.
 
 We consider a WSN consisting of \(M\) sensors each acquiring an output signal \(\x_i(n)\).
-We define a set \(\Tset_i \subseteq \Mset\) for each node \(i\) with \(i \in \Mset\), which contains the indices of all nodes which have access to the signals \(\x_i(n)\), i.e. the signal information is transmitted to.
+We define a set \(\Tset_i \subseteq \Mset\) for each node \(i\) with \(i \in \Mset\), which contains the indices of the set of nodes which signal \(\x_i(n)\) is transmitted to.
 Further, we define a set \(\Rset_i \subseteq \Mset\) for each node with \(i \in \Mset\), which contains all indices of nodes from which the node receives signal information.
 Note that \(i \in \Tset_i\) and \(i \in \Rset_i\) for simplifying notation in later sections, but evidently, no actual transmission is necessary in that case, as the signal \(\x_i(n)\) is available locally at node \(i\).
 \autoref{fig:sensor_network:WSN_overview} shows a network where each node shares its signal information with one or more neighbors.
@@ -286,7 +286,7 @@ The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_cons
 where \(\mu\), (\(0  < \mu\leq 1\)), is a step size and \(\bm{{V}}_i^m = \left(\hat{\aRhof}_i^m + \rho \I \right)^{-1}\) is the regularized inverse Hessian of the problem.
 The implicit overlap-save matrices in \(\bm{{V}}_i^m\) make this a constrained update step which is costly to compute, so in order to reduce computational complexity, we introduce the approximation
 \begin{equation}
-    \tilde{\bm{{V}}}_i^m = \operatorname{diag} \left\{ \operatorname{diag} \left\{ \hat{\aRhof}_i^m \right\} + \rho \mtxb{1} \right\}^{-1}
+    \hat{\bm{{V}}}_i^m = \operatorname{diag} \left\{ \operatorname{diag} \left\{ \hat{\aRhof}_i^m \right\} + \rho \mtxb{1} \right\}^{-1}
 \end{equation}
 which is straightforward to compute.
 
@@ -297,7 +297,7 @@ It may be readily verified (cf. \cite{boydDistributedOptimizationStatistical2011
 \end{equation}
 for each node \(i \in \Mset\) with the local unnormalized consensus
 \begin{equation}
-    \bar{\hf}_i^{m+1} = \bar{\wf}_i^{m+1} + \frac{1}{\rho} \bar{\uuf}_i^{m}.
+    \bar{\hf}_i^{m+1} = \bar{\wf}_i^{m+1} + \frac{1}{\rho} \bar{\uuf}_i^{m}
 \end{equation}
 and the squared norm \(\phi_i = \|\bar{\hf}_i^{m+1}\|^2\).
 Here, \(\bar{\wf}_i = \frac{1}{N_i} \sum_{j \in \Tset_i} (\wf_j)_i\) and \(\bar{\uuf}_i = \frac{1}{N_i} \sum_{j \in \Tset_i} (\uuf_j)_i\), with \(N_i = | \Tset_i |\), are neigborhood averages of the channel response estimate and the dual variable of channel \(i\) computed at node \(i\). The values of all \(\phi_i\), \(i \in \Mset\) are transmitted and relayed through the network until all nodes can compute the denominator in \eqref{eq:online_admm:consensus_update}.
@@ -307,7 +307,7 @@ The dual variables are straightforward to compute as
     \uuf_i^{m+1} = \uuf_i^{m} + \rho \left( \wf_i^{m+1} - \tilde{\hf}_i^{m+1} \right).\label{eq:online_admm:dual_update}
 \end{equation}
 
-The computations of local, consensus and dual variables, in \eqref{eq:online_admm:local_update}, \eqref{eq:online_admm:consensus_update} and \eqref{eq:online_admm:dual_update} respectively, require data transmitted by other nodes (cf. \autoref{fig:sensor_network:WSN_detail}). For this paper, we assume that all transmissions are done instantaneously whenever variables are required by neighboring nodes.
+The computations of local, consensus and dual variables, in \eqref{eq:online_admm:local_update}, \eqref{eq:online_admm:consensus_update} and \eqref{eq:online_admm:dual_update} respectively, require data transmitted by other nodes (cf. \autoref{fig:sensor_network:WSN_detail}). For this paper, we assume that all transmissions are done instantaneously and error-free whenever variables are required by neighboring nodes.
 
 % \autoref{alg:dbsi} presents the full algorithm including inter-node transmissions.
 
@@ -405,7 +405,7 @@ The choice to present the median is based on the fact that randomly generated im
 The second simulation is a small-scale assessment of the influence of the number of connections within the WSN.
 Two base scenarios, \(M=4\) and \(M=8\) are evaluated using short (\(L=16\)) random impulse responses and with semi-random topologies.
 Each topology is generated by forming a ring topology as marked with solid arrows on the inset of \autoref{fig:perf_eval:NPM_over_time_M4} and additionally randomly selecting a defined number of connections from all remaining possible connections, marked with dashed arrows.
-The parameter \(\zeta\) is defined as the number of randomly selected connections to possible connections (excluding the ring topology). Topologies satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) were generated.
+The parameter \(\zeta\) is defined as the ratio of randomly selected connections to possible connections (excluding the ring topology). Topologies satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) were generated.
 \autoref{fig:perf_eval:NPM_over_time_M4} and \autoref{fig:perf_eval:NPM_over_time_M8} show the median NPM (30 Monte-Carlo runs) for \(M=4\) and \(M=8\) respectively. The plots suggests a proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error appears to be not dependent on \(\zeta\).
 \begin{attention}
     Some plots and values will change slightly and I will fit it onto 4 pages.
@@ -418,7 +418,7 @@ The parameter \(\zeta\) is defined as the number of randomly selected connection
 \label{sec:conclusion}
 In this paper, a distributed adaptive algorithm for blind system identification using ADMM in the context of sensor networks was developed.
 The BSI problem is distributed amongst the nodes by exploiting the separability of the cross-relation problem formulation which leads to node-wise sub-problems using signal information of a node's neighborhood.
-The nodes solve the subproblem and transmit estimates to their respective neighbors which are combined into consensus estimates,
+The nodes solve the subproblem and transmit estimates to their respective neighbors which are combined into consensus estimates.
 Preliminary results using white Gaussian noise and randomly generated impulse responses have demonstrated improved steady-state error measures compared to state-of-the-art algorithms.
 Further, they suggest that steady-state performance is not affected by the separation of the full BSI problem into node-wise sub-problems while convergence speed is.
 
