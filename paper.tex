@@ -36,7 +36,7 @@
 %
 % Single address.
 % ---------------
-\name{M. Blochberger\thanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No.\,956369. This research received funding in part by the Research Foundation - Flanders (FWO) grant 12ZD622N as well as from the European Union's Horizon 2020 research and innovation program / ERC Consolidator Grant: SONORA (No.\,773268). This paper reflects only the authors' views and the Union is not liable for any use that may be made of the contained information. Source code available at \url{https://github.com/SOUNDS-RESEARCH/iwaenc2022-admm-bsi}.}, F. Elvander, R. Ali, M. Moonen, J. Østergaard, J. Jensen, T. van Waterschoot}
+\name{M. Blochberger\thanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No.\,956369. This research received funding in part from the Research Foundation - Flanders (FWO) grant 12ZD622N as well as from the European Union's Horizon 2020 research and innovation program / ERC Consolidator Grant: SONORA (No.\,773268). This paper reflects only the authors' views and the Union is not liable for any use that may be made of the contained information. Source code available at \url{https://github.com/SOUNDS-RESEARCH/iwaenc2022-admm-bsi}.}, F. Elvander, R. Ali, M. Moonen, J. Østergaard, J. Jensen, T. van Waterschoot}
 \address{KU Leuven\\Department of Electrical Engineering (ESAT)\\STADIUS Center for Dynamical Systems, Signal Processing and Data Analytics \\3001 Leuven, Belgium}
 %
 \begin{document}
@@ -67,11 +67,7 @@ Out of various multichannel BSI algorithms which have been proposed, adaptive cr
 The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
 The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the BFGS method to estimate the Hessian of the problem.
 
-The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed noise control, echo cancellation, or beamforming, however, research into the task of BSI is limited.
-\cite{bertrandApplicationsTrendsWireless2011b}
-\begin{todo}
-    References
-\end{todo}
+The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed signal estimation \cite{5483092}, noise control and echo cancellation \cite{9670697}, or beamforming \cite{6663655,9670697}, however, research into the task of BSI is limited.
 While there exist time-domain algorithms as introduced in \cite{yuDistributedBlindSystem2014,liuDistributedBlindIdentification2016,liuDistributedRecursiveBlind2017}, they do not pose apt comparisons to the frequency-domain algorithm being proposed.
 In this paper, we use the general-form consensus alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} to distribute and solve the optimization problem posed by the task.
 We separate the inter-channel cross-relations of the BSI problem according to the network's topology, i.e. each node solves a sub-problem using data from its network neighbors, and the entirety of connected nodes subsequently reaches a consensus for the channel frequency responses.
@@ -178,6 +174,12 @@ Therefore it is best solved by posing it as a quadratic minimization problem \ci
 \subsection{Wireless Sensor Network}
 \label{ssec:sensor_network}
 
+The major types of network topologies for distributed signal processing can be distinguished by the way information is shared within the network.
+In a centralized or star topology, where nodes transmit their signals to a dedicated device (fusion center), the processing happens (partly) centralized.
+This has drawbacks, such as the dependence on one or a small number of dedicated devices and a potentially large number of signals to be processed on these devices.
+Therefore, it is advantageous to consider ad-hoc network topologies, as we do in this paper, where nodes only communicate with their respective neighbors.
+We refer the reader to \cite{bertrandApplicationsTrendsWireless2011b} for a more detailed review of WSNs and their topologies.
+
 We consider a WSN consisting of \(M\) sensors each acquiring an output signal \(\x_i(n)\).
 We define a set \(\Tset_i \subseteq \Mset\) for each node \(i\) with \(i \in \Mset\), which contains the indices of all nodes which have access to the signals \(\x_i(n)\), i.e. the signal information is transmitted to.
 Further, we define a set \(\Rset_i \subseteq \Mset\) for each node with \(i \in \Mset\), which contains all indices of nodes from which the node receives signal information.
@@ -194,7 +196,7 @@ In the following section, we introduce a distributed adaptive algorithm to find 
     \vspace*{-0.2cm}
     \subfloat[][]{\includegraphics[trim={0.2cm 0.25cm 1.9cm 0.0cm},clip,width=\columnwidth]{images/parameter_mapping2.pdf}\label{fig:problem_splitting:parameter_mapping}}
     \vspace*{-0.1cm}
-    \caption{(a) shows an example of a network topology with 4 nodes (\(\circ\)). Arrows indicate exchange of signal information. (b) visualizes the data transmitted between nodes \(i\) and \(j\) for each frame \(m\). (c) shows the equivalent parameter mapping of the local variable components \(({\wf}_i)_j\) to the global variable components \(({\hf})_j\) via \(\mathcal{G}(i,j)\) for the network in (a).}
+    \caption{(a) shows an example of a network topology with 4 nodes (\(\circ\)). Arrows indicate exchange of signal information. (b) visualizes the data transmitted between nodes \(i\) and \(j\) for each frame \(m\). (c) shows the equivalent parameter mapping of the local variable components \(({\wf}_i)_j\) to the global variable components \(\hf_j\) via \(\mathcal{G}(i,j)\) for the network in (a).}
     \label{fig:sensor_network:WSN_mapping}
 \end{figure}
 
@@ -230,7 +232,7 @@ In the following section, we introduce a distributed adaptive algorithm to find 
 \subsection{General-Form Consensus ADMM}
 \label{ssec:general_consensus_admm}
 Defined by \(\Rset_i\), each node \(i \in \Mset\) has its own signal information and additionally signal information of its neighbors available.
-This is used to solve a BSI problem of the same form as in \eqref{eq:frequency_domain:min_prob}, which however only involves the subset of channels.
+This is used to solve a BSI sub-problem of the same form as in \eqref{eq:frequency_domain:min_prob}, which however only involves the subset of channels.
 We define the local variables \(\wf_i = \left[ \left\{ (\wf_i)_j^\T \right\}_{j \in \Rset_i} \right]^\T\), which is a stacked vector of locally estimated frequency responses (cf. \autoref{fig:problem_splitting:parameter_mapping}).
 Further, the global variable \(\hf = \begin{bmatrix}
     \hf_1^\T & \ldots & \hf_M^\T
@@ -385,7 +387,7 @@ The step sizes are hand tuned for similar convergence speed: \(\mu_{\text{MCQN}}
 \autoref{fig:perf_eval:NPM_over_time_SNR10} shows the median NPM of 30 Monte-Carlo runs over frame index \(m\).
 \autoref{fig:perf_eval:NPM_over_SNR_L64_M5} shows the median of 30 Monte-Carlo runs where the averaged NPM of \(100\) frames after convergence is plotted.
 It is observable that the proposed algorithm yields a lower steady-state NPM than the compared NMCFLMS, RNMCFLMS, and \(l_p\)-RNMCFLMS algorithms.
-The choice to present the median is based on the fact that randomly generated impulse responses may have close common zeros diminishing identifyability (for all algorithms) \cite{naylorNearCommonZerosBlind2008}, here then considered outliers.
+The choice to present the median is based on the fact that randomly generated impulse responses may have close common zeros diminishing identifiability (for all algorithms) \cite{naylorNearCommonZerosBlind2008}, here then considered outliers.
 
 
 \begin{figure}[t]
@@ -404,9 +406,9 @@ The second simulation is a small-scale assessment of the influence of the overla
 Two base scenarios, \(M=4\) and \(M=8\) are evaluated using short (\(L=16\)) random impulse responses and with semi-random topologies.
 Each topology is generated by forming a ring topology as marked with solid arrows on the inset of \autoref{fig:perf_eval:NPM_over_time_M4} and additionally randomly selecting a defined number of connections from all remaining possible connections, marked with dashed arrows.
 The parameter \(\zeta\) is defined as the number of randomly selected connections to possible connections (excluding the ring topology). Topologies satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) were generated.
-\autoref{fig:perf_eval:NPM_over_time_exp2} shows the median of 30 Monte-Carlo runs for the two setups, which suggests a proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error appears not dependent on \(\zeta\).
+\autoref{fig:perf_eval:NPM_over_time_M4} and \autoref{fig:perf_eval:NPM_over_time_M8} show the median NPM (30 Monte-Carlo runs) for \(M=4\) and \(M=8\) respectively. The plots suggests a proportional relation of convergence speed, channel number \(M\) and sub-problem overlap \(\zeta\) while the steady-state error appears to be not dependent on \(\zeta\).
 \begin{attention}
-    Some plots and values will change slightly.
+    Some plots and values will change slightly and I will fit it onto 4 pages.
 \end{attention}
 
 
@@ -415,13 +417,10 @@ The parameter \(\zeta\) is defined as the number of randomly selected connection
 \section{Conclusions}
 \label{sec:conclusion}
 In this paper, a distributed adaptive algorithm for blind system identification using ADMM in the context of sensor networks was developed.
-Each node in a WSN solves a BSI sub-problem estimating channel responses using signal data from neighboring nodes to form the cross-relation problem with a subset of channels.
-Through 
-\begin{todo}
-    FINISH
-\end{todo}
-%  while maintaining steady-state error performance and convergence speed.
-% Preliminary results using white Gaussian noise and randomly generated impulse responses have demonstrated improved steady-state error measures compared to state-of-the-art algorithms and that steady-state performance is not affected by separating the BSI problem into sub-problems while convergence speed is.
+The BSI problem is distributed amongst the nodes by exploiting the separability of the cross-relation problem formulation which leads to node-wise sub-problems using signal information of a node's neighborhood.
+The nodes solve the subproblem and transmit estimates to their respective neighbors which are combined into consensus estimates,
+Preliminary results using white Gaussian noise and randomly generated impulse responses have demonstrated improved steady-state error measures compared to state-of-the-art algorithms.
+Further they suggest that steady-state performance is not affected by the separation of the full BSI problem into node-wise sub-problems while convergence speed is.
 
 % References should be produced using the bibtex program from suitable
 % BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
