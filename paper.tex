@@ -395,7 +395,7 @@ where \(\h\) is the stacked vector of impulse response estimates (cf. \autoref{s
 \end{equation}
 where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise respectively which both are modelled by (channel-independent) white Gaussian noise (WGN).
 
-The first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-node network (5-channel system, \(M=5\)).
+The first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-node network (5-channel system, \(M=5\)) with a ring topology where each node transmits its signal information to one neighbor.
 The impulse responses are drawn from a zero-mean Gaussian distribution with unit variance, and the signal is \(8 \times 10^{5}\) samples of WGN to ensure convergence of all algorithms.
 The step sizes are hand tuned for similar convergence speed: \(\mu_{\text{MCQN}}=0.5,\, \mu_{\text{NMCFLMS}}=0.4,\, \mu_{l_p-\text{NMCFLMS}}=0.3,\, \mu_{\text{ADMM}}=0.6,\, \rho=1,\,\eta=0.98 \).
 \autoref{fig:perf_eval:NPM_over_time_SNR10} shows the median NPM (30 Monte-Carlo runs) over frame index \(m\).
