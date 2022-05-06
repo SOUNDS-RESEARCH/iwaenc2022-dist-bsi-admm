@@ -1,3 +1,22 @@
 {
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "grammarly.overrides": [
+        {
+            "files": [
+                "**/iwaenc2022/paper.tex"
+            ],
+            "config": {
+                "audience": "expert",
+                "dialect": "british",
+                "domain": "academic",
+                "emotions": [
+                    "analytical"
+                ],
+                "goals": [
+                    "inform",
+                    "describe"
+                ]
+            }
+        }
+    ]
 }

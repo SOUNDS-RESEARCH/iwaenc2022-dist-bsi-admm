@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Blochberger"
+  given-names: "Matthias"
+  # orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "Elvander"
+  given-names: "Filip"
+  # orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "Ali"
+  given-names: "Randall"
+  # orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "van Waterschoot"
+  given-names: "Toon"
+  # orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "Moonen"
+  given-names: "Marc"
+  # orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "CROSS-RELATION-BASED FREQUENCY-DOMAIN BLIND SYSTEM IDENTIFICATION USING ONLINE ADMM"
+version: 1.0
+# doi: 10.5281/zenodo.1234
+date-released: 2022-05-09
+url: "https://github.com/SOUNDS-RESEARCH/iwaenc2022-admm-bsi"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Blochberger"
+    given-names: "Matthias"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Elvander"
+    given-names: "Filip"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Ali"
+    given-names: "Randall"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "van Waterschoot"
+    given-names: "Toon"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Moonen"
+    given-names: "Marc"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+  title: "CROSS-RELATION-BASED FREQUENCY-DOMAIN BLIND SYSTEM IDENTIFICATION USING ONLINE ADMM"
+  version: 1.0
+  doi: "10.0000/00000"
+  journal: "Journal Title"
+  month: 9
+  start: 1 # First page number
+  end: 10 # Last page number
+  title: "My awesome research software"
+  issue: 1
+  volume: 1
+  year: 2021
