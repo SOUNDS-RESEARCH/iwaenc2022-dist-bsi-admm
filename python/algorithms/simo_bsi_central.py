@@ -18,7 +18,7 @@ class MCALG:
                     - x[:, j, None][::-1].T
                     @ self.h[(i * self.L) : (i * self.L + self.L)]
                 )
-                X += e ** 2
+                X += e**2
         return X
 
     def compute_X_prior(self, x) -> float:
@@ -31,7 +31,7 @@ class MCALG:
                     - x[:, j, None][::-1].T
                     @ self.h_old[(i * self.L) : (i * self.L + self.L)]
                 )
-                X += e ** 2
+                X += e**2
         return X
 
     def construct_Rxp(self, x):
@@ -109,10 +109,10 @@ class VSSUCMCLMS(MCALG):
 
 
 class MCN(MCALG):
-    def __init__(self, ρ, λ, L, N, x_vars, buffer_size) -> None:
+    def __init__(self, rho, lambd, L, N, x_vars, buffer_size) -> None:
         MCALG.__init__(self, L, N, buffer_size)
-        self.ρ = ρ
-        self.λ = λ
+        self.rho = rho
+        self.lambd = lambd
         self.h = np.zeros(shape=(L * N, 1))
         self.h[0::L] = 1
         self.h = self.h / np.sqrt(N)
@@ -125,24 +125,24 @@ class MCN(MCALG):
         X = self.compute_X(x)  # error function Χ
         R_xp = self.construct_Rxp(x)  # construct matrix R_x+
 
-        self.R_xp_ = self.λ * self.R_xp_ + R_xp
+        self.R_xp_ = self.lambd * self.R_xp_ + R_xp
         # update step
         W = (
             2 * self.R_xp_
             - 4 * self.h @ self.h.T @ self.R_xp_
             - 4 * self.R_xp_ @ self.h @ self.h.T
         )
-        delta_h = self.h - self.ρ * np.linalg.solve(W, R_xp @ self.h - X * self.h)
+        delta_h = self.h - self.rho * np.linalg.solve(W, R_xp @ self.h - X * self.h)
         self.h = delta_h / np.linalg.norm(delta_h)
         pass
 
 
 class MCQN(MCALG):
-    def __init__(self, ρ, λ, η, L, N, x_vars, buffer_size) -> None:
+    def __init__(self, rho, lambd, eta, L, N, x_vars, buffer_size) -> None:
         MCALG.__init__(self, L, N, buffer_size)
-        self.ρ = ρ
-        self.λ = λ
-        self.η = η
+        self.rho = rho
+        self.lambd = lambd
+        self.eta = eta
         self.h = np.zeros(shape=(L * N, 1))
         self.h[0::L] = 1
         self.h = self.h / np.sqrt(N)
@@ -158,18 +158,20 @@ class MCQN(MCALG):
         X_prior = self.compute_X_prior(x)  # error function Χ
         R_xp = self.construct_Rxp(x)  # construct matrix R_x+
 
-        self.R_xp_ = self.η * self.R_xp_ + R_xp
+        self.R_xp_ = self.eta * self.R_xp_ + (1 - self.eta) * R_xp
 
-        Δh = self.h - self.h_old
-        g = self.R_xp_ @ Δh + X_post * self.h - X_prior * self.h_old + Δh * self.λ
+        dh = self.h - self.h_old
+        g = self.R_xp_ @ dh + X_post * self.h - X_prior * self.h_old + dh * self.lambd
         self.h_old = self.h.copy()
 
-        v = Δh.T @ g
-        A = np.eye(self.L * self.N) - (g @ Δh.T) / v
+        v = dh.T @ g
+        A = np.eye(self.L * self.N) - (g @ dh.T) / v
 
-        self.V_inv = A.T @ self.V_inv @ A + (Δh @ Δh.T) / v
+        self.V_inv = A.T @ self.V_inv @ A + (dh @ dh.T) / v
 
-        delta_h = self.h - self.ρ * self.V_inv @ (self.R_xp_ @ self.h - X_post * self.h)
+        delta_h = self.h - self.rho * self.V_inv @ (
+            self.R_xp_ @ self.h - X_post * self.h
+        )
         self.h = delta_h / np.linalg.norm(delta_h)
         pass
 
@@ -208,29 +210,29 @@ class CMCFLMS(FMCALG):
         # compute fq domain h_m
         h_mf = np.fft.fft(np.concatenate([self.h, np.zeros(self.h.shape)]), axis=0)
         x_f = np.fft.fft(x, axis=0)
-        Δh_mnf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
+        dh_mnf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         for i in range(self.N):
             for j in range(self.N):
                 e_f = x_f[:, i] * h_mf[:, j] - x_f[:, j] * h_mf[:, i]
                 e_2L = np.fft.ifft(e_f)
                 e_2L[: self.L] = 0
                 e_01f = np.fft.fft(e_2L)
-                Δh_mnf[:, j] += x_f[:, i].conj() * e_01f
+                dh_mnf[:, j] += x_f[:, i].conj() * e_01f
 
         for i in range(self.N):
-            Δh_m2L = np.real(np.fft.ifft(self.μ * Δh_mnf[:, i]))
-            Δh_m = Δh_m2L[: self.L]
+            dh_m2L = np.real(np.fft.ifft(self.μ * dh_mnf[:, i]))
+            dh_m = dh_m2L[: self.L]
             # update
-            tt = self.h[:, i] - Δh_m
+            tt = self.h[:, i] - dh_m
             self.h[:, i] = (tt) / np.linalg.norm(tt)
 
 
 class NMCFLMS(FMCALG):
-    def __init__(self, ρ, λ, δ, L, N) -> None:
+    def __init__(self, rho, lambd, zeta, L, N) -> None:
         FMCALG.__init__(self, L, N)
-        self.ρ = ρ
-        self.λ = λ
-        self.δ = δ
+        self.rho = rho
+        self.lambd = lambd
+        self.zeta = zeta
         self.h = np.zeros((self.L, self.N))
         self.h[1, :] = 1
         self.h = self.h / np.sqrt(self.N)
@@ -241,7 +243,7 @@ class NMCFLMS(FMCALG):
         # compute fq domain h_m
         h_mf = np.fft.fft(np.concatenate([self.h, np.zeros(self.h.shape)]), axis=0)
         x_f = np.fft.fft(x, axis=0)
-        Δh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
+        dh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         P_nn_ = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         for i in range(self.N):
             for j in range(self.N):
@@ -249,30 +251,32 @@ class NMCFLMS(FMCALG):
                 e_2L = np.fft.ifft(e_f)
                 e_2L[: self.L] = 0
                 e_01f = np.fft.fft(e_2L)
-                Δh_nf[:, j] += x_f[:, i].conj() * e_01f
+                dh_nf[:, j] += x_f[:, i].conj() * e_01f
                 if i != j:
                     P_nn_[:, i] += x_f[:, j].conj() * x_f[:, j]
 
-        self.P_nn = P_nn_ if self.first else self.λ * self.P_nn + (1 - self.λ) * P_nn_
+        self.P_nn = (
+            P_nn_ if self.first else self.lambd * self.P_nn + (1 - self.lambd) * P_nn_
+        )
         self.first = False
 
-        P_nninv = 1 / (self.P_nn + self.δ)
+        P_nninv = 1 / (self.P_nn + self.zeta)
 
         for i in range(self.N):
-            Δh_2L = np.real(np.fft.ifft(self.ρ * P_nninv[:, i] * Δh_nf[:, i]))
-            Δh_m = Δh_2L[: self.L]
+            dh_2L = np.real(np.fft.ifft(self.rho * P_nninv[:, i] * dh_nf[:, i]))
+            dh_m = dh_2L[: self.L]
             # update
-            tt = self.h[:, i] - Δh_m
+            tt = self.h[:, i] - dh_m
             self.h[:, i] = (tt) / np.linalg.norm(tt)
 
 
 class RNMCFLMS(FMCALG):
-    def __init__(self, ρ, λ, δ, η, L, N) -> None:
+    def __init__(self, rho, lambd, zeta, eta, L, N) -> None:
         FMCALG.__init__(self, L, N)
-        self.ρ = ρ
-        self.λ = λ
-        self.δ = δ
-        self.η = η
+        self.rho = rho
+        self.lambd = lambd
+        self.zeta = zeta
+        self.eta = eta
         self.h = np.zeros((self.L, self.N))
         self.h[1, :] = 1
         self.h = self.h / np.sqrt(self.N)
@@ -283,7 +287,7 @@ class RNMCFLMS(FMCALG):
         # compute fq domain h_m
         h_mf = np.fft.fft(np.concatenate([self.h, np.zeros(self.h.shape)]), axis=0)
         x_f = np.fft.fft(x, axis=0)
-        Δh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
+        dh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         P_nn_ = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         for i in range(self.N):
             for j in range(self.N):
@@ -291,50 +295,52 @@ class RNMCFLMS(FMCALG):
                 e_2L = np.fft.ifft(e_f)
                 e_2L[: self.L] = 0
                 e_01f = np.fft.fft(e_2L)
-                Δh_nf[:, j] += x_f[:, i].conj() * e_01f
+                dh_nf[:, j] += x_f[:, i].conj() * e_01f
                 if i != j:
                     P_nn_[:, i] += x_f[:, j].conj() * x_f[:, j]
 
-        self.P_nn = P_nn_ if self.first else self.λ * self.P_nn + (1 - self.λ) * P_nn_
+        self.P_nn = (
+            P_nn_ if self.first else self.lambd * self.P_nn + (1 - self.lambd) * P_nn_
+        )
         self.first = False
 
-        P_nninv = 1 / (self.P_nn + self.δ)
+        P_nninv = 1 / (self.P_nn + self.zeta)
 
         # penalty term
         q = 2 / np.abs(h_mf) ** 2
-        ΔΔJ_p = q * (h_mf)
+        ddJ_p = q * (h_mf)
         # gradient in f
-        ΔΔJ_f = Δh_nf
+        ddJ_f = dh_nf
         # coupling parameter
         β = np.abs(
             (
-                self.η
-                * ΔΔJ_p.T.reshape(1, 2 * self.L * self.N).conj()
-                @ ΔΔJ_f.T.reshape(2 * self.L * self.N, 1)
+                self.eta
+                * ddJ_p.T.reshape(1, 2 * self.L * self.N).conj()
+                @ ddJ_f.T.reshape(2 * self.L * self.N, 1)
             )
-            / np.sum(np.abs(ΔΔJ_p) ** 2)
+            / np.sum(np.abs(ddJ_p) ** 2)
         ).squeeze()
 
         for i in range(self.N):
-            Δh_2L = np.real(
+            dh_2L = np.real(
                 np.fft.ifft(
-                    self.ρ * P_nninv[:, i] * Δh_nf[:, i] + self.ρ * β * ΔΔJ_p[:, i],
+                    self.rho * P_nninv[:, i] * dh_nf[:, i] + self.rho * β * ddJ_p[:, i],
                     axis=0,
                 )
             )
-            Δh_m = Δh_2L[: self.L]
+            dh_m = dh_2L[: self.L]
             # update
-            tt = self.h[:, i] - Δh_m
+            tt = self.h[:, i] - dh_m
             self.h[:, i] = (tt) / np.linalg.norm(tt)
 
 
 class LPRNMCFLMS(FMCALG):
-    def __init__(self, ρ, λ, δ, η, p, L, N) -> None:
+    def __init__(self, rho, lambd, zeta, eta, p, L, N) -> None:
         FMCALG.__init__(self, L, N)
-        self.ρ = ρ
-        self.λ = λ
-        self.δ = δ
-        self.η = η
+        self.rho = rho
+        self.lambd = lambd
+        self.zeta = zeta
+        self.eta = eta
         self.p = p
         self.h = np.zeros((self.L, self.N))
         self.h[1, :] = 1
@@ -347,7 +353,7 @@ class LPRNMCFLMS(FMCALG):
         # compute fq domain h_m
         h_f = np.fft.fft(np.concatenate([self.h, np.zeros(self.h.shape)]), axis=0)
         x_f = np.fft.fft(x, axis=0)
-        Δh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
+        dh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         P_nn_ = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         for i in range(self.N):
             for j in range(self.N):
@@ -355,47 +361,49 @@ class LPRNMCFLMS(FMCALG):
                 e_2L = np.fft.ifft(e_f)
                 e_2L[: self.L] = 0
                 e_01f = np.fft.fft(e_2L)
-                Δh_nf[:, j] += x_f[:, i].conj() * e_01f
+                dh_nf[:, j] += x_f[:, i].conj() * e_01f
                 if i != j:
                     P_nn_[:, i] += x_f[:, j].conj() * x_f[:, j]
 
-        self.P_nn = P_nn_ if self.first else self.λ * self.P_nn + (1 - self.λ) * P_nn_
+        self.P_nn = (
+            P_nn_ if self.first else self.lambd * self.P_nn + (1 - self.lambd) * P_nn_
+        )
         self.first = False
 
-        S_inv = 1 / (self.S + self.δ)
+        S_inv = 1 / (self.S + self.zeta)
 
         # penalty gradient
-        ΔΔJ_p = (
+        ddJ_p = (
             self.p * S_inv * np.abs(h_f) ** (self.p - 1) * np.exp(1j * np.angle(h_f))
         )
         # gradient
-        ΔΔJ_f = S_inv * Δh_nf
+        ddJ_f = S_inv * dh_nf
         # coupling parameter
         β = np.abs(
             (
-                self.η
-                * ΔΔJ_p.T.reshape(1, 2 * self.L * self.N).conj()
-                @ ΔΔJ_f.T.reshape(2 * self.L * self.N, 1)
+                self.eta
+                * ddJ_p.T.reshape(1, 2 * self.L * self.N).conj()
+                @ ddJ_f.T.reshape(2 * self.L * self.N, 1)
             )
-            / np.sum(np.abs(ΔΔJ_p) ** 2)
+            / np.sum(np.abs(ddJ_p) ** 2)
         )
         H = np.abs(h_f) ** (self.p - 2)
-        self.S = self.P_nn - β * self.p ** 2 * H
+        self.S = self.P_nn - β * self.p**2 * H
 
         # update
-        h_f = h_f - self.ρ * ΔΔJ_f + self.ρ * β * ΔΔJ_p
+        h_f = h_f - self.rho * ddJ_f + self.rho * β * ddJ_p
         h_2L = np.real(np.fft.ifft(h_f, axis=0))
         self.h = h_2L[: self.L, :]
         self.h = self.h / np.linalg.norm(self.h)
 
 
 class PCLPRNMCFLMS(FMCALG):
-    def __init__(self, ρ, λ, δ, η, p, L, N) -> None:
+    def __init__(self, rho, lambd, zeta, eta, p, L, N) -> None:
         FMCALG.__init__(self, L, N)
-        self.ρ = ρ
-        self.λ = λ
-        self.δ = δ
-        self.η = η
+        self.rho = rho
+        self.lambd = lambd
+        self.zeta = zeta
+        self.eta = eta
         self.p = p
         self.h = np.zeros((self.L, self.N))
         self.h[1, :] = 1
@@ -408,7 +416,7 @@ class PCLPRNMCFLMS(FMCALG):
         # compute fq domain h_m
         h_f = np.fft.fft(np.concatenate([self.h, np.zeros(self.h.shape)]), axis=0)
         x_f = np.fft.fft(x, axis=0)
-        Δh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
+        dh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         P_nn_ = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         for i in range(self.N):
             for j in range(self.N):
@@ -416,11 +424,13 @@ class PCLPRNMCFLMS(FMCALG):
                 e_2L = np.fft.ifft(e_f)
                 e_2L[: self.L] = 0
                 e_01f = np.fft.fft(e_2L)
-                Δh_nf[:, j] += x_f[:, i].conj() * e_01f
+                dh_nf[:, j] += x_f[:, i].conj() * e_01f
                 if i != j:
                     P_nn_[:, i] += x_f[:, j].conj() * x_f[:, j]
 
-        self.P_nn = P_nn_ if self.first else self.λ * self.P_nn + (1 - self.λ) * P_nn_
+        self.P_nn = (
+            P_nn_ if self.first else self.lambd * self.P_nn + (1 - self.lambd) * P_nn_
+        )
         self.first = False
 
         Q_1 = np.zeros((2 * self.L, 2 * self.L))
@@ -431,47 +441,47 @@ class PCLPRNMCFLMS(FMCALG):
         Q_3[1:-1, :] = 1
         Q = (8 * np.eye(2 * self.L) - 4 * Q_1 - 4 * Q_2) * Q_3
 
-        S_inv = 1 / (self.S + self.δ)
+        S_inv = 1 / (self.S + self.zeta)
 
         # penalty gradient
-        ΔΔJ_g = 1j * (h_f / np.abs(h_f) ** 2) * (Q @ np.angle(h_f))
-        ΔΔJ_p = (
+        ddJ_g = 1j * (h_f / np.abs(h_f) ** 2) * (Q @ np.angle(h_f))
+        ddJ_p = (
             self.p * S_inv * np.abs(h_f) ** (self.p - 1) * np.exp(1j * np.angle(h_f))
         )
         # gradient
-        ΔΔJ_f = S_inv * Δh_nf
+        ddJ_f = S_inv * dh_nf
         # coupling parameters
         β = np.abs(
             (
-                self.η
+                self.eta
                 * np.linalg.pinv(
                     np.array(
                         [
-                            ΔΔJ_p.T.reshape(2 * self.L * self.N, 1),
-                            -ΔΔJ_g.T.reshape(2 * self.L * self.N, 1),
+                            ddJ_p.T.reshape(2 * self.L * self.N, 1),
+                            -ddJ_g.T.reshape(2 * self.L * self.N, 1),
                         ]
                     )
                 )
-                @ ΔΔJ_f.T.reshape(2 * self.L * self.N, 1)
+                @ ddJ_f.T.reshape(2 * self.L * self.N, 1)
             )
         )
         H = np.abs(h_f) ** (self.p - 2)
-        self.S = self.P_nn - β[0] * self.p ** 2 * H
+        self.S = self.P_nn - β[0] * self.p**2 * H
 
         # update
-        h_f = h_f - self.ρ * ΔΔJ_f + self.ρ * (β[0] * ΔΔJ_p - β[1] * ΔΔJ_g)
+        h_f = h_f - self.rho * ddJ_f + self.rho * (β[0] * ddJ_p - β[1] * ddJ_g)
         h_2L = np.real(np.fft.ifft(h_f, axis=0))
         self.h = h_2L[: self.L, :]
         self.h = self.h / np.linalg.norm(self.h)
 
 
 class EPCLPRNMCFLMS(FMCALG):
-    def __init__(self, ρ, λ, δ, η, p, M, L, N) -> None:
+    def __init__(self, rho, lambd, zeta, eta, p, M, L, N) -> None:
         FMCALG.__init__(self, L, N)
-        self.ρ = ρ
-        self.λ = λ
-        self.δ = δ
-        self.η = η
+        self.rho = rho
+        self.lambd = lambd
+        self.zeta = zeta
+        self.eta = eta
         self.p = p
         self.h = np.zeros((self.L, self.N))
         self.h[1, :] = 1
@@ -488,7 +498,7 @@ class EPCLPRNMCFLMS(FMCALG):
         # compute fq domain h_m
         h_f = np.fft.fft(np.concatenate([self.h, np.zeros(self.h.shape)]), axis=0)
         x_f = np.fft.fft(x, axis=0)
-        Δh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
+        dh_nf = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         P_nn_ = np.zeros((2 * self.L, self.N), dtype=np.complex128)
         J = 0
         self.J_s = self.J_s[1:]
@@ -496,16 +506,18 @@ class EPCLPRNMCFLMS(FMCALG):
             for j in range(self.N):
                 e_f = x_f[:, i] * h_f[:, j] - x_f[:, j] * h_f[:, i]
                 e_2L = np.fft.ifft(e_f)
-                e = np.abs(np.sum(e_2L ** 2))
+                e = np.abs(np.sum(e_2L**2))
                 e_2L[: self.L] = 0
                 J += e
                 e_01f = np.fft.fft(e_2L)
-                Δh_nf[:, j] += x_f[:, i].conj() * e_01f
+                dh_nf[:, j] += x_f[:, i].conj() * e_01f
                 if i != j:
                     P_nn_[:, i] += x_f[:, j].conj() * x_f[:, j]
 
         self.J_s = np.append(self.J_s, J)
-        self.P_nn = P_nn_ if self.first else self.λ * self.P_nn + (1 - self.λ) * P_nn_
+        self.P_nn = (
+            P_nn_ if self.first else self.lambd * self.P_nn + (1 - self.lambd) * P_nn_
+        )
         self.first = False
 
         Q_1 = np.zeros((2 * self.L, 2 * self.L))
@@ -516,32 +528,32 @@ class EPCLPRNMCFLMS(FMCALG):
         Q_3[1:-1, :] = 1
         Q = (8 * np.eye(2 * self.L) - 4 * Q_1 - 4 * Q_2) * Q_3
 
-        S_inv = 1 / (self.S + self.δ)
+        S_inv = 1 / (self.S + self.zeta)
 
         # penalty gradient
-        ΔΔJ_g = 1j * (h_f / np.abs(h_f) ** 2) * (Q @ np.angle(h_f))
-        ΔΔJ_p = (
+        ddJ_g = 1j * (h_f / np.abs(h_f) ** 2) * (Q @ np.angle(h_f))
+        ddJ_p = (
             self.p * S_inv * np.abs(h_f) ** (self.p - 1) * np.exp(1j * np.angle(h_f))
         )
         # gradient
-        ΔΔJ_f = S_inv * Δh_nf
+        ddJ_f = S_inv * dh_nf
         # coupling parameters
         β = np.abs(
             (
-                self.η
+                self.eta
                 * np.linalg.pinv(
                     np.array(
                         [
-                            ΔΔJ_p.T.reshape(2 * self.L * self.N, 1),
-                            -ΔΔJ_g.T.reshape(2 * self.L * self.N, 1),
+                            ddJ_p.T.reshape(2 * self.L * self.N, 1),
+                            -ddJ_g.T.reshape(2 * self.L * self.N, 1),
                         ]
                     )
                 )
-                @ ΔΔJ_f.T.reshape(2 * self.L * self.N, 1)
+                @ ddJ_f.T.reshape(2 * self.L * self.N, 1)
             )
         )
         H = np.abs(h_f) ** (self.p - 2)
-        self.S = self.P_nn - β[0] * self.p ** 2 * H
+        self.S = self.P_nn - β[0] * self.p**2 * H
 
         # const functions
         # if self.J_s.mean() > J:
@@ -551,7 +563,7 @@ class EPCLPRNMCFLMS(FMCALG):
         self.J_s_ = np.append(self.J_s_, self.J_s.mean())
 
         # update
-        h_f = h_f - self.ρ * ΔΔJ_f + self.ρ * (β[0] * ΔΔJ_p - β[1] * ΔΔJ_g)
+        h_f = h_f - self.rho * ddJ_f + self.rho * (β[0] * ddJ_p - β[1] * ddJ_g)
         h_2L = np.real(np.fft.ifft(h_f, axis=0))
         self.h = h_2L[: self.L, :]
         self.h = self.h / np.linalg.norm(self.h)

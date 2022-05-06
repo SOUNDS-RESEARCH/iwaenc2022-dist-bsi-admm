@@ -107,6 +107,7 @@ plt.show()
 # %%
 lim = 2500
 for N_sens in [4, 8]:
+    lines = ["-", "--", "-.", ":"]
     fig = plt.figure(figsize=(3, 2.5))
     for i in range(len(densities)):
         if err_ADMM_newton_fq_diag_[i][N_sens] is not None:
@@ -115,6 +116,7 @@ for N_sens in [4, 8]:
                 * np.log10(
                     np.nanmedian(err_ADMM_newton_fq_diag_[i][N_sens], axis=0)[:lim]
                 ),
+                lines.pop(),
                 label=r"$\zeta = $" + "%1.2f" % (densities[i]),
             )
     # plt.title(r"$M=$")
