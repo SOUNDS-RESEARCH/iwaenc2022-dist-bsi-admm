@@ -5,7 +5,7 @@ RequestCpus      = 1
 # require 1 MB of RAM 
 RequestMemory    = 8G
 # 2 minutes of wall time should be enough to execute this program, make sure you specify enough time
-+RequestWalltime = 86000
++RequestWalltime = 172800
 
 requirements = (machine != "idesbald.esat.kuleuven.be")
 
