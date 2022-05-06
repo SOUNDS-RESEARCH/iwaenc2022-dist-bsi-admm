@@ -5,6 +5,8 @@ paper.fdb_latexmk
 paper.fls
 paper.log
 paper.synctex.gz
+paper.out
+paper.pdf
 *-eps-converted-to.pdf
 template.tex
 template.pdf
@@ -12,6 +14,5 @@ template.pdf
 *.log
 *.out
 *.pyc
-paper.out
 *.npy
 .vscode/settings.json
