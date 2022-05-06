@@ -43,7 +43,7 @@ L_p = 64
 N_p = 5
 
 dir = "data/simulation_random/"
-files = sorted(os.listdir(dir))
+files = (file for file in os.listdir(dir) if os.path.isfile(os.path.join(dir, file)))
 for filename in files:
     print(filename)
     with open(dir + filename, "rb") as f:

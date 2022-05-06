@@ -4,67 +4,71 @@ import os.path
 import utils
 import numpy as np
 import scipy.signal as signal
-import admm_r1_td as admm
-import admm_newton_fq as sb_newton_fq
-import admm_newton_fq_diag as sb_newton_fq_diag
-import simo_bsi_central as cent
+from ..algorithms import admm_r1_td as admm
+from algorithms import admm_newton_fq as sb_newton_fq
+from algorithms import admm_newton_fq_diag as sb_newton_fq_diag
+from algorithms import simo_bsi_central as cent
 import matplotlib.pyplot as plt
 
 # %%
 process_id = int(sys.argv[1])
 SNR = int(sys.argv[2])
-N_sens = 6
-L = 128
-print("Job: %d, SNR: %d, N_sens: %d, L: %f" % (process_id, SNR, N_sens, L))
+N_sens = int(sys.argv[3])
+density = float(sys.argv[4])
+print("Job: %d, SNR: %d, N_sens: %d, density: %f" % (process_id, SNR, N_sens, density))
 
 # %%
-runs = 50
+runs = 30
+seed = 12345
 plot = False
 
 # %%
-# L = 64
+L = 16
 N_f = 1024
-# N_sens = 3
 
 # %%
 N_s = 16000
 
 # %%
-seed = 12345
 rng = np.random.RandomState()
 rng.seed(seed)
 
 # %%
-with open("../generate_irs/h.npy", "rb") as f:
-    h = np.load(f)
-# %%
 for run in range(runs):
-    if os.path.isfile("data/simulation_rim/%d_%d.npy" % (process_id, run)):
+    if os.path.isfile("data/%d_%d.npy" % (process_id, run)):
         print("run %d is already there" % (run))
         continue
-
-    # # %%
-    # if plot:
-    #     fig, ax1 = plt.subplots()
-    #     ax1.set_title("Digital filter frequency response")
-    #     for n in range(N_sens):
-    #         ax1.plot(w, 20 * np.log10(abs(h_f[n, :])))
-    #     ax1.set_ylabel("Amplitude [dB]")
-    #     ax1.set_xlabel("Frequency [rad/sample]")
-    #     ax1.grid()
-    #     plt.show()
+    # %%
+    h = np.array([]).reshape(0, 1)
+    h_f = np.zeros((N_sens, N_f), dtype=np.complex128)
+    for n in range(N_sens):
+        h_ = rng.normal(size=(L, 1))
+        h_ = h_ / np.linalg.norm(h_)
+        w, hh = signal.freqz(h_, worN=N_f)
+        h_f[n, :] = hh
+        h = np.concatenate([h, h_])
 
     # %%
     if plot:
-        plt.plot(h)
+        fig, ax1 = plt.subplots()
+        ax1.set_title("Digital filter frequency response")
+        for n in range(N_sens):
+            ax1.plot(w, 20 * np.log10(abs(h_f[n, :])))
+        ax1.set_ylabel("Amplitude [dB]")
+        ax1.set_xlabel("Frequency [rad/sample]")
+        ax1.grid()
+        plt.show()
+
+    # %%
+    if plot:
+        plt.stem(h)
         plt.title("filter taps of stacked imp resp")
         plt.show()
 
     # %%
-    G = np.zeros((N_sens, N_sens))
-    offdiag = np.arange(N_sens - 1)
-    G[offdiag, offdiag + 1] = 1  # setting the directed ring as base
-    G[-1, 0] = 1
+    # connectivity: ring + random inbetween ones
+    G = utils.generateRandomConnectionMatrixWithRing(N_sens, density, rng)
+
     network_td = admm.Network(L)
     network_newton_fq = sb_newton_fq.Network(L)
     network_newton_fq_diag = sb_newton_fq_diag.Network(L)
@@ -85,6 +89,8 @@ for run in range(runs):
         network_td.setConnection(name, connections)
         network_newton_fq.setConnection(name, connections)
         network_newton_fq_diag.setConnection(name, connections)
+
+    # %%
 
     # %% GENERATE AR SIGNAL
     N_ff = 1025
@@ -248,12 +254,13 @@ for run in range(runs):
     err_ADMM_newton_fq_diag = np.asarray(err_ADMM_newton_fq_diag)
 
     # %%
-    with open("data/simulation_rim/%d_%d.npy" % (process_id, run), "wb") as f:
+    with open("data/%d_%d.npy" % (process_id, run), "wb") as f:
         np.save(f, runs)
         np.save(f, run)
         np.save(f, L)
         np.save(f, N_sens)
         np.save(f, SNR)
+        np.save(f, G)
         np.save(f, h)
         np.save(f, err_MCQN)
         np.save(f, err_NMCFLMS)

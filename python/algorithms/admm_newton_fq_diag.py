@@ -112,7 +112,7 @@ class NodeProcessor:
         # if self.buffer_ind >= self.buffer_size:
         #     self.buffer_ind = 0
         #     self.buffer_filled = True
-        pass
+        # pass
 
     def step(self) -> None:
         # if not self.buffer_filled:
@@ -123,11 +123,16 @@ class NodeProcessor:
     def solveLocalLS(self) -> None:
         R = self.construct_Rxp()  # construct matrix R_x+
         self.R_xp_ = R if self.first else self.eta * self.R_xp_ + (1 - self.eta) * R
-        self.first = False
         y = self.R_xp_ @ self.x + self.y + self.rho * (self.x - self.z_l)
-        self.x = self.x - self.mu * np.linalg.solve(
-            self.R_xp_ + self.rho * np.eye(self.L * self.N), y
-        )
+        # self.R_norm.append(np.linalg.norm(R))
+        V = np.diag(1 / (np.diag(self.R_xp_) + self.rho))
+        # self.V = V if self.first else self.eta * self.V + (1 - self.eta) * V
+        self.first = False
+        # self.V_norm.append(np.linalg.norm(V))
+        self.x = self.x - self.mu * V @ y
+        # self.x_norm.append(np.linalg.norm(self.x))
+        # self.x = self.x - self.mu*np.linalg.solve(
+        #     R + self.rho*np.eye(self.L*self.N), y)
         # self.x = np.linalg.solve(
         #     R.conj().T@R + self.rho*np.eye(self.L*self.N), y)
         pass
@@ -283,7 +288,7 @@ class Network:
             x_avg[node.global_indices] += node.x * self.g[node.global_indices]
             y_avg[node.global_indices] += node.y * self.g[node.global_indices]
         pp = x_avg + 1 / node.rho * y_avg  # WHAT DO WITH RHO IF NOT SAME FOR ALL
-        self.z = pp / (np.linalg.norm(pp)) * self.L / self.N
+        self.z = pp / (np.linalg.norm(pp))
         pass
 
     def broadcastGlobalVariable(self) -> None:

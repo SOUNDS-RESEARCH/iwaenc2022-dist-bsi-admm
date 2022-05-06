@@ -22,22 +22,22 @@ initialdir = .
 executable = /users/sista/mblochbe/python_venvs/admmstuff/bin/python
 
 #This is the file where the log of the execution will be written
-Log          = output/simulation_random/$(Process).log
+Log          = output/$(Process).log
 #This is the file where the output of the script will be written.
-Output       = output/simulation_random/$(Process).out
+Output       = output/$(Process).out
 stream_output = True
 #This is the file where errors will be written. If all goes well this file should be empty
-Error        = output/simulation_random/$(Process).err
+Error        = output/$(Process).err
 stream_error = True
 
 # We now submit 10 jobs to the queue, each job will have a unique process ID
-# arguments = "simulation_random.py $(Process) <SNR> <nr_nodes> <L>"
+# arguments = "simulation_1.py $(Process) <SNR> <nr_nodes> <L>"
 queue arguments from (
-    simulation_random.py $(Process) 5 5 64
-    simulation_random.py $(Process) 10 5 64
-    simulation_random.py $(Process) 15 5 64
-    simulation_random.py $(Process) 20 5 64
-    simulation_random.py $(Process) 30 5 64
-    simulation_random.py $(Process) 40 5 64
-    simulation_random.py $(Process) 50 5 64
+    simulation_1.py $(Process) 5 5 64
+    simulation_1.py $(Process) 10 5 64
+    simulation_1.py $(Process) 15 5 64
+    simulation_1.py $(Process) 20 5 64
+    simulation_1.py $(Process) 30 5 64
+    simulation_1.py $(Process) 40 5 64
+    simulation_1.py $(Process) 50 5 64
 )
