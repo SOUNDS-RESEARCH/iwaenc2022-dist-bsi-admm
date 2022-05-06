@@ -94,26 +94,12 @@ for run in range(runs):
         plt.show()
 
     # %%
-    # GENERATE AR SIGNAL
-    N_ff = 1025
-    b1 = signal.firwin(N_ff, 0.25, pass_zero=False)
-    M = 20
-    Ah = np.zeros((M, N_ff - M - 1))
-    for l in range(M):
-        Ah[l, :] = b1[M - l : M - l + N_ff - M - 1]
-    y = b1[M + 1 :]
-    a_ = np.linalg.solve(Ah @ Ah.T, Ah @ y)
-    b = np.concatenate([np.ones((1,)), -a_])
-
-    # %%
+    # GENERATE SIGNAL
     p0 = 1e-2
     u = np.random.normal(size=(N_s, 1)) * np.sqrt(p0)
-    # %%
     s = u / u.max()
     # %%
-    # s = signal.lfilter([1], b, u, axis=0)
-
-    # %%
+    # CONVOLUTION WITH IRS
     hopsize = L
     s_ = np.concatenate([np.zeros(shape=(L - 1, 1)), s])
     var_s = np.var(s)
@@ -132,9 +118,10 @@ for run in range(runs):
     # CENTRALIZED TIME DOMAIN QUASI NEWTON METHOD
     print("CENTRALIZED TIME DOMAIN QUASI NEWTON METHOD")
     err_MCQN = []
-    rhos = [0.025, 0.02, 0.01, 0.005, 0.01, 0.01, 0.01]
-    rho = rhos[process_id]  # step size
-    lambd = 1e-5  # regularization
+    # rhos = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+    # rho = rhos[process_id]  # step size
+    rho = 0.01
+    lambd = 0  # regularization
     eta = 0.98  # forgetting factor
     buffer_size = L
 
@@ -160,17 +147,17 @@ for run in range(runs):
 
     # %%
     # CENTRALIZED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD
-    print("CENTRALIZED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD")
-    err_RNMCFLMS = []
-    rho = 0.2  # step size
-    lambd = 0.98  # forgetting factor
-    sigma = 0.01  # regularization
-    eta = 0.4  # coupling factor
-    bsi_rnmcflms = cent.RNMCFLMS(rho, lambd, sigma, eta, L, N_sens)
-    for k_fq in range(0, N_s - 2 * L, hopsize):
-        bsi_rnmcflms.step(x[k_fq : k_fq + 2 * L, :])
-        err_RNMCFLMS.append(bsi_rnmcflms.get_error(h))
-    err_RNMCFLMS = np.asarray(err_RNMCFLMS)
+    # print("CENTRALIZED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD")
+    # err_RNMCFLMS = []
+    # rho = 0.2  # step size
+    # lambd = 0.98  # forgetting factor
+    # sigma = 0.01  # regularization
+    # eta = 0.4  # coupling factor
+    # bsi_rnmcflms = cent.RNMCFLMS(rho, lambd, sigma, eta, L, N_sens)
+    # for k_fq in range(0, N_s - 2 * L, hopsize):
+    #     bsi_rnmcflms.step(x[k_fq : k_fq + 2 * L, :])
+    #     err_RNMCFLMS.append(bsi_rnmcflms.get_error(h))
+    # err_RNMCFLMS = np.asarray(err_RNMCFLMS)
 
     # %%
     # CENTRALIZED l_p NORM CONSTRAINED ROBUST NORMALIZED FREQUENCY DOMAIN LMS METHOD
@@ -191,51 +178,51 @@ for run in range(runs):
 
     # %%
     # DISTRIBUTED NEWTON RANK-1 TIME DOMAIN METHOD
-    print("DISTRIBUTED NEWTON RANK-1 TIME DOMAIN METHOD")
-    rho_admm = 0.05  # penalty parameter / step size
-    mu = 0.05  # newton step size
-    eta = 0.98  # smoothing factor R
-    zeta = 0.98  # smoothing factor H
-    scaling = 1  # signal scaling
-    err_td = []
-    h_test = np.zeros(shape=h.shape)
-    network_td.setBufferSize(buffer_size)
-    network_td.reset()
-    network_td.setRho(rho_admm, mu, eta, zeta, scaling)
-    for k in range(0, N_s - 2 * L, hopsize):
-        network_td.step(x[k : k + L, :])
-        e1 = h - (h.T @ network_td.z) / (network_td.z.T @ network_td.z) * network_td.z
-        error = np.linalg.norm(e1) / np.linalg.norm(h)
-        err_td.append(error)
-    err_td = np.asarray(err_td)
+    # print("DISTRIBUTED NEWTON RANK-1 TIME DOMAIN METHOD")
+    # rho_admm = 0.05  # penalty parameter / step size
+    # mu = 0.05  # newton step size
+    # eta = 0.98  # smoothing factor R
+    # zeta = 0.98  # smoothing factor H
+    # scaling = 1  # signal scaling
+    # err_td = []
+    # h_test = np.zeros(shape=h.shape)
+    # network_td.setBufferSize(buffer_size)
+    # network_td.reset()
+    # network_td.setRho(rho_admm, mu, eta, zeta, scaling)
+    # for k in range(0, N_s - 2 * L, hopsize):
+    #     network_td.step(x[k : k + L, :])
+    #     e1 = h - (h.T @ network_td.z) / (network_td.z.T @ network_td.z) * network_td.z
+    #     error = np.linalg.norm(e1) / np.linalg.norm(h)
+    #     err_td.append(error)
+    # err_td = np.asarray(err_td)
 
     # %%
     # DISTRIBUTED NEWTON FREQUENCY DOMAIN METHOD
-    print("DISTRIBUTED NEWTON FREQUENCY DOMAIN METHOD")
-    hopsize = L
-    rho_admm = 1
-    mu = 0.2
-    eta = 0.98
-    err_ADMM_newton_fq = []
-    h_test_newton_fq = np.zeros(shape=h.shape)
-    network_newton_fq.setBufferSize(1)
-    network_newton_fq.reset()
-    network_newton_fq.setRho(rho_admm, mu, eta)
-    for k_admm_fq in range(0, N_s - 2 * L, hopsize):
-        network_newton_fq.step(x[k_admm_fq : k_admm_fq + 2 * L, :])
-        for n in range(N_sens):
-            h_test_newton_fq[(n * L) : (n + 1) * L] = np.real(
-                np.fft.ifft(network_newton_fq.z[(n * L) : (n + 1) * L], axis=0)
-            )
-        e1 = (
-            h
-            - (h.T @ h_test_newton_fq)
-            / (h_test_newton_fq.T @ h_test_newton_fq)
-            * h_test_newton_fq
-        )
-        error = np.linalg.norm(e1) / np.linalg.norm(h)
-        err_ADMM_newton_fq.append(error)
-    err_ADMM_newton_fq = np.asarray(err_ADMM_newton_fq)
+    # print("DISTRIBUTED NEWTON FREQUENCY DOMAIN METHOD")
+    # hopsize = L
+    # rho_admm = 1
+    # mu = 0.2
+    # eta = 0.98
+    # err_ADMM_newton_fq = []
+    # h_test_newton_fq = np.zeros(shape=h.shape)
+    # network_newton_fq.setBufferSize(1)
+    # network_newton_fq.reset()
+    # network_newton_fq.setRho(rho_admm, mu, eta)
+    # for k_admm_fq in range(0, N_s - 2 * L, hopsize):
+    #     network_newton_fq.step(x[k_admm_fq : k_admm_fq + 2 * L, :])
+    #     for n in range(N_sens):
+    #         h_test_newton_fq[(n * L) : (n + 1) * L] = np.real(
+    #             np.fft.ifft(network_newton_fq.z[(n * L) : (n + 1) * L], axis=0)
+    #         )
+    #     e1 = (
+    #         h
+    #         - (h.T @ h_test_newton_fq)
+    #         / (h_test_newton_fq.T @ h_test_newton_fq)
+    #         * h_test_newton_fq
+    #     )
+    #     error = np.linalg.norm(e1) / np.linalg.norm(h)
+    #     err_ADMM_newton_fq.append(error)
+    # err_ADMM_newton_fq = np.asarray(err_ADMM_newton_fq)
 
     # %%
     # DISTRIBUTED DIAGONALIZED NEWTON FREQUENCY DOMAIN METHOD
@@ -275,10 +262,10 @@ for run in range(runs):
         np.save(f, h)
         np.save(f, err_MCQN)
         np.save(f, err_NMCFLMS)
-        np.save(f, err_RNMCFLMS)
+        # np.save(f, err_RNMCFLMS)
         np.save(f, err_LPRNMCFLMS)
-        np.save(f, err_td)
-        np.save(f, err_ADMM_newton_fq)
+        # np.save(f, err_td)
+        # np.save(f, err_ADMM_newton_fq)
         np.save(f, err_ADMM_newton_fq_diag)
 
 # %%

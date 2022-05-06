@@ -7,27 +7,20 @@ import matplotlib.pyplot as plt
 
 # %% random IRS
 SNRs = [5, 10, 15, 20, 30, 40, 50]
-id = 0
-runs_ = []
-run_ = []
-L_ = []
-N_sens_ = []
-SNR_ = []
-h_ = []
 err_MCQN_ = {}
 err_NMCFLMS_ = {}
-err_RNMCFLMS_ = {}
+# err_RNMCFLMS_ = {}
 err_LPRNMCFLMS_ = {}
-err_ADMM_newton_td_ = {}
-err_ADMM_newton_fq_ = {}
+# err_ADMM_newton_td_ = {}
+# err_ADMM_newton_fq_ = {}
 err_ADMM_newton_fq_diag_ = {}
 for SNR in SNRs:
     err_MCQN_[SNR] = None
     err_NMCFLMS_[SNR] = None
-    err_RNMCFLMS_[SNR] = None
+    # err_RNMCFLMS_[SNR] = None
     err_LPRNMCFLMS_[SNR] = None
-    err_ADMM_newton_td_[SNR] = None
-    err_ADMM_newton_fq_[SNR] = None
+    # err_ADMM_newton_td_[SNR] = None
+    # err_ADMM_newton_fq_[SNR] = None
     err_ADMM_newton_fq_diag_[SNR] = None
 
 dir = "data/"
@@ -43,10 +36,10 @@ for filename in files:
         h = np.load(f)
         err_MCQN = np.load(f)
         err_NMCFLMS = np.load(f)
-        err_RNMCFLMS = np.load(f)
+        # err_RNMCFLMS = np.load(f)
         err_LPRNMCFLMS = np.load(f)
-        err_ADMM_newton_td = np.load(f)
-        err_ADMM_newton_fq = np.load(f)
+        # err_ADMM_newton_td = np.load(f)
+        # err_ADMM_newton_fq = np.load(f)
         err_ADMM_newton_fq_diag = np.load(f)
 
         if not np.isnan(err_MCQN).any():
@@ -61,30 +54,30 @@ for filename in files:
                 if err_NMCFLMS_[SNR] is None
                 else np.vstack((err_NMCFLMS_[SNR], err_NMCFLMS))
             )
-        if not np.isnan(err_RNMCFLMS).any():
-            err_RNMCFLMS_[SNR] = (
-                err_RNMCFLMS
-                if err_RNMCFLMS_[SNR] is None
-                else np.vstack((err_RNMCFLMS_[SNR], err_RNMCFLMS))
-            )
+        # if not np.isnan(err_RNMCFLMS).any():
+        #     err_RNMCFLMS_[SNR] = (
+        #         err_RNMCFLMS
+        #         if err_RNMCFLMS_[SNR] is None
+        #         else np.vstack((err_RNMCFLMS_[SNR], err_RNMCFLMS))
+        #     )
         if not np.isnan(err_LPRNMCFLMS).any():
             err_LPRNMCFLMS_[SNR] = (
                 err_LPRNMCFLMS
                 if err_LPRNMCFLMS_[SNR] is None
                 else np.vstack((err_LPRNMCFLMS_[SNR], err_LPRNMCFLMS))
             )
-        if not np.isnan(err_ADMM_newton_td).any():
-            err_ADMM_newton_td_[SNR] = (
-                err_ADMM_newton_td
-                if err_ADMM_newton_td_[SNR] is None
-                else np.vstack((err_ADMM_newton_td_[SNR], err_ADMM_newton_td))
-            )
-        if not np.isnan(err_ADMM_newton_fq).any():
-            err_ADMM_newton_fq_[SNR] = (
-                err_ADMM_newton_fq
-                if err_ADMM_newton_fq_[SNR] is None
-                else np.vstack((err_ADMM_newton_fq_[SNR], err_ADMM_newton_fq))
-            )
+        # if not np.isnan(err_ADMM_newton_td).any():
+        #     err_ADMM_newton_td_[SNR] = (
+        #         err_ADMM_newton_td
+        #         if err_ADMM_newton_td_[SNR] is None
+        #         else np.vstack((err_ADMM_newton_td_[SNR], err_ADMM_newton_td))
+        #     )
+        # if not np.isnan(err_ADMM_newton_fq).any():
+        #     err_ADMM_newton_fq_[SNR] = (
+        #         err_ADMM_newton_fq
+        #         if err_ADMM_newton_fq_[SNR] is None
+        #         else np.vstack((err_ADMM_newton_fq_[SNR], err_ADMM_newton_fq))
+        #     )
         if not np.isnan(err_ADMM_newton_fq_diag).any():
             err_ADMM_newton_fq_diag_[SNR] = (
                 err_ADMM_newton_fq_diag
@@ -92,14 +85,6 @@ for filename in files:
                 else np.vstack((err_ADMM_newton_fq_diag_[SNR], err_ADMM_newton_fq_diag))
             )
 
-        runs_.append(runs)
-        run_.append(run)
-        L_.append(L)
-        N_sens_.append(N_sens)
-        SNR_.append(SNR)
-        h_.append(h)
-
-    id += 1
 # %%
 for SNR in SNRs:
     fig = plt.figure(figsize=(8, 6))
@@ -110,11 +95,11 @@ for SNR in SNRs:
         plt.plot(
             20 * np.log10(np.nanmedian(err_NMCFLMS_[SNR], axis=0)[:-L]), label="NMCFLMS"
         )
-    if err_RNMCFLMS_[SNR] is not None:
-        plt.plot(
-            20 * np.log10(np.nanmedian(err_RNMCFLMS_[SNR], axis=0)[:-L]),
-            label="RNMCFLMS",
-        )
+    # if err_RNMCFLMS_[SNR] is not None:
+    #     plt.plot(
+    #         20 * np.log10(np.nanmedian(err_RNMCFLMS_[SNR], axis=0)[:-L]),
+    #         label="RNMCFLMS",
+    #     )
     if err_LPRNMCFLMS_[SNR] is not None:
         plt.plot(
             20 * np.log10(np.nanmedian(err_LPRNMCFLMS_[SNR], axis=0)[:-L]),
@@ -146,10 +131,10 @@ for SNR in SNRs:
 avg_range = 100
 err_MCQN_avg = []
 err_NMCFLMS_avg = []
-err_RNMCFLMS_avg = []
+# err_RNMCFLMS_avg = []
 err_LPRNMCFLMS_avg = []
-err_ADMM_newton_td_avg = []
-err_ADMM_newton_fq_avg = []
+# err_ADMM_newton_td_avg = []
+# err_ADMM_newton_fq_avg = []
 err_ADMM_newton_fq_diag_avg = []
 for SNR in SNRs:
     err_MCQN_avg.append(
@@ -158,18 +143,18 @@ for SNR in SNRs:
     err_NMCFLMS_avg.append(
         np.nanmedian(err_NMCFLMS_[SNR], axis=0)[-(avg_range + L) : -L].mean()
     )
-    err_RNMCFLMS_avg.append(
-        np.nanmedian(err_RNMCFLMS_[SNR], axis=0)[-(avg_range + L) : -L].mean()
-    )
+    # err_RNMCFLMS_avg.append(
+    #     np.nanmedian(err_RNMCFLMS_[SNR], axis=0)[-(avg_range + L) : -L].mean()
+    # )
     err_LPRNMCFLMS_avg.append(
         np.nanmedian(err_LPRNMCFLMS_[SNR], axis=0)[-(avg_range + L) : -L].mean()
     )
-    err_ADMM_newton_td_avg.append(
-        np.nanmedian(err_ADMM_newton_td_[SNR], axis=0)[-(avg_range + L) : -L].mean()
-    )
-    err_ADMM_newton_fq_avg.append(
-        np.nanmedian(err_ADMM_newton_fq_[SNR], axis=0)[-(avg_range + L) : -L].mean()
-    )
+    # err_ADMM_newton_td_avg.append(
+    #     np.nanmedian(err_ADMM_newton_td_[SNR], axis=0)[-(avg_range + L) : -L].mean()
+    # )
+    # err_ADMM_newton_fq_avg.append(
+    #     np.nanmedian(err_ADMM_newton_fq_[SNR], axis=0)[-(avg_range + L) : -L].mean()
+    # )
     err_ADMM_newton_fq_diag_avg.append(
         np.nanmedian(err_ADMM_newton_fq_diag_[SNR], axis=0)[
             -(avg_range + L) : -L
@@ -196,8 +181,6 @@ plt.grid()
 plt.legend(fontsize="small")
 plt.tight_layout()
 plt.show()
-
-# %%
 utils.savefig(fig, "NPM_over_SNR_L%d_M%d" % (L, N_sens))
 
 # %%
