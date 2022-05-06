@@ -40,12 +40,12 @@
 % \address{KU Leuven\\Department of Electrical Engineering (ESAT)\\STADIUS Center for Dynamical Systems, Signal Processing and Data Analytics \\3001 Leuven, Belgium}
 
 \twoauthors{M. Blochberger, F. Elvander, R. Ali, M. Moonen, T. van Waterschoot
-    \thanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No.\,956369. This research received funding in part from the Research Foundation - Flanders (FWO) grant 12ZD622N as well as from the European Union's Horizon 2020 research and innovation program / ERC Consolidator Grant: SONORA (No.\,773268). This paper reflects only the authors' views and the Union is not liable for any use that may be made of the contained information. Source code available at \url{https://github.com/SOUNDS-RESEARCH/iwaenc2022-admm-bsi}.}}
+    \thanks{This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network. This project has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No.\,956369. This research received funding in part from the Research Foundation - Flanders (FWO) grant 12ZD622N as well as from the European Union's Horizon 2020 research and innovation program / ERC Consolidator Grant: SONORA (No.\,773268). This paper reflects only the authors' views and the Union is not liable for any use that may be made of the contained information. Source code available at \url{https://github.com/SOUNDS-RESEARCH/iwaenc2022-dist-bsi-admm}.}}
         {KU Leuven\\
         Dept. of Electrical Engineering (ESAT)\\
         % STADIUS\\
         3001 Leuven, Belgium}
-        {J. Østergaard}
+        {J. Østergaard, J. Jensen}
         {Aalborg University\\
         Dept. of Electronic Systems\\
         % Section on Artificial Intelligence and Sound\\
@@ -58,14 +58,14 @@
 %
 \begin{abstract}
     In this paper, we propose a distributed cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM) in a wireless sensor network (WSN).
-    The network consists of a fixed number of nodes each equipped with a processing unit as well as a sensor that represents an output channel of the SIMO system.
+    The network consists of a fixed number of nodes each equipped with a processing unit and a sensor that represents an output channel of the SIMO system.
     The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems involving a subset of channels in a way that is determined by the network topology.
     Each node delivers estimates for the subset of channel frequency responses, which then are combined into a consensus estimate per channel using general-form consensus ADMM in an adaptive updating scheme.
     With numerical simulations, we show that it is possible to achieve convergence speeds and steady-state misalignment values comparable to fully centralized low-cost frequency-domain algorithms.
 \end{abstract}
 %
 \begin{keywords}
-    blind system identification, multichannel signal processing, distributed signal processing, ADMM, Online-ADMM
+    blind system identification, multichannel signal processing, distributed signal processing, admm, online-admm
 \end{keywords}
 %
 \section{Introduction}
@@ -76,7 +76,7 @@ It was introduced in \cite{satoMethodSelfRecoveringEqualization1975} and various
 Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mendelTutorialHigherorderStatistics1991} for channel estimation, however a high computational complexity has motivated research into algorithms using only second-order statistics.
 Such algorithms include the cross-relation (CR) algorithm \cite{langtongBlindIdentificationEqualization1994, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
 Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
-The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses (RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018}, phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021}).
+The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses such as the RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018} or phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021} algorithms.
 The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the Broyden–Fletcher–Goldfarb–Shanno (BFGS) \cite{brodlie1977assessment} method to estimate the Hessian of the problem.
 
 The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed signal estimation \cite{5483092}, noise control and echo cancellation \cite{9670697}, or beamforming \cite{6663655,9670697}, however, research into the task of BSI is limited.
@@ -107,7 +107,7 @@ The signal model is described by
     \x_i(n) = \mtxb{H}_i \mtxb{s}(n) + \mtxb{v}_i(n),
 \end{equation}
 where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the \(i\)th channel using the elements of \(\h_i\) of length \(L\) which represents the system to be identified.
-For this paper, the length of the impulse responses \(L\) is assumed to be known.
+For this paper, the length \(L\) of the impulse responses is assumed to be known.
 
 % #############################################################################
 \subsection{Cross-relation approach}
@@ -120,7 +120,7 @@ The fundamental equality of this approach in the noiseless case \(\mtxb{v}_i(n) 
     \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j \in \Mset,\,i\neq j\label{eq:cross_rel:equality_conv}
 \end{equation}
 which states that the channel output signal convolved with the impulse response of another is equal to the vice-versa as follows from the commutativity property of the convolution.
-Left-multiplication and applying the expectation operator to form the covariance matrix \(\R_{ij}(n) = \ev{\x_i(n) \x_j^\T(n)}\) and combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g., \cite{huangAdaptiveMultichannelLeast2002} for a more detailed derivation) yields the system of equations  
+Left-multiplication with \(\x_i(n)\), assuming deterministic \(\h_j\), and applying the expectation operator to form the covariance matrix \(\R_{ij}(n) = \ev{\x_i(n) \x_j^\T(n)}\) and combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g., \cite{huangAdaptiveMultichannelLeast2002} for a more detailed derivation) yields the system of equations  
 \begin{equation}
     \R \h = \bm{0}, \label{eq:cross_rel:null_space}\\
 \end{equation}
@@ -167,7 +167,7 @@ are the frequency-domain overlap-save matrices where \(\mtxb{F}_{L \times L}\) a
     \mtxb{W}_{2L \times L}^{10} = \begin{bmatrix}
         \mtxb{I}_{L \times L} & \mtxb{0}_{L \times L}
     \end{bmatrix}^\T\)
-denote the time-domain overlap-save matrices.
+denote the time-domain overlap-save matrices \cite{huangClassFrequencydomainAdaptive2003}.
 
 Analogously to the time-domain formulation, the \(ML \times 1\) vector \(\hf\) is a stacked vector of complex-valued frequency responses.
 The null-space problem in \eqref{eq:frequency_domain:null_space} can not be solved by computing the eigenvector corresponding to the zero-valued eigenvalue because, in the presence of noise, the system matrix \(\Rf\) is of full rank and may not have any.
@@ -193,7 +193,7 @@ Therefore it is best solved by posing it as a quadratic minimization problem \ci
 The major types of network topologies for distributed signal processing can be distinguished by the way information is shared within the network.
 For example, in a centralized or star topology, where nodes transmit their signals to a dedicated device (fusion center), the processing is (partly) centralized.
 This has drawbacks, such as the dependence on one or a small number of dedicated devices and a potentially large number of signals to be processed on these devices.
-Therefore, it is advantageous to consider ad-hoc network topologies, as we do in this paper, where nodes only communicate with their respective neighbors.
+Therefore, it can be advantageous to consider ad-hoc network topologies, as we do in this paper, where nodes only communicate with their respective neighbors.
 We refer the reader to \cite{bertrandApplicationsTrendsWireless2011b} for a more detailed review of WSNs and their topologies.
 
 We consider a WSN consisting of \(M\) sensors each acquiring an output signal \(\x_i(n)\).
@@ -298,7 +298,7 @@ A thorough review of ADMM with time-varying data terms can be found in \cite{wan
 We transform the iterative batch processing method \eqref{eq:general_consensus_admm:local}-\eqref{eq:general_consensus_admm:dual} into an adaptive one by computing only a (small) finite number of iterations with each time-frame-\(m\) specific data term.
 Here specifically, we apply one iteration per time frame, which manifests itself as simply replacing the iteration index \(k\) with the time frame index \(m\).
 
-The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various algorithms, in this case however we perform the update step as
+The minimization problem for the local variable \(\wf_i\) \eqref{eq:general_consensus_admm:local} can be solved by various algorithms, in this case however we perform the adaptive update step as
 \begin{equation}
     \wf_i^{m+1} = \wf_i^{m} - \mu \bm{{V}}_i^m \left( \hat{\aRhof}_i^m \wf_i^m + \uuf_i^m + \rho\left(\wf_i^m - \tilde{\hf}_i^{m}\right)\right),\label{eq:online_admm:local_update}
 \end{equation}
@@ -393,11 +393,11 @@ where \(\h\) is the stacked vector of impulse response estimates (cf. \autoref{s
 \begin{equation}
     \text{SNR} = 10 \log_{10} \left(\frac{\sigma_s^2 \| \h_t \|}{M \sigma_v^2} \right),
 \end{equation}
-where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise respectively which both are modelled by (channel-independent) white Gaussian noise (WGN).
+where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise respectively which for this paper both are modelled by (channel-independent) white Gaussian noise (WGN).
 
-The first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-node network (5-channel system, \(M=5\)) with a ring topology where each node transmits its signal information to one neighbor.
-The impulse responses are drawn from a zero-mean Gaussian distribution with unit variance, and the signal is \(8 \times 10^{5}\) samples of WGN to ensure convergence of all algorithms.
-The step sizes are hand tuned for similar convergence speed: \(\mu_{\text{MCQN}}=0.5,\, \mu_{\text{NMCFLMS}}=0.4,\, \mu_{l_p-\text{NMCFLMS}}=0.3,\, \mu_{\text{ADMM}}=0.6,\, \rho=1,\,\eta=0.98 \).
+For this paper, the first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-node network (5-channel system, \(M=5\)) with a ring topology where each node transmits its signal information to one neighbor.
+The impulse responses are drawn from a zero-mean Gaussian distribution with unit variance, and the signal is \(8\!\times\!10^{5}\) samples of WGN to ensure convergence of all algorithms.
+The step sizes are hand tuned, so that the steady state is reached at similar frame counts (or later than the proposed algorithm): \(\mu_{\text{MCQN}}=0.01,\, \mu_{\text{NMCFLMS}}=0.4,\, \mu_{l_p-\text{NMCFLMS}}=0.3,\, \mu_{\text{ADMM}}=0.6,\, \rho=1,\,\eta=0.98 \).
 \autoref{fig:perf_eval:NPM_over_time_SNR10} shows the median NPM (30 Monte-Carlo runs) over frame index \(m\).
 \autoref{fig:perf_eval:NPM_over_SNR_L64_M5} shows the median (30 Monte-Carlo runs) where the averaged NPM of \(100\) frames after convergence is plotted.
 It is observable that the proposed algorithm yields a lower steady-state NPM than the compared NMCFLMS, RNMCFLMS, and \(l_p\)-RNMCFLMS algorithms.
