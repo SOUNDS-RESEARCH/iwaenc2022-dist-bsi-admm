@@ -163,14 +163,16 @@ for SNR in SNRs:
 
 # %%
 fig = plt.figure(figsize=(5, 2.5))
-plt.plot(SNRs, 20 * np.log10(err_MCQN_avg), marker="o", label="MCQN")
-plt.plot(SNRs, 20 * np.log10(err_NMCFLMS_avg), marker=">", label="NMCFLMS")
-plt.plot(SNRs, 20 * np.log10(err_LPRNMCFLMS_avg), marker="^", label=r"$l_p$-RNMCFLMS")
+plt.plot(SNRs, 20 * np.log10(err_MCQN_avg), ":", marker="o", label="MCQN")
+plt.plot(SNRs, 20 * np.log10(err_NMCFLMS_avg), "--", marker=">", label="NMCFLMS")
+plt.plot(
+    SNRs, 20 * np.log10(err_LPRNMCFLMS_avg), "-.", marker="^", label=r"$l_p$-RNMCFLMS"
+)
 plt.plot(
     SNRs,
     20 * np.log10(err_ADMM_newton_fq_diag_avg),
     marker="s",
-    label="ADMM BSI",
+    label="proposed",
 )
 plt.xlabel("SNR [dB]")
 plt.ylabel("Average NPM [dB]")
@@ -185,30 +187,37 @@ utils.savefig(fig, "NPM_over_SNR_L%d_M%d" % (L, N_sens))
 
 # %%
 fig = plt.figure(figsize=(5, 2.5))
-SNR = 10
+SNR = 20
 if err_MCQN_[SNR] is not None:
-    plt.plot(20 * np.log10(np.nanmedian(err_MCQN_[SNR], axis=0)[:-L]), label="MCQN")
+    plt.plot(
+        20 * np.log10(np.nanmedian(err_MCQN_[SNR], axis=0)[:-L]), "--", label="MCQN"
+    )
 if err_NMCFLMS_[SNR] is not None:
     plt.plot(
-        20 * np.log10(np.nanmedian(err_NMCFLMS_[SNR], axis=0)[:-L]), label="NMCFLMS"
+        20 * np.log10(np.nanmedian(err_NMCFLMS_[SNR], axis=0)[:-L]),
+        ":",
+        label="NMCFLMS",
     )
 if err_LPRNMCFLMS_[SNR] is not None:
     plt.plot(
         20 * np.log10(np.nanmedian(err_LPRNMCFLMS_[SNR], axis=0)[:-L]),
+        "-.",
         label=r"$l_p$-RNMCFLMS",
     )
 if err_ADMM_newton_fq_diag_[SNR] is not None:
     plt.plot(
         20 * np.log10(np.nanmedian(err_ADMM_newton_fq_diag_[SNR], axis=0)[:-L]),
-        label="ADMM BSI",
+        label="proposed",
     )
 plt.xlabel("Frame [1]")
 plt.ylabel("NPM [dB]")
-plt.xlim(0, 8000)
-plt.xticks(np.arange(0, 8000, 1000))
-plt.ylim(-40, 0)
+plt.xlim(0, 10000)
+plt.xticks(np.arange(0, 10000, 1000))
+plt.ylim(-50, 0)
 plt.grid()
 plt.legend(fontsize="small")
 plt.tight_layout()
 plt.show()
 utils.savefig(fig, "NPM_over_time_SNR%d" % (SNR))
+
+# %%
