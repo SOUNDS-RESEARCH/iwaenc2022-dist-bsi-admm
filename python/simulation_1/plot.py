@@ -163,8 +163,8 @@ for SNR in SNRs:
 
 # %%
 fig = plt.figure(figsize=(5, 2.5))
-plt.plot(SNRs, 20 * np.log10(err_MCQN_avg), ":", marker="o", label="MCQN")
-plt.plot(SNRs, 20 * np.log10(err_NMCFLMS_avg), "--", marker=">", label="NMCFLMS")
+plt.plot(SNRs, 20 * np.log10(err_MCQN_avg), "--", marker="o", label="MCQN")
+plt.plot(SNRs, 20 * np.log10(err_NMCFLMS_avg), ":", marker=">", label="NMCFLMS")
 plt.plot(
     SNRs, 20 * np.log10(err_LPRNMCFLMS_avg), "-.", marker="^", label=r"$l_p$-RNMCFLMS"
 )
