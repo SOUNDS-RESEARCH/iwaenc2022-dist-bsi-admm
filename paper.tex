@@ -373,11 +373,11 @@ The computations of local, consensus and dual variables, in \eqref{eq:online_adm
 
 \begin{figure}[t]
     \centering
-    \hspace*{-0.2cm}\subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/plots/NPM_over_time_SNR10.png}\label{fig:perf_eval:NPM_over_time_SNR10}}\\
+    \hspace*{-0.2cm}\subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/simulation_1/plots/NPM_over_time_SNR20.png}\label{fig:perf_eval:NPM_over_time_SNR20}}\\
     \vspace*{-0.3cm}
-    \hspace*{-0.2cm}\subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/plots/NPM_over_SNR_L64_M5.png}\label{fig:perf_eval:NPM_over_SNR_L64_M5}}
+    \hspace*{-0.2cm}\subfloat[][]{\includegraphics[trim={0.3cm 0.35cm 0.3cm 0.3cm},clip,height=4cm]{python/simulation_1/plots/NPM_over_SNR_L64_M5.png}\label{fig:perf_eval:NPM_over_SNR_L64_M5}}
     \vspace*{-0.2cm}
-    \caption{(a) NPM at \(\text{SNR}=10\,\text{dB}\) over frame index \(m\) and (b) steady-state NPMs over different SNRs.}
+    \caption{(a) NPM at \(\text{SNR}=20\,\text{dB}\) over frame index \(m\) and (b) steady-state NPMs over different SNRs.}
     \label{fig:perf_eval:NPM_over_time_exp1}
 \end{figure}
 
@@ -398,7 +398,7 @@ where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise res
 For this paper, the first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-node network (5-channel system, \(M=5\)) with a ring topology where each node transmits its signal information to one neighbor.
 The impulse responses are drawn from a zero-mean Gaussian distribution with unit variance, and the signal is \(8\!\times\!10^{5}\) samples of WGN to ensure convergence of all algorithms.
 The step sizes are hand tuned, so that the steady state is reached at similar frame counts (or later than the proposed algorithm): \(\mu_{\text{MCQN}}=0.01,\, \mu_{\text{NMCFLMS}}=0.4,\, \mu_{l_p-\text{NMCFLMS}}=0.3,\, \mu_{\text{ADMM}}=0.6,\, \rho=1,\,\eta=0.98 \).
-\autoref{fig:perf_eval:NPM_over_time_SNR10} shows the median NPM (30 Monte-Carlo runs) over frame index \(m\).
+\autoref{fig:perf_eval:NPM_over_time_SNR20} shows the median NPM (30 Monte-Carlo runs) over frame index \(m\).
 \autoref{fig:perf_eval:NPM_over_SNR_L64_M5} shows the median (30 Monte-Carlo runs) where the averaged NPM of \(100\) frames after convergence is plotted.
 It is observable that the proposed algorithm yields a lower steady-state NPM than the compared NMCFLMS, RNMCFLMS, and \(l_p\)-RNMCFLMS algorithms.
 The choice to present the median is based on the fact that randomly generated impulse responses may have close common zeros diminishing identifiability (for all algorithms) \cite{naylorNearCommonZerosBlind2008}, here then considered outliers.
