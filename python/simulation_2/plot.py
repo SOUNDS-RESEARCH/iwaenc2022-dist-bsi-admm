@@ -108,7 +108,7 @@ plt.show()
 lim = 2500
 for N_sens in [4, 8]:
     lines = ["-", "--", "-.", ":"]
-    fig = plt.figure(figsize=(3, 2.5))
+    fig = plt.figure(figsize=(2.75, 2.5))
     for i in range(len(densities)):
         if err_ADMM_newton_fq_diag_[i][N_sens] is not None:
             plt.plot(
