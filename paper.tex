@@ -284,7 +284,7 @@ The augmented Lagrangian for this particular general-form consensus problem is
 where \(\uuf \triangleq (\uuf_1,\ldots,\uuf_M)\) are the stacked local dual variables (Lagrange multipliers) \(\uuf_i = \left[ \left\{ (\uuf_i)_j^{\T} \right\}_{j \in \Rset_i} \right]^\T\) with \((\uuf_i)_j\) denoting the dual variable for channel \(j\) at node \(i\).
 These variables follow from the consensus equality constraint in \eqref{eq:general_consensus_admm:min_prob}.
 % The local variables \(\wf\) and global variable \(\hf\) are as introduced
-The ADMM then consists of the steps \cite{boydDistributedOptimizationStatistical2011}:
+The ADMM with penalty parameter/step size \(\rho > 0\) then consists of the steps \cite{boydDistributedOptimizationStatistical2011}:
 \begin{align}
     \wf_i^{k+1} &= \underset{\wf_i}{\operatorname{argmin}} \, \mathcal{L}_{\rho} (\wf,\hf^k,\uuf^k)\label{eq:general_consensus_admm:local}\\
     \hf^{k+1} &= \underset{\hf, \|\hf\| = 1}{\operatorname{argmin}}\, \mathcal{L}_{\rho} (\wf^{k+1},\hf,\uuf^k)\label{eq:general_consensus_admm:global}\\
