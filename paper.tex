@@ -57,11 +57,11 @@
 \maketitle
 %
 \begin{abstract}
-    In this paper, we propose a distributed cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain using the alternating direction method of multipliers (ADMM) in a wireless sensor network (WSN).
+    In this paper, we propose a distributed cross-relation-based adaptive algorithm for blind identification of single-input multiple-output (SIMO) systems in the frequency domain, using the alternating direction method of multipliers (ADMM) in a wireless sensor network (WSN).
     The network consists of a fixed number of nodes each equipped with a processing unit and a sensor that represents an output channel of the SIMO system.
-    The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems involving a subset of channels in a way that is determined by the network topology.
-    Each node delivers estimates for the subset of channel frequency responses, which then are combined into a consensus estimate per channel using general-form consensus ADMM in an adaptive updating scheme.
-    With numerical simulations, we show that it is possible to achieve convergence speeds and steady-state misalignment values comparable to fully centralized low-cost frequency-domain algorithms.
+    The proposed algorithm exploits the separability of the cross-channel relations by splitting the multichannel identification problem into sub-problems containing a subset of channels, in a way that is determined by the network topology.
+    Each node delivers estimates for the subset of channel frequency responses, which are then combined into a consensus estimate per channel using general-form consensus ADMM in an adaptive updating scheme.
+    Using numerical simulations, we show that it is possible to achieve convergence speeds and steady-state misalignment values comparable to fully centralized low-cost frequency-domain algorithms.
 \end{abstract}
 %
 \begin{keywords}
@@ -73,19 +73,19 @@
 
 The problem of blind system identification (BSI), which aims to estimate channel responses of an unknown system without knowing the input signal, has been the subject of extensive research over recent decades.
 It was introduced in \cite{satoMethodSelfRecoveringEqualization1975} and various algorithms have been proposed since.
-Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mendelTutorialHigherorderStatistics1991} for channel estimation, however a high computational complexity has motivated research into algorithms using only second-order statistics.
-Such algorithms include the cross-relation (CR) algorithm \cite{langtongBlindIdentificationEqualization1994, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017} and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
-Out of various multichannel BSI algorithms which have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
-The normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm for instance is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints to improve robustness to noise and performance on acoustic impulse responses such as the RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018} or phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021} algorithms.
-The quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} on the other hand is a time-domain algorithm that utilizes the Broyden–Fletcher–Goldfarb–Shanno (BFGS) \cite{brodlie1977assessment} method to estimate the Hessian of the problem.
+Early algorithms used higher-order statistics \cite{godardSelfRecoveringEqualizationCarrier1980,tongNewApproachBlind1991,mendelTutorialHigherorderStatistics1991} for channel estimation, however, a high computational complexity has motivated research into algorithms that only use second-order statistics.
+Such algorithms include the cross-relation (CR) algorithm \cite{langtongBlindIdentificationEqualization1994, guanghanxuLeastsquaresApproachBlind1995}, subspace algorithms \cite{moulinesSubspaceMethodsBlind1995,gannotSubspaceMethodsMultimicrophone2003,diamantarasEfficientSubspaceMethod2008,mayyalaStructureBasedSubspaceMethod2017}, and maximum-likelihood algorithms \cite{yingbohuaFastMaximumLikelihood1996}.
+Out of the various multichannel BSI algorithms that have been proposed, adaptive cross-relation-based least-mean-squares (LMS) algorithms in the time and frequency domain are the ones most widely used.
+For instance, the normalized multi-channel frequency-domain LMS (NMCFLMS) \cite{huangAdaptiveMultichannelLeast2002,huangClassFrequencydomainAdaptive2003} algorithm is an efficient algorithm utilizing the fast Fourier transform (FFT) which has been extended to include constraints which improve robustness to noise and performance for acoustic impulse responses such as the RNMCFLMS \cite{huNoiseRobustBlind2015}, \(l_p\)-RNMCFLMS \cite{heNoiseRobustFrequencyDomain2018} or phase-constrained-\(l_p\)-RNMCFLMS \cite{joRobustBlindMultichannel2021} algorithms.
+On the other hand, the quasi-Netwon algorithm \cite{habetsOnlineQuasiNewtonAlgorithm2010} is a time-domain algorithm that utilizes the Broyden–Fletcher–Goldfarb–Shanno (BFGS) \cite{brodlie1977assessment} method to estimate the Hessian of the problem.
 
-The expanding field of distributed signal processing in wireless sensor networks (WSN) brought forward algorithms for distributed signal estimation \cite{5483092}, noise control and echo cancellation \cite{9670697}, or beamforming \cite{6663655,9670697}, however, research into the task of BSI is limited.
-While there exist time-domain algorithms as introduced in \cite{yuDistributedBlindSystem2014,liuDistributedBlindIdentification2016,liuDistributedRecursiveBlind2017}, they do not pose apt comparisons to the frequency-domain algorithm being proposed.
+The expanding field of distributed signal processing in wireless sensor networks (WSN) has brought forward algorithms for distributed signal estimation \cite{5483092}, noise control and echo cancellation \cite{9670697}, as well as beamforming \cite{6663655,9670697}. However, research into the task of BSI is limited.
+While there exist time-domain algorithms as introduced in \cite{yuDistributedBlindSystem2014,liuDistributedBlindIdentification2016,liuDistributedRecursiveBlind2017}, they do not pose apt comparisons to the frequency-domain algorithm being proposed here.
 In this paper, we use the general-form consensus alternating direction method of multipliers (ADMM) \cite{boydDistributedOptimizationStatistical2011} to distribute and solve the optimization problem posed by the task.
-We separate the inter-channel cross-relations of the BSI problem according to the network's topology, i.e., each node solves a sub-problem using data from its network neighbors, and the entirety of connected nodes subsequently reaches a consensus for the channel frequency responses.
-The ADMM update steps are applied in a block processing scheme forming an adaptive algorithm also referred to as Online-ADMM \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014}.
+We separate the inter-channel cross-relations of the BSI problem according to the network's topology, i.e., each node solves a sub-problem using data from its network neighbors and the entirety of the connected nodes subsequently reach a consensus for the channel frequency responses.
+The ADMM update steps are applied in a block processing scheme forming an adaptive algorithm which is also referred to as Online-ADMM \cite{wangOnlineAlternatingDirection2013,hosseiniOnlineDistributedADMM2014}.
 
-As shown in numerical simulations, the resulting algorithm provides good estimation results as compared to state-of-the-art centralized frequency-domain algorithms.
+As shown in numerical simulations, the resulting algorithm provides good estimation results when compared to state-of-the-art centralized frequency-domain algorithms.
 
 % #############################################################################
 % #############################################################################
@@ -95,9 +95,9 @@ As shown in numerical simulations, the resulting algorithm provides good estimat
 % #############################################################################
 \subsection{Signal Model}
 \label{ssec:signal_model}
-We consider an acoustic SIMO system with the input signal \(\mtxb{s}(n) = \begin{bmatrix}
+We consider an acoustic SIMO system with input signal \(\mtxb{s}(n) = \begin{bmatrix}
     s(n)&s(n-1)&\ldots&s(n-2L+2)
-\end{bmatrix}^{\T}\) and the \(M\) output signals \(\x_i(n)= \begin{bmatrix}
+\end{bmatrix}^{\T}\) and \(M\) output signals \(\x_i(n)= \begin{bmatrix}
     x_i(n)&x_i(n-1)&\ldots&x_i(n-L+1)
 \end{bmatrix}^{\T}\)
 where \(i \in \Mset \triangleq \{1, \ldots, M\} \).
@@ -107,10 +107,10 @@ The signal model is described by
     \x_i(n) = \mtxb{H}_i \mtxb{s}(n) + \mtxb{v}_i(n),
 \end{equation}
 where \(\mtxb{H}_i\) is the \(L \times (2L-1)\) linear convolution matrix of the \(i\)th channel using the elements of \(\h_i\) of length \(L\) which represents the system to be identified.
-For this paper, the length \(L\) of the impulse responses is assumed to be known.
+For the purpose of this paper, the length \(L\) of the impulse responses is assumed to be known.
 
 % #############################################################################
-\subsection{Cross-relation approach}
+\subsection{Cross-relation Approach}
 \label{ssec:cross_rel}
 The cross-relation approach for BSI aims to use only the output signals of the system to identify it.
 This can be achieved by exploiting the relative channel information when more than one channel is available, and the identifiability conditions \cite{guanghanxuLeastsquaresApproachBlind1995} are satisfied. These conditions are: (i) the channel transfer functions have no common zeros (i.e., the polynomials are not co-prime), and (ii) the covariance matrix of the input signal \(\mtxb{s}(n)\) is of full rank (i.e., the signal has a number of modes \(\geq 2L+1\)).
@@ -120,7 +120,7 @@ The fundamental equality of this approach in the noiseless case \(\mtxb{v}_i(n) 
     \x_i^{\T}(n) \h_j = \x_j^{\T}(n) \h_i,\quad i,j \in \Mset,\,i\neq j\label{eq:cross_rel:equality_conv}
 \end{equation}
 which states that the channel output signal convolved with the impulse response of another is equal to the vice-versa as follows from the commutativity property of the convolution.
-Left-multiplication with \(\x_i(n)\), assuming deterministic \(\h_j\), and applying the expectation operator to form the covariance matrix \(\R_{ij}(n) = \ev{\x_i(n) \x_j^\T(n)}\) and combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g., \cite{huangAdaptiveMultichannelLeast2002} for a more detailed derivation) yields the system of equations  
+Left-multiplication with \(\x_i(n)\), assuming deterministic \(\h_j\), and applying the expectation operator to form the covariance matrix \(\R_{ij}(n) = \ev{\x_i(n) \x_j^\T(n)}\), and then combining all cross-relations \eqref{eq:cross_rel:equality_conv} (see e.g., \cite{huangAdaptiveMultichannelLeast2002} for a more detailed derivation) yields the system of equations  
 \begin{equation}
     \R \h = \bm{0}, \label{eq:cross_rel:null_space}\\
 \end{equation}
@@ -136,7 +136,8 @@ where \(\R\) is an \(M L \times M L\) matrix given by
 and \(\h = \begin{bmatrix}
     \h_1^\T & \ldots & \h_M^\T
 \end{bmatrix}^\T\).
-Formulating the problem in the frequency domain, the derivation is analogous. We denote all frequency-domain variables in bold italic (e.g. \(\Rf\)) compared to the time-domain bold upright (e.g \(\R\)). The derivation involves the frame-based overlap-save technique, working with signal frames \(\x_{i,2L}(m)\) of length \(2L\), frame index \(m\), leading to the system of equations 
+The derivation is analogous when formulating the problem in the frequency domain.
+We denote all frequency-domain variables in bold italic (e.g. \(\Rf\)) compared to the time-domain bold upright (e.g \(\R\)). The derivation involves the frame-based overlap-save technique, working with signal frames \(\x_{i,2L}(m)\) of length \(2L\), frame index \(m\), leading to the system of equations 
 \begin{equation}
     \Rf \hf = \bm{0}, \label{eq:frequency_domain:null_space}\\
 \end{equation}
@@ -170,8 +171,8 @@ are the frequency-domain overlap-save matrices where \(\mtxb{F}_{L \times L}\) a
 denote the time-domain overlap-save matrices \cite{huangClassFrequencydomainAdaptive2003}.
 
 Analogously to the time-domain formulation, the \(ML \times 1\) vector \(\hf\) is a stacked vector of complex-valued frequency responses.
-The null-space problem in \eqref{eq:frequency_domain:null_space} can not be solved by computing the eigenvector corresponding to the zero-valued eigenvalue because, in the presence of noise, the system matrix \(\Rf\) is of full rank and may not have any.
-Therefore it is best solved by posing it as a quadratic minimization problem \cite{guanghanxuLeastsquaresApproachBlind1995,huangAdaptiveMultichannelLeast2002} with a non-triviality constraint to avoid the zero solution:
+The null-space problem in \eqref{eq:frequency_domain:null_space} cannot be solved by computing the eigenvector corresponding to the zero-valued eigenvalue because, in the presence of noise, the system matrix \(\Rf\) is of full rank and may not have any.
+Therefore, it is best solved by posing it as a quadratic minimization problem \cite{guanghanxuLeastsquaresApproachBlind1995,huangAdaptiveMultichannelLeast2002} with a non-triviality constraint to avoid the zero solution:
 %  minimizing \(\|\underline{\bm{e}} \|^2 = \| \Rf \hf \|^2\) with the constraint \(\hf^\herm \hf = a\) to avoid the trivial zero solution.
 % As this effectively seeks the \(a\)-scaled eigenvector of the squared hermitian matrix \(\Rf^\herm \Rf\) corresponding to the smallest eigenvalue, we can replace it with its non-squared form \(\Rf\) as the eigenvectors for both are equal.
 % To compute the estimates, we minimize the cost function
@@ -191,7 +192,7 @@ Therefore it is best solved by posing it as a quadratic minimization problem \ci
 \label{ssec:sensor_network}
 
 The major types of network topologies for distributed signal processing can be distinguished by the way information is shared within the network.
-For example, in a centralized or star topology, where nodes transmit their signals to a dedicated device (fusion center), the processing is (partly) centralized.
+For example, in a centralized or star topology where nodes transmit their signals to a dedicated device (fusion center), the processing is (partly) centralized.
 This has drawbacks, such as the dependence on one or a small number of dedicated devices and a potentially large number of signals to be processed on these devices.
 Therefore, it can be advantageous to consider ad-hoc network topologies, as we do in this paper, where nodes only communicate with their respective neighbors.
 We refer the reader to \cite{bertrandApplicationsTrendsWireless2011b} for a more detailed review of WSNs and their topologies.
@@ -199,7 +200,7 @@ We refer the reader to \cite{bertrandApplicationsTrendsWireless2011b} for a more
 We consider a WSN consisting of \(M\) sensors each acquiring an output signal \(\x_i(n)\).
 For each node \(i\), let \(\Tset_i \subseteq \Mset\) be the set of indices of nodes that have access to the signal \(\x_i\), i.e. the set of nodes that \(\x_i(n)\) is transmitted  to.
 Correspondingly, let \(\Rset_i \subseteq \Mset\) be the set of indices of nodes from which node \(i\) receives signal information, i.e., if \(i \in \Tset_j\), then \(j \in \Rset_i\).
-Note that \(i \in \Tset_i\) and \(i \in \Rset_i\) for simplifying notation in later sections, but evidently, no actual transmission is necessary, as the signal \(\x_i(n)\) is available locally at node \(i\).
+Note that \(i \in \Tset_i\) and \(i \in \Rset_i\) for simplifying notation in later sections, but no actual transmission is necessary as the signal \(\x_i(n)\) is available locally at node \(i\).
 \autoref{fig:sensor_network:WSN_overview} shows a network where each node shares its signal information with one or more neighbors.
 For this work, we assume synchronicity of all nodes (i.e., no sampling rate offset) and perfect transmission of data with no time delay.
 
@@ -212,7 +213,7 @@ In the following section, we introduce a distributed adaptive algorithm to find 
     \vspace*{-0.2cm}
     \subfloat[][]{\includegraphics[trim={0.2cm 0.25cm 1.9cm 0.0cm},clip,width=\columnwidth]{images/parameter_mapping2.pdf}\label{fig:problem_splitting:parameter_mapping}}
     \vspace*{-0.1cm}
-    \caption{(a) Network topology with 4 nodes. Arrows indicate exchange of signal information. (b) Data transmission between nodes \(i\) and \(j\) for each frame \(m\). (c) shows the equivalent parameter mapping of the local variable components \(({\wf}_i)_j\) to the global variable components \(\hf_j\) via \(\mathcal{G}(i,j)\) for the network in (a).}
+    \caption{(a) Network topology with 4 nodes. Arrows indicate exchange of signal information. (b) Data transmission between nodes \(i\) and \(j\) for each frame \(m\). (c) Parameter mapping of the local variable components \(({\wf}_i)_j\) to the global variable components \(\hf_j\) via \(\mathcal{G}(i,j)\) for the network in (a).}
     \label{fig:sensor_network:WSN_mapping}
 \end{figure}
 
@@ -248,8 +249,8 @@ In the following section, we introduce a distributed adaptive algorithm to find 
 \subsection{General-Form Consensus ADMM}
 \label{ssec:general_consensus_admm}
 Recall that in addition to its own signal information, each node \(i \in \Mset\) has access to that of nodes \(j \in \Rset_i\).
-This is used to solve a BSI sub-problem of the same form as in \eqref{eq:frequency_domain:min_prob}, which however only involves the subset of channels.
-We define the local variables \(\wf_i = \left[ \left\{ (\wf_i)_j^\T \right\}_{j \in \Rset_i} \right]^\T\), which is a stacked vector of locally estimated frequency responses (cf. \autoref{fig:problem_splitting:parameter_mapping}).
+This is used to solve a BSI sub-problem of the same form as in \eqref{eq:frequency_domain:min_prob}, which only involves the subset of channels.
+We define the local variables \(\wf_i = \left[ \left\{ (\wf_i)_j^\T \right\}_{j \in \Rset_i} \right]^\T\), which are stacked vectors of locally estimated frequency responses (cf. \autoref{fig:problem_splitting:parameter_mapping}).
 Further, the global variable \(\hf = \begin{bmatrix}
     \hf_1^\T & \ldots & \hf_M^\T
 \end{bmatrix}^\T\) is the stacked vector of all \(M\) channel response consensus variables.
@@ -270,7 +271,7 @@ Minimization problems with separable cost functions, as introduced here, can be 
     \end{aligned}\label{eq:general_consensus_admm:min_prob}
 \end{equation}
 where \(\mathcal{G}(i,j)\) denotes the mapping of \(L\) local variable components \((\wf_i)_j\), i.e., one of the frequency responses in the stacked vector, to the corresponding global variable components \(\hf_j\) (cf. \autoref{fig:problem_splitting:parameter_mapping}).
-For brevity, the mapped global variables \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) are introduced.
+For the sake of brevity, the mapped global variables \((\tilde{\hf}_i)_j = \hf_{\mathcal{G}(i,j)}\) are introduced.
 This defines \(\tilde{\hf}_i = \left[ \left\{ \hf_j^\T \right\}_{j \in \Rset_i} \right]^\T\).
 The equality constraint between local variables \(\wf_i\) and global variable \(\hf\) enforces consensus, i.e., a common solution taking into account estimates of all nodes that share data of the same channel.
 The augmented Lagrangian for this particular general-form consensus problem is
@@ -289,7 +290,7 @@ The ADMM then consists of the steps \cite{boydDistributedOptimizationStatistical
     \hf^{k+1} &= \underset{\hf, \|\hf\| = 1}{\operatorname{argmin}}\, \mathcal{L}_{\rho} (\wf^{k+1},\hf,\uuf^k)\label{eq:general_consensus_admm:global}\\
     \uuf_i^{k+1} &= \uuf_i^{k} + \rho \left( \wf_i^{k+1} - \tilde{\hf}_i^{k+1} \right),\label{eq:general_consensus_admm:dual}
 \end{align}
-where \(k\) is the iteration index. Evidently, this is an iterative algorithm, therefore we will introduce the online/adaptive aspect of the proposed algorithm in the following.
+where \(k\) is the iteration index. Evidently, this is an iterative algorithmand we will therefore introduce the online/adaptive aspect of the proposed algorithm in the following.
 
 \subsection{Online ADMM-BSI}
 \label{ssec:online_admm}
@@ -321,7 +322,7 @@ Finally, the update of the dual variables is given by
 \begin{equation}
     \uuf_i^{m+1} = \uuf_i^{m} + \rho \left( \wf_i^{m+1} - \tilde{\hf}_i^{m+1} \right).\label{eq:online_admm:dual_update}
 \end{equation}
-The computations of local, consensus and dual variables, in \eqref{eq:online_admm:local_update}, \eqref{eq:online_admm:consensus_update} and \eqref{eq:online_admm:dual_update} respectively, require data transmitted by other nodes (cf. \autoref{fig:sensor_network:WSN_detail}). For this paper, we assume that all transmissions are done instantaneously and error-free whenever variables are required by neighboring nodes.
+The computations of local, consensus, and dual variables in \eqref{eq:online_admm:local_update}, \eqref{eq:online_admm:consensus_update} and \eqref{eq:online_admm:dual_update} respectively, require data transmitted by other nodes (cf. \autoref{fig:sensor_network:WSN_detail}). For this paper, we assume that all transmissions are done instantaneously whenever variables are required by neighboring nodes and are error-free.
 
 % \autoref{alg:dbsi} presents the full algorithm including inter-node transmissions.
 
@@ -397,11 +398,11 @@ where \(\sigma_s^2\) and \(\sigma_v^2\) are the variance of signal and noise res
 
 For this paper, the first simulation evaluates the performance using randomly generated impulse responses of length \(L=64\) under different signal-to-noise ratios (SNR) on a 5-node network (5-channel system, \(M=5\)) with a ring topology where each node transmits its signal information to one neighbor.
 The impulse responses are drawn from a zero-mean Gaussian distribution with unit variance, and the signal is \(8\!\times\!10^{5}\) samples of WGN to ensure convergence of all algorithms.
-The step sizes are hand tuned, so that the steady state is reached at similar frame counts (or later than the proposed algorithm): \(\mu_{\text{MCQN}}=0.01,\, \mu_{\text{NMCFLMS}}=0.4,\, \mu_{l_p-\text{NMCFLMS}}=0.3,\, \mu_{\text{ADMM}}=0.6,\, \rho=1,\,\eta=0.98 \).
+The step sizes are hand-tuned, so that the steady state is reached at similar frame counts (or later than the proposed algorithm): \(\mu_{\text{MCQN}}=0.01,\,\mu_{\text{NMCFLMS}}=0.3,\,\mu_{l_p-\text{NMCFLMS}}=0.4,\,\mu_{\text{ADMM}}=0.6,\,\rho=1,\,\eta=0.98 \).
 \autoref{fig:perf_eval:NPM_over_time_SNR20} shows the median NPM (30 Monte-Carlo runs) over frame index \(m\).
 \autoref{fig:perf_eval:NPM_over_SNR_L64_M5} shows the median (30 Monte-Carlo runs) where the averaged NPM of \(100\) frames after convergence is plotted.
-It is observable that the proposed algorithm yields a lower steady-state NPM than the compared NMCFLMS, RNMCFLMS, and \(l_p\)-RNMCFLMS algorithms.
-The choice to present the median is based on the fact that randomly generated impulse responses may have close common zeros diminishing identifiability (for all algorithms) \cite{naylorNearCommonZerosBlind2008}, here then considered outliers.
+It can be observed that the proposed algorithm yields a lower steady-state NPM than the compared NMCFLMS, RNMCFLMS, and \(l_p\)-RNMCFLMS algorithms.
+The choice to present the median is based on the fact that randomly generated impulse responses may have (near) common zeros which diminish the identifiability of these systems \cite{naylorNearCommonZerosBlind2008}, here considered outliers.
 
 
 \begin{figure}[t]
@@ -421,7 +422,7 @@ Two base scenarios, \(M=4\) and \(M=8\) are evaluated using short (\(L=16\)) ran
 Each topology is generated by forming a ring topology as marked with solid arrows on the inset of \autoref{fig:perf_eval:NPM_over_time_M4} and additionally randomly selecting a defined number of connections from all remaining possible connections, marked with dashed arrows.
 The parameter \(\zeta\) is defined as the ratio of randomly selected connections to possible connections (excluding the ring topology).
 Topologies satisfying this definition for \(\zeta \in \{0.0,\,0.25,\,0.5,\,0.75\}\) were generated.
-\autoref{fig:perf_eval:NPM_over_time_M4} and \autoref{fig:perf_eval:NPM_over_time_M8} show the median NPM (30 Monte-Carlo runs) for \(M=4\) and \(M=8\) respectively. The plots suggests a proportional relation of convergence speed, channel number \(M\) and \(\zeta\) while the steady-state error appears to be not dependent on \(\zeta\).
+\autoref{fig:perf_eval:NPM_over_time_M4} and \autoref{fig:perf_eval:NPM_over_time_M8} show the median NPM (30 Monte-Carlo runs) for \(M=4\) and \(M=8\) respectively. The plots suggest a proportional relation between convergence speed, channel number \(M\) and \(\zeta\). Moreover, the steady-state error appears to be independent of \(\zeta\).
 
 % #############################################################################
 % #############################################################################
