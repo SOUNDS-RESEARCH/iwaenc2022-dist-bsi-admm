@@ -3,8 +3,10 @@ In this paper, we propose a distributed cross-relation-based adaptive algorithm 
 
 ## Repository content
 This repository contains all code used to generate the paper submission.
-- LateX code
-- Python simulation code
+- Python simulation code and plot generation code
+  - algorithms: centralized and distributed algorithms used in simulations
+  - simulation_1: Random impulse responses, M=5, ring topology
+  - simulation_2: Random impulse reponses, M=4, M=8, random topology
 
 ## SOUNDS
 This research work was carried out at the ESAT Laboratory of KU Leuven, in the frame of the SOUNDS European Training Network.
