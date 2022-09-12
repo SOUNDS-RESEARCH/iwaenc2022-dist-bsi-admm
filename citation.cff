@@ -3,55 +3,59 @@ message: "If you use this software, please cite it as below."
 authors:
 - family-names: "Blochberger"
   given-names: "Matthias"
-  # orcid: "https://orcid.org/0000-0000-0000-0000"
+  # orcid: "https://orcid.org/0000-0001-7331-7162"
 - family-names: "Elvander"
   given-names: "Filip"
-  # orcid: "https://orcid.org/0000-0000-0000-0000"
+  # orcid: "https://orcid.org/0000-0003-1857-2173"
 - family-names: "Ali"
   given-names: "Randall"
-  # orcid: "https://orcid.org/0000-0000-0000-0000"
+  # orcid: "https://orcid.org/0000-0001-7826-1030"
 - family-names: "Moonen"
   given-names: "Marc"
-  # orcid: "https://orcid.org/0000-0000-0000-0000"
-- family-names: "van Waterschoot"
-  given-names: "Toon"
-  # orcid: "https://orcid.org/0000-0000-0000-0000"
+  # orcid: "https://orcid.org/0000-0003-4461-0073"
 - family-names: "Østergaard"
   given-names: "Jan"
-  # orcid: "https://orcid.org/0000-0000-0000-0000"
+  # orcid: "https://orcid.org/0000-0002-3724-6114"
 - family-names: "Jensen"
   given-names: "Jesper"
-  # orcid: "https://orcid.org/0000-0000-0000-0000"
+  # orcid: "https://orcid.org/0000-0003-1478-622X"
+- family-names: "van Waterschoot"
+  given-names: "Toon"
+  # orcid: "https://orcid.org/0000-0002-6323-7350"
 title: "CROSS-RELATION-BASED FREQUENCY-DOMAIN BLIND SYSTEM IDENTIFICATION USING ONLINE ADMM"
 version: 1.0
 # doi: 10.5281/zenodo.1234
 date-released: 2022-05-09
 url: "https://github.com/SOUNDS-RESEARCH/iwaenc2022-admm-bsi"
-# preferred-citation:
-#   type: article
-#   authors:
-#   - family-names: "Blochberger"
-#     given-names: "Matthias"
-#     # orcid: "https://orcid.org/0000-0000-0000-0000"
-#   - family-names: "Elvander"
-#     given-names: "Filip"
-#     # orcid: "https://orcid.org/0000-0000-0000-0000"
-#   - family-names: "Ali"
-#     given-names: "Randall"
-#     # orcid: "https://orcid.org/0000-0000-0000-0000"
-#   - family-names: "van Waterschoot"
-#     given-names: "Toon"
-#     # orcid: "https://orcid.org/0000-0000-0000-0000"
-#   - family-names: "Moonen"
-#     given-names: "Marc"
-#     # orcid: "https://orcid.org/0000-0000-0000-0000"
-#   title: "CROSS-RELATION-BASED FREQUENCY-DOMAIN BLIND SYSTEM IDENTIFICATION USING ONLINE ADMM"
-#   version: 1.0
-#   doi: "10.0000/00000"
-#   journal: "Journal Title"
-#   month: 9
-#   start: 1 # First page number
-#   end: 10 # Last page number
-#   issue: 1
-#   volume: 1
-#   year: 2021
+preferred-citation:
+  type: conference-paper
+  authors:
+  - family-names: "Blochberger"
+    given-names: "Matthias"
+    # orcid: "https://orcid.org/0000-0001-7331-7162"
+  - family-names: "Elvander"
+    given-names: "Filip"
+    # orcid: "https://orcid.org/0000-0003-1857-2173"
+  - family-names: "Ali"
+    given-names: "Randall"
+    # orcid: "https://orcid.org/0000-0001-7826-1030"
+  - family-names: "Moonen"
+    given-names: "Marc"
+    # orcid: "https://orcid.org/0000-0003-4461-0073"
+  - family-names: "Østergaard"
+    given-names: "Jan"
+    # orcid: "https://orcid.org/0000-0002-3724-6114"
+  - family-names: "Jensen"
+    given-names: "Jesper"
+    # orcid: "https://orcid.org/0000-0003-1478-622X"
+  - family-names: "van Waterschoot"
+    given-names: "Toon"
+    # orcid: "https://orcid.org/0000-0002-6323-7350"
+  title: "CROSS-RELATION-BASED FREQUENCY-DOMAIN BLIND SYSTEM IDENTIFICATION USING ONLINE ADMM"
+  doi: "10.0000/00000"
+  conference:
+    name: "17th International Workshop on Acoustic Signal Enhancement (IWAENC 2022)"
+    city: "Bamberg"
+    country: "DE"
+  month: 9
+  year: 2022
